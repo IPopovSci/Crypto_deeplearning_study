@@ -46,3 +46,5 @@ def min_max_sc(ticker):
 
     x_train_pd.to_csv(f"data/06_minmax/{ticker}_train.csv")
     x_test_pd.to_csv(f"data/06_minmax/{ticker}_test.csv")
+
+    return x_train,x_test

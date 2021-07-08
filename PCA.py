@@ -2,7 +2,9 @@ import pandas as pd
 from sklearn.decomposition import PCA
 from Arguments import args
 
-def pca_reduction(ticker,n_components = 30):
+
+def pca_reduction(ticker):
+    n_components = args['n_components']
     train_cols = args['train_cols']
 
     df_train = pd.read_csv(f"data/04_SC/{ticker}_train.csv")

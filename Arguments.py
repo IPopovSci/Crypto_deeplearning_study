@@ -11,7 +11,7 @@ class Arguments:
             'validation_constant': 0.8,
             'batch_size': 50,
             'epochs': 50,
-            'lr': 0.00010000,
+            'LR': 0.00010000,
             'split_constants': {
                 'training': None,
                 'validation': None,

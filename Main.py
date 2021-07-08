@@ -5,7 +5,15 @@ from PCA import pca_reduction
 from tt_split import train_test_split_custom
 from data_scaling import SS_transform,min_max_sc
 from Arguments import args
+from build_timeseries import build_timeseries
+from data_trim import trim_dataset
+from LSTM_network import create_lstm_model
+from callbacks import mcp
+import numpy as np
+
 ticker = '^GSPC'
+y_col_index = args['n_components']
+BATCH_SIZE = args['batch_size']
 
 '''Step 1 - Download stock price data from yahoo finance'''
 ticker_data(ticker)
@@ -20,6 +28,22 @@ train_test_split_custom(ticker)
 '''Step 5 - Perform StanardScaler Reduction'''
 SS_transform(ticker)
 '''Step 6 - Perform PCA Reduction'''
-pca_reduction(ticker,30)
+pca_reduction(ticker)
 '''Step 6 - Perform MinMaxScaling'''
-min_max_sc(ticker)
+x_train,x_test = min_max_sc(ticker)
+'''Step 7 - Create Time-series'''
+x_t, y_t = build_timeseries(x_train, y_col_index)
+x_t = trim_dataset(x_t, BATCH_SIZE)
+y_t = trim_dataset(y_t, BATCH_SIZE)
+'''Step 8 - Initialize Model'''
+lstm_model = create_lstm_model(x_t)
+print(lstm_model.summary())
+'''Step 9 - Break Test into test and validation'''
+x_temp, y_temp = build_timeseries(x_test, y_col_index)
+x_val, x_test_t = np.array_split(trim_dataset(x_temp, BATCH_SIZE), 2)
+y_val, y_test_t = np.array_split(trim_dataset(y_temp, BATCH_SIZE), 2)
+print("Test size", x_test_t.shape, y_test_t.shape, x_val.shape, y_val.shape)
+'''Step 10 - Fit the model'''
+history_lstm = lstm_model.fit(x_t, y_t, epochs=args["epochs"], verbose=1, batch_size=BATCH_SIZE,
+                              shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
+                                                              trim_dataset(y_val, BATCH_SIZE)),callbacks=[mcp])
