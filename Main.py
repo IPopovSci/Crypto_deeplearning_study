@@ -3,7 +3,7 @@ from plotting import plot_stock
 from ta_feature_add import add_ta
 from PCA import pca_reduction
 from tt_split import train_test_split_custom
-from data_scaling import SS_transform
+from data_scaling import SS_transform,min_max_sc
 from Arguments import args
 ticker = '^GSPC'
 
@@ -21,3 +21,5 @@ train_test_split_custom(ticker)
 SS_transform(ticker)
 '''Step 6 - Perform PCA Reduction'''
 pca_reduction(ticker,30)
+'''Step 6 - Perform MinMaxScaling'''
+min_max_sc(ticker)
