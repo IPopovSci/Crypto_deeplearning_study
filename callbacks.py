@@ -47,4 +47,4 @@ def custom_loss(y_true, y_pred):
 
     return custom_loss
 
-mcp = ModelCheckpoint(os.path.join('C:\Users\Ivan\PycharmProjects\MlFinancialAnal\data\output', "best_lstm_model.h5"), monitor='val_loss', verbose=2, save_best_only=True, save_weights_only=False, mode='min', period=1)
+mcp = ModelCheckpoint(os.path.join('data\output', "best_lstm_model.h5"), monitor='val_loss', verbose=2, save_best_only=True, save_weights_only=False, mode='min', period=1)

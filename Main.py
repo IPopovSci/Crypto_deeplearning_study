@@ -8,8 +8,11 @@ from Arguments import args
 from build_timeseries import build_timeseries
 from data_trim import trim_dataset
 from LSTM_network import create_lstm_model
-from callbacks import mcp
+from callbacks import mcp,custom_loss
+from keras.models import Sequential, load_model
+from sklearn.metrics import mean_squared_error, mean_absolute_error
 import numpy as np
+import os
 
 ticker = '^GSPC'
 y_col_index = args['n_components']
@@ -47,3 +50,24 @@ print("Test size", x_test_t.shape, y_test_t.shape, x_val.shape, y_val.shape)
 history_lstm = lstm_model.fit(x_t, y_t, epochs=args["epochs"], verbose=1, batch_size=BATCH_SIZE,
                               shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
                                                               trim_dataset(y_val, BATCH_SIZE)),callbacks=[mcp])
+'''Step 11 - Load the model and predict'''
+saved_model = load_model(os.path.join('data\output', 'best_lstm_model.h5'), custom_objects={'custom_loss': custom_loss})
+
+y_pred_lstm = saved_model.predict(trim_dataset(x_test_t, BATCH_SIZE), batch_size=BATCH_SIZE)
+y_pred_lstm = y_pred_lstm.flatten()
+y_test_t = trim_dataset(y_test_t, BATCH_SIZE)
+
+error_lstm = mean_squared_error(y_test_t, y_pred_lstm)
+# print("Error is", error_lstm, y_pred_lstm.shape, y_test_t.shape)
+# print(y_pred_lstm[0:15])
+# print(y_test_t[0:15])
+'''Step 12 - Graph the results'''
+from matplotlib import pyplot as plt
+plt.figure(figsize = (12, 6))
+plt.plot(y_pred_lstm)
+plt.plot(y_test_t)
+plt.title('Prediction vs Real Stock Price')
+plt.ylabel('Price')
+plt.xlabel('Days')
+plt.legend(['Prediction', 'Real'], loc='best')
+plt.show()
