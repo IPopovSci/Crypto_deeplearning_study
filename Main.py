@@ -14,10 +14,10 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error
 import numpy as np
 import os
 
-ticker = '^GSPC'
+ticker = 'GME'
 y_col_index = args['n_components']
 BATCH_SIZE = args['batch_size']
-
+#
 '''Step 1 - Download stock price data from yahoo finance'''
 ticker_data(ticker)
 
@@ -46,7 +46,7 @@ x_temp, y_temp = build_timeseries(x_test, y_col_index)
 x_val, x_test_t = np.array_split(trim_dataset(x_temp, BATCH_SIZE), 2)
 y_val, y_test_t = np.array_split(trim_dataset(y_temp, BATCH_SIZE), 2)
 print("Test size", x_test_t.shape, y_test_t.shape, x_val.shape, y_val.shape)
-'''Step 10 - Fit the model'''
+# '''Step 10 - Fit the model'''
 history_lstm = lstm_model.fit(x_t, y_t, epochs=args["epochs"], verbose=1, batch_size=BATCH_SIZE,
                               shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
                                                               trim_dataset(y_val, BATCH_SIZE)),callbacks=[mcp])

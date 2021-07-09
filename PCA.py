@@ -2,7 +2,7 @@ import pandas as pd
 from sklearn.decomposition import PCA
 from Arguments import args
 
-
+'''implement PCA optimization, to find out how much do we reduce data'''
 def pca_reduction(ticker):
     n_components = args['n_components']
     train_cols = args['train_cols']

@@ -8,6 +8,6 @@ def add_ta(ticker):
                                 fillna=True)  # Add all the ta!
     df = df.set_index('Date')
 
-    args['train_cols'] = df.keys()
+    args['train_cols'] = df.keys() #This needs to be taken oujt separately
 
     df.to_csv(f"data/02_ta/{ticker}.csv")  # Save ta data along with original to csv
