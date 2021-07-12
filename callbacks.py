@@ -40,7 +40,7 @@ def custom_loss(y_true, y_pred):
     # create a tensor to store directional loss and put it into custom loss output
     direction_loss = tf.Variable(tf.ones_like(y_pred), dtype='float32')
     updates = K.cast(tf.ones_like(indices), dtype='float32')
-    alpha = 500
+    alpha = 250
     direction_loss = tf.compat.v1.scatter_nd_update(direction_loss, indices, alpha * updates)
 
     custom_loss = K.mean(tf.multiply(K.square(y_true - y_pred), direction_loss), axis=-1)

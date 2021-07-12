@@ -10,16 +10,17 @@ def create_lstm_model(x_t):
     TIME_STEPS = args['time_steps']
 
     lstm_model = Sequential()
-    lstm_model.add(LSTM(55, batch_input_shape=(BATCH_SIZE, TIME_STEPS, x_t.shape[2]),
+    lstm_model.add(LSTM(30, batch_input_shape=(BATCH_SIZE, TIME_STEPS, x_t.shape[2]),
                         dropout=0.05, recurrent_dropout=0.05,
                         stateful=True, return_sequences=True,
                         kernel_initializer='random_uniform'))
-    #lstm_model.add(Dropout(0.4))
+    lstm_model.add(Dropout(0.4))
 
-    lstm_model.add(LSTM(35, dropout=0.05,stateful=True, recurrent_dropout = 0.05,return_sequences=False))
-    #lstm_model.add(Dropout(0.4))
+    lstm_model.add(LSTM(20, dropout=0.05,stateful=True, recurrent_dropout = 0.05,return_sequences=False))
+    lstm_model.add(Dropout(0.4))
 
-    lstm_model.add(Dense(20, activation='relu'))
+    lstm_model.add(Dense(10, activation='relu'))
+    lstm_model.add(Dropout(0.4))
     lstm_model.add(Dense(1, activation='sigmoid'))
 
     # compile the model
