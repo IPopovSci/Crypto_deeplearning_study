@@ -3,7 +3,7 @@ class Arguments:
         self.args = {
             'ticker': ['^GSPC'],
             'data_types': ['training', 'validation', 'test'],
-            'n_components': 40,  # n_components is responsible for designating number of features the data will be reduced to
+            'n_components': None,  # n_components is responsible for designating number of features the data will be reduced to
             'time_steps': 1,
             'tokens': [],
             'largest_index': None,

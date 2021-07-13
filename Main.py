@@ -14,7 +14,7 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error
 import numpy as np
 import os
 
-ticker = 'GME'
+ticker = 'EVFM'
 
 BATCH_SIZE = args['batch_size']
 #
