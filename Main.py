@@ -15,7 +15,7 @@ import numpy as np
 import os
 from attention import Attention
 
-ticker = '^GSPC'
+ticker = 'GME'
 
 BATCH_SIZE = args['batch_size']
 #
@@ -45,8 +45,8 @@ lstm_model = create_lstm_model(x_t)
 print(lstm_model.summary())
 '''Step 9 - Break Test into test and validation'''
 x_temp, y_temp = build_timeseries(x_test, y_col_index)
-x_val, x_test_t = np.array_split(trim_dataset(x_temp, BATCH_SIZE), 2)
-y_val, y_test_t = np.array_split(trim_dataset(y_temp, BATCH_SIZE), 2)
+x_test_t, x_val = np.array_split(trim_dataset(x_temp, BATCH_SIZE), 2)
+y_test_t, y_val = np.array_split(trim_dataset(y_temp, BATCH_SIZE), 2)
 print("Test size", x_test_t.shape, y_test_t.shape, x_val.shape, y_val.shape)
 # '''Step 10 - Fit the model'''
 history_lstm = lstm_model.fit(x_t, y_t, epochs=args["epochs"], verbose=1, batch_size=BATCH_SIZE,
