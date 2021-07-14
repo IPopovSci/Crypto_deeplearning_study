@@ -13,8 +13,9 @@ from keras.models import Sequential, load_model
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 import numpy as np
 import os
+from attention import Attention
 
-ticker = 'EVFM'
+ticker = '^GSPC'
 
 BATCH_SIZE = args['batch_size']
 #
@@ -52,7 +53,7 @@ history_lstm = lstm_model.fit(x_t, y_t, epochs=args["epochs"], verbose=1, batch_
                               shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
                                                               trim_dataset(y_val, BATCH_SIZE)),callbacks=[mcp])
 '''Step 11 - Load the model and predict'''
-saved_model = load_model(os.path.join('data\output', 'best_lstm_model.h5'), custom_objects={'custom_loss': custom_loss})
+saved_model = load_model(os.path.join('data\output', 'best_lstm_model.h5'), custom_objects={'custom_loss': custom_loss,'attention': Attention})
 
 y_pred_lstm = saved_model.predict(trim_dataset(x_test_t, BATCH_SIZE), batch_size=BATCH_SIZE)
 y_pred_lstm = y_pred_lstm.flatten()
