@@ -17,9 +17,9 @@ def create_lstm_model(x_t):
 
     input = Input(batch_shape=(BATCH_SIZE, TIME_STEPS, x_t.shape[2]))
 
-    LSTM_1 = LSTM(int(n_components * 0.8), return_sequences=True, stateful=True,dropout=0.3,recurrent_dropout=0.4,activation='selu',kernel_regularizer=regularizer)(input)
+    LSTM_1 = LSTM(int(n_components * 0.8), return_sequences=True, stateful=True,dropout=0.3,recurrent_dropout=0.4,kernel_regularizer=regularizer,activation='selu')(input)
 
-    LSTM_2 = LSTM(int(n_components * 0.8 ** 2), return_sequences=True, stateful=True,dropout=0.3,recurrent_dropout=0.4,activation='selu',kernel_regularizer=regularizer)(LSTM_1)
+    LSTM_2 = LSTM(int(n_components * 0.8 ** 2), return_sequences=True, stateful=True,dropout=0.3,recurrent_dropout=0.4,kernel_regularizer=regularizer,activation='selu')(LSTM_1)
 
     attention_1 = Attention(int(n_components * 0.8 ** 2))(LSTM_2)
 
