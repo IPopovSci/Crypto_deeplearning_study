@@ -3,7 +3,7 @@ import keras.backend as K
 from keras.callbacks import ModelCheckpoint
 import os
 tf.config.experimental_run_functions_eagerly(True)
-
+#TODO: Custom loss that simulates buying - add when moving in the same direction, substract when different
 def custom_loss(y_true, y_pred):
     # extract the "next day's price" of tensor
     y_true_next = y_true[1:]
@@ -40,10 +40,10 @@ def custom_loss(y_true, y_pred):
     # create a tensor to store directional loss and put it into custom loss output
     direction_loss = tf.Variable(tf.ones_like(y_pred), dtype='float32')
     updates = K.cast(tf.ones_like(indices), dtype='float32')
-    alpha = 250
+    alpha = 100
     direction_loss = tf.compat.v1.scatter_nd_update(direction_loss, indices, alpha * updates)
 
-    custom_loss = K.mean(tf.multiply(K.square(y_true - y_pred), direction_loss), axis=-1)
+    custom_loss = K.mean(tf.multiply(K.square((K.log(y_true + 1.)) - (K.log(y_pred + 1.))), direction_loss), axis=-1)
 
     return custom_loss
 

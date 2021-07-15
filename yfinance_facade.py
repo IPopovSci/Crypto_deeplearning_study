@@ -6,7 +6,7 @@ def ticker_data(ticker):
     stock_object = yf.Ticker(ticker)  # yf stock object
     vix = yf.Ticker('^VIX')
 
-    hist = stock_object.history(start="2000-12-02")  # grabs history of stock
+    hist = stock_object.history(start="1982-01-02")  # grabs history of stock
     vix_hist = vix.history(start="2000-12-02")
 
 

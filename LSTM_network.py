@@ -17,11 +17,11 @@ def create_lstm_model(x_t):
 
     input = Input(batch_shape=(BATCH_SIZE, TIME_STEPS, x_t.shape[2]))
 
-    LSTM_1 = tf.keras.layers.Bidirectional(LSTM(int(n_components), return_sequences=True, stateful=True,kernel_regularizer=regularizer))(input)
+    LSTM_1 = tf.keras.layers.Bidirectional(LSTM(int(n_components), return_sequences=True, stateful=True,kernel_regularizer=regularizer,recurrent_dropout=0.3,dropout=0.3))(input)
 
-    LSTM_2 = tf.keras.layers.Bidirectional(LSTM(int(n_components *0.75), return_sequences=True, stateful=True,kernel_regularizer=regularizer))(LSTM_1)
+    LSTM_2 = tf.keras.layers.Bidirectional(LSTM(int(n_components *0.75), return_sequences=True, stateful=True,kernel_regularizer=regularizer,dropout=0.3,recurrent_dropout=0.3))(LSTM_1)
 
-    attention_1 = Attention(int(n_components*0.75**2))(LSTM_2)
+    attention_1 = Attention(int(n_components))(LSTM_2)
 
     Dense_1 = tf.keras.layers.Dense(n_components * 0.75**3, activation='selu')(attention_1)
 

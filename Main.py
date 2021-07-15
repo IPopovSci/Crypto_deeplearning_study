@@ -15,7 +15,7 @@ import numpy as np
 import os
 from attention import Attention
 
-ticker = '^GSPC'
+ticker = 'AAPL'
 
 BATCH_SIZE = args['batch_size']
 #
