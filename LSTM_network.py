@@ -17,18 +17,18 @@ def create_lstm_model(x_t):
 
     input = Input(batch_shape=(BATCH_SIZE, TIME_STEPS, x_t.shape[2]))
 
-    LSTM_1 = LSTM(int(n_components * 0.8), return_sequences=True, stateful=True,dropout=0.3,recurrent_dropout=0.4,kernel_regularizer=regularizer,activation='selu')(input)
+    LSTM_1 = tf.keras.layers.Bidirectional(LSTM(int(n_components), return_sequences=True, stateful=True,kernel_regularizer=regularizer))(input)
 
-    LSTM_2 = LSTM(int(n_components * 0.8 ** 2), return_sequences=True, stateful=True,dropout=0.3,recurrent_dropout=0.4,kernel_regularizer=regularizer,activation='selu')(LSTM_1)
+    LSTM_2 = tf.keras.layers.Bidirectional(LSTM(int(n_components *0.75), return_sequences=True, stateful=True,kernel_regularizer=regularizer))(LSTM_1)
 
-    attention_1 = Attention(int(n_components * 0.8 ** 2))(LSTM_2)
+    attention_1 = Attention(int(n_components*0.75**2))(LSTM_2)
 
-    Dense_1 = tf.keras.layers.Dense(n_components * 0.8 ** 3, activation='selu')(attention_1)
+    Dense_1 = tf.keras.layers.Dense(n_components * 0.75**3, activation='selu')(attention_1)
 
     output = tf.keras.layers.Dense(1, activation='sigmoid')(Dense_1)
 
     lstm_model = tf.keras.Model(inputs=input, outputs=output)
-    optimizer = tf.keras.optimizers.Adam(learning_rate = tf.keras.optimizers.schedules.ExponentialDecay(args['LR'], 10000,
+    optimizer = tf.keras.optimizers.Adam(learning_rate = tf.keras.optimizers.schedules.ExponentialDecay(args['LR'], 2500,
                                                             decay_rate=0.95))
     lstm_model.compile(loss=custom_loss, optimizer=optimizer)
     return lstm_model

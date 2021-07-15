@@ -34,7 +34,7 @@ def min_max_sc(ticker):
     train_cols.remove('Date')
 
     x = df_train.loc[:, train_cols].values
-    min_max_scaler = MinMaxScaler()
+    min_max_scaler = MinMaxScaler(feature_range=(0,0.2))
     x_train = min_max_scaler.fit_transform(x)
     x_test = min_max_scaler.transform(df_test.loc[:, train_cols])
 

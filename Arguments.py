@@ -4,13 +4,13 @@ class Arguments:
             'ticker': ['^GSPC'],
             'data_types': ['training', 'validation', 'test'],
             'n_components': None,  # n_components is responsible for designating number of features the data will be reduced to
-            'time_steps': 1,
+            'time_steps': 7,
             'tokens': [],
             'largest_index': None,
             'training_constant': 0.6,
             'validation_constant': 0.8,
-            'batch_size': 128,
-            'epochs': 300,
+            'batch_size': 32,
+            'epochs': 35,
             'output_path': 'data\output',
             'LR': 0.00010000,
             'split_constants': {
