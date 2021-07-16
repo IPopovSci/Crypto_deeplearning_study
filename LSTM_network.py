@@ -17,18 +17,24 @@ def create_lstm_model(x_t):
 
     input = Input(batch_shape=(BATCH_SIZE, TIME_STEPS, x_t.shape[2]))
 
-    LSTM_1 = tf.keras.layers.Bidirectional(LSTM(int(n_components), return_sequences=True, stateful=True,kernel_regularizer=regularizer,recurrent_dropout=0.3,dropout=0.3))(input)
+    LSTM_1 = tf.keras.layers.Bidirectional(
+        LSTM(int(n_components*1.5), return_sequences=True, stateful=True, kernel_regularizer=regularizer,
+             recurrent_dropout=0.3, dropout=0.3, bias_regularizer=tf.keras.regularizers.l2(1e-4),
+             activity_regularizer=tf.keras.regularizers.l2(1e-5)))(input)
 
-    LSTM_2 = tf.keras.layers.Bidirectional(LSTM(int(n_components *0.75), return_sequences=True, stateful=True,kernel_regularizer=regularizer,dropout=0.3,recurrent_dropout=0.3))(LSTM_1)
+    LSTM_2 = tf.keras.layers.Bidirectional(
+        LSTM(int(n_components), return_sequences=True, stateful=True, kernel_regularizer=regularizer,
+             dropout=0.3, recurrent_dropout=0.3,bias_regularizer=tf.keras.regularizers.l2(1e-4),
+             activity_regularizer=tf.keras.regularizers.l2(1e-5)))(LSTM_1)
 
     attention_1 = Attention(int(n_components))(LSTM_2)
 
-    Dense_1 = tf.keras.layers.Dense(n_components * 0.75**3, activation='selu')(attention_1)
+    Dense_1 = tf.keras.layers.Dense(n_components * 0.8 ** 2, activation='selu')(attention_1)
 
     output = tf.keras.layers.Dense(1, activation='sigmoid')(Dense_1)
 
     lstm_model = tf.keras.Model(inputs=input, outputs=output)
-    optimizer = tf.keras.optimizers.Adam(learning_rate = tf.keras.optimizers.schedules.ExponentialDecay(args['LR'], 2500,
-                                                            decay_rate=0.95))
+    optimizer = tf.keras.optimizers.Adam(learning_rate=tf.keras.optimizers.schedules.ExponentialDecay(args['LR'], 2500,
+                                                                                                      decay_rate=0.95))
     lstm_model.compile(loss=custom_loss, optimizer=optimizer)
     return lstm_model

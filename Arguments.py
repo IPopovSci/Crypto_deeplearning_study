@@ -9,8 +9,8 @@ class Arguments:
             'largest_index': None,
             'training_constant': 0.6,
             'validation_constant': 0.8,
-            'batch_size': 64,
-            'epochs': 105,
+            'batch_size': 16,
+            'epochs': 15,
             'output_path': 'data\output',
             'LR': 0.00010000,
             'split_constants': {
