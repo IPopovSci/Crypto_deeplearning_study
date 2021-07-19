@@ -14,8 +14,9 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error
 import numpy as np
 import os
 from attention import Attention
+from data_scaling import load_sc
 
-ticker = 'MSFT'
+ticker = 'GME'
 
 BATCH_SIZE = args['batch_size']
 #
@@ -57,7 +58,25 @@ saved_model = load_model(os.path.join('data\output', 'best_lstm_model.h5'), cust
 
 y_pred_lstm = saved_model.predict(trim_dataset(x_test_t, BATCH_SIZE), batch_size=BATCH_SIZE)
 y_pred_lstm = y_pred_lstm.flatten()
+
 y_test_t = trim_dataset(y_test_t, BATCH_SIZE)
+
+'''Step 12 - Revert the values to real (Scalers)'''
+mm = load_sc(ticker,model='default',scaler='mm')
+sc = load_sc(ticker,model='default',scaler='sc')
+
+
+y_pred_lstm = y_pred_lstm.reshape(-1,1)
+
+y_pred_lstm_inv_mm = mm.inverse_transform(y_pred_lstm)
+y_pred_lstm_inv_sc = sc.inverse_transform(y_pred_lstm_inv_mm)
+
+y_test_t = y_test_t.reshape(-1,1)
+
+y_test_t_inv_mm = mm.inverse_transform(y_test_t)
+y_test_t_inv_sc = sc.inverse_transform(y_test_t_inv_mm)
+
+
 
 error_lstm = mean_squared_error(y_test_t, y_pred_lstm)
 # print("Error is", error_lstm, y_pred_lstm.shape, y_test_t.shape)
@@ -66,8 +85,8 @@ error_lstm = mean_squared_error(y_test_t, y_pred_lstm)
 '''Step 12 - Graph the results'''
 from matplotlib import pyplot as plt
 plt.figure(figsize = (12, 6))
-plt.plot(y_pred_lstm)
-plt.plot(y_test_t)
+plt.plot(y_pred_lstm_inv_sc)
+plt.plot(y_test_t_inv_sc)
 plt.title('Prediction vs Real Stock Price')
 plt.ylabel('Price')
 plt.xlabel('Days')

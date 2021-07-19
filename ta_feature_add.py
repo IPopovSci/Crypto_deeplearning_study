@@ -10,4 +10,10 @@ def add_ta(ticker):
 
     args['train_cols'] = df.keys() #This needs to be taken oujt separately
 
+    df_close = df['Close']
+    del df['Close']
+    df.insert(len(args['train_cols'])-1, 'Close', df_close) #Moving the Close column to the end of the features (For scaling purposes later)
+
+    args['train_cols'] = df.keys() #Get a new list since we moved closed to end
+
     df.to_csv(f"data/02_ta/{ticker}.csv")  # Save ta data along with original to csv

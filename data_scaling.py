@@ -3,18 +3,40 @@ from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
 from Arguments import args
 import joblib
+import numpy as np
+import os
 
 def SS_transform(ticker,model='default'):
-    train_cols = args['train_cols']
+    train_cols = list(args['train_cols'])
 
     df_train = pd.read_csv(f"data/03_split/{ticker}_train.csv")
     df_test = pd.read_csv(f"data/03_split/{ticker}_test.csv")
 
+    x_close_train = df_train.loc[:,'Close'].values
+    x_close_test = df_test.loc[:,'Close'].values
+
+    del df_train['Close']
+    del df_test['Close']
+    train_cols.remove('Close')
+
     sc = StandardScaler()
 
     x = df_train.loc[:, train_cols].values
+
+
     x_train = sc.fit_transform(x)
     x_test = sc.transform(df_test.loc[:, train_cols])
+
+    x_close_train = x_close_train.reshape(-1,1)
+    x_close_test = x_close_test.reshape(-1, 1)
+
+    x_close_train = sc.fit_transform(x_close_train)
+    x_close_test = sc.transform(x_close_test)
+
+    x_train = np.concatenate([x_train,x_close_train],axis = 1)
+    x_test = np.concatenate([x_test, x_close_test], axis=1)
+
+    train_cols.insert(len(train_cols), 'Close')
 
     x_train_pd = pd.DataFrame(x_train,columns = train_cols)
     x_test_pd = pd.DataFrame(x_test,columns = train_cols)
@@ -25,7 +47,15 @@ def SS_transform(ticker,model='default'):
     x_train_pd.to_csv(f"data/04_SC/{ticker}_train.csv")
     x_test_pd.to_csv(f"data/04_SC/{ticker}_test.csv")
 
-    joblib.dump(sc, f'data/scalers/{model}_sc/{ticker}.bin', compress=True)
+    '''Saving the scaler - rework into a separate function?'''
+    parent = 'C:/Users/Ivan/PycharmProjects/MlFinancialAnal/data/scalers/'
+    directory = model
+    path = os.path.join(parent,directory)
+    try:
+        os.mkdir(path)
+    except:
+        print(f'Folder {model} at {path} already exists')
+    joblib.dump(sc, f'data/scalers/{model}/{ticker}_sc.bin', compress=True)
 
 def min_max_sc(ticker,model='default'):
 
@@ -34,12 +64,36 @@ def min_max_sc(ticker,model='default'):
 
     train_cols = df_train.keys()
     train_cols = list(train_cols)
+    print(train_cols)
     train_cols.remove('Date')
+    train_cols.remove('Close')
+
+    #Have to apply separate scaler to the price, so we will separate
+    x_close_train = df_train.loc[:,'Close'].values
+    x_close_test = df_test.loc[:,'Close'].values
+
+    del df_train['Close']
+    del df_test['Close']
+
+
 
     x = df_train.loc[:, train_cols].values
+
     min_max_scaler = MinMaxScaler(feature_range=(0,0.2))
     x_train = min_max_scaler.fit_transform(x)
     x_test = min_max_scaler.transform(df_test.loc[:, train_cols])
+
+    x_close_train = x_close_train.reshape(-1,1)
+    x_close_test = x_close_test.reshape(-1, 1)
+
+    min_max_scaler = MinMaxScaler(feature_range=(0, 0.2))
+    x_close_train = min_max_scaler.fit_transform((x_close_train))
+    x_close_test = min_max_scaler.transform(x_close_test)
+
+    train_cols.insert(len(train_cols),'Close')
+
+    x_train = np.concatenate([x_train,x_close_train],axis = 1)
+    x_test = np.concatenate([x_test, x_close_test], axis=1)
 
     x_train_pd = pd.DataFrame(x_train,columns = train_cols)
     x_test_pd = pd.DataFrame(x_test,columns = train_cols)
@@ -50,6 +104,18 @@ def min_max_sc(ticker,model='default'):
     x_train_pd.to_csv(f"data/06_minmax/{ticker}_train.csv")
     x_test_pd.to_csv(f"data/06_minmax/{ticker}_test.csv")
 
-    joblib.dump(min_max_scaler, f'data/scalers/{model}_mm/{ticker}.bin', compress=True)
+    '''Saving the scaler - rework into a separate function?'''
+    parent = 'C:/Users/Ivan/PycharmProjects/MlFinancialAnal/data/scalers/'
+    directory = model
+    path = os.path.join(parent,directory)
+    try:
+        os.mkdir(path)
+    except:
+        print(f'Folder {model} at {path} already exists')
+    joblib.dump(min_max_scaler, f'data/scalers/{model}/{ticker}_mm.bin', compress=True)
 
     return x_train,x_test
+
+def load_sc(ticker, model='default',scaler='mm'):
+    print("LOADING=> "f'data/scalers/{model}/{ticker}_{scaler}.bin')
+    return joblib.load(f'data/scalers/{model}/{ticker}_{scaler}.bin')
