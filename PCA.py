@@ -10,11 +10,11 @@ def pca_reduction(ticker):
     df_train = pd.read_csv(f"data/04_SC/{ticker}_train.csv")
     df_test = pd.read_csv(f"data/04_SC/{ticker}_test.csv")
 
-    df_no_close_train = df_train.drop(labels=['Close', 'Date','Open','Volume','Low','High'], axis=1)
-    df_no_close_test = df_test.drop(labels=['Close', 'Date','Open','Volume','Low','High'], axis=1)
+    df_no_close_train = df_train.drop(labels=['Close', 'Date','Open','Volume','Low','High','Vix Close'], axis=1)
+    df_no_close_test = df_test.drop(labels=['Close', 'Date','Open','Volume','Low','High','Vix Close'], axis=1)
 
     train_cols = list(train_cols)
-    unwanted =['Close','Open','High','Low','Volume']
+    unwanted =['Close','Open','High','Low','Volume','Vix Close']
     train_cols = [e for e in train_cols if e not in unwanted]
 
     x_train = df_no_close_train.loc[:,train_cols].values
@@ -28,8 +28,8 @@ def pca_reduction(ticker):
     pcaDF_train = pd.DataFrame(data = pca_reduce_train)
     pcaDF_test = pd.DataFrame(data = pca_reduce_test)
 
-    finalDF_train = pd.concat([pcaDF_train, df_train[['Date','Open','Volume','Low','High','Close']]], axis=1)
-    finalDF_test = pd.concat([pcaDF_test, df_test[['Date','Open','Volume','Low','High','Close']]], axis=1)
+    finalDF_train = pd.concat([pcaDF_train, df_train[['Date','Open','Volume','Low','High','Close','Vix Close']]], axis=1)
+    finalDF_test = pd.concat([pcaDF_test, df_test[['Date','Open','Volume','Low','High','Close','Vix Close']]], axis=1)
 
     finalDF_train = finalDF_train.set_index('Date')
     finalDF_test = finalDF_test.set_index('Date')

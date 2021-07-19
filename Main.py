@@ -15,7 +15,7 @@ import numpy as np
 import os
 from attention import Attention
 
-ticker = 'TPST'
+ticker = 'GME'
 
 BATCH_SIZE = args['batch_size']
 #

@@ -19,6 +19,7 @@ def custom_loss(y_true, y_pred):
     y_true_diff = tf.subtract(y_true_next, y_true_tdy)
     y_pred_diff = tf.subtract(y_pred_next, y_pred_tdy)
 
+
     # create a standard tensor with zero value for comparison
     standard = tf.zeros_like(y_pred_diff)
 
