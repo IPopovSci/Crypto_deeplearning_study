@@ -2,8 +2,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
 from Arguments import args
+import joblib
 
-def SS_transform(ticker):
+def SS_transform(ticker,model='default'):
     train_cols = args['train_cols']
 
     df_train = pd.read_csv(f"data/03_split/{ticker}_train.csv")
@@ -24,7 +25,9 @@ def SS_transform(ticker):
     x_train_pd.to_csv(f"data/04_SC/{ticker}_train.csv")
     x_test_pd.to_csv(f"data/04_SC/{ticker}_test.csv")
 
-def min_max_sc(ticker):
+    joblib.dump(sc, f'data/scalers/{model}_sc/{ticker}.bin', compress=True)
+
+def min_max_sc(ticker,model='default'):
 
     df_train = pd.read_csv(f"data/05_pca/{ticker}_train.csv")
     df_test = pd.read_csv(f"data/05_pca/{ticker}_test.csv")
@@ -46,5 +49,7 @@ def min_max_sc(ticker):
 
     x_train_pd.to_csv(f"data/06_minmax/{ticker}_train.csv")
     x_test_pd.to_csv(f"data/06_minmax/{ticker}_test.csv")
+
+    joblib.dump(min_max_scaler, f'data/scalers/{model}_mm/{ticker}.bin', compress=True)
 
     return x_train,x_test

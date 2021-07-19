@@ -15,7 +15,7 @@ import numpy as np
 import os
 from attention import Attention
 
-ticker = 'GME'
+ticker = 'MSFT'
 
 BATCH_SIZE = args['batch_size']
 #

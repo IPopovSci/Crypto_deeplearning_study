@@ -28,14 +28,19 @@ def pca_reduction(ticker):
     pcaDF_train = pd.DataFrame(data = pca_reduce_train)
     pcaDF_test = pd.DataFrame(data = pca_reduce_test)
 
-    finalDF_train = pd.concat([pcaDF_train, df_train[['Date','Open','Volume','Low','High','Close','Vix Close']]], axis=1)
-    finalDF_test = pd.concat([pcaDF_test, df_test[['Date','Open','Volume','Low','High','Close','Vix Close']]], axis=1)
+    finalDF_train = pd.concat([pcaDF_train, df_train[['Date','Open','Volume','Low','High','Vix Close','Close']]], axis=1)
+    finalDF_test = pd.concat([pcaDF_test, df_test[['Date','Open','Volume','Low','High','Vix Close','Close']]], axis=1)
 
     finalDF_train = finalDF_train.set_index('Date')
     finalDF_test = finalDF_test.set_index('Date')
 
     args['n_components'] = len(finalDF_train.columns)
     print(args['n_components'])
+
+    finalDF_test.fillna(method='bfill',inplace=True)
+    finalDF_train.fillna(method='bfill',inplace=True)
+
+
 
     finalDF_train.to_csv(f"data/05_pca/{ticker}_train.csv")
     finalDF_test.to_csv(f"data/05_pca/{ticker}_test.csv")

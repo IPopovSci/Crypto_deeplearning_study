@@ -10,7 +10,9 @@ class Arguments:
             'training_constant': 0.6,
             'validation_constant': 0.8,
             'batch_size': 64,
-            'epochs': 30,
+            'epochs': 15,
+            'mm_path': None,
+            'sc_path': None,
             'output_path': 'data\output',
             'LR': 0.00010000,
             'split_constants': {
