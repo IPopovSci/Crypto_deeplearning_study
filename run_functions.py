@@ -9,6 +9,7 @@ from build_timeseries import build_timeseries
 from data_trim import trim_dataset
 from LSTM_network import create_lstm_model
 import numpy as np
+import tensorflow as tf
 
 ticker = '^GSPC'
 
@@ -38,12 +39,15 @@ def data_prep(ticker):
     x_t = trim_dataset(x_t, BATCH_SIZE)
     y_t = trim_dataset(y_t, BATCH_SIZE)
     '''Step 8 - Initialize Model'''
-    lstm_model = create_lstm_model(x_t)
-    print(lstm_model.summary())
+    #lstm_model = create_lstm_model(x_t)
     '''Step 9 - Break Test into test and validation'''
     x_temp, y_temp = build_timeseries(x_test, y_col_index)
     x_val, x_test_t = np.array_split(trim_dataset(x_temp, BATCH_SIZE), 2)
     y_val, y_test_t = np.array_split(trim_dataset(y_temp, BATCH_SIZE), 2)
     print("Test size", x_test_t.shape, y_test_t.shape, x_val.shape, y_val.shape)
-    return x_t,y_t,x_val,y_val,x_test_t,y_test_t,lstm_model
+    return x_t,y_t,x_val,y_val,x_test_t,y_test_t
+
+def create_model(x_t):
+    lstm_model = create_lstm_model(x_t)
+    return lstm_model
 

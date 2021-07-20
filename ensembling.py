@@ -1,4 +1,4 @@
-from run_functions import data_prep
+from run_functions import data_prep,create_model
 from Arguments import args
 from data_trim import trim_dataset
 from keras.callbacks import ModelCheckpoint
@@ -12,13 +12,14 @@ import os
 import tensorflow as tf
 import random
 
-x_t,y_t,x_val,y_val,x_test_t,y_test_t,lstm_model = data_prep('GME')
+x_t,y_t,x_val,y_val,x_test_t,y_test_t = data_prep('GME')
 BATCH_SIZE = args['batch_size']
 epoch = None
 val_loss = None
 
-def train_models(x_t,y_t,x_val,y_val,x_test_t,y_test_t,lstm_model,num_models=10,model_name = 'Default'):
+def train_models(x_t,y_t,x_val,y_val,num_models=10,model_name = 'Default'):
     for i in range(num_models):
+        lstm_model = create_model(x_t)
         tf.keras.backend.clear_session()
         mcp = ModelCheckpoint(os.path.join(f'data\output\models\{model_name}', "best_model-{epoch:02d}-{val_loss:.4f}.h5"), monitor='val_loss', verbose=2,
                           save_best_only=True, save_weights_only=False, mode='min', period=1)
@@ -27,7 +28,7 @@ def train_models(x_t,y_t,x_val,y_val,x_test_t,y_test_t,lstm_model,num_models=10,
                                     shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
                                                                     trim_dataset(y_val, BATCH_SIZE)), callbacks=[mcp])
 
-train_models(x_t,y_t,x_val,y_val,x_test_t,y_test_t,lstm_model,5,'LSTM_MSFT')
+train_models(x_t,y_t,x_val,y_val,5,'LSTM_MSFT')
 
 def simple_mean_ensemble(ticker,model_name='Default'):
     preds = []
