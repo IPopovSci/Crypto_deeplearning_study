@@ -20,7 +20,7 @@ def pca_reduction(ticker):
     x_train = df_no_close_train.loc[:,train_cols].values
     x_test = df_no_close_test.loc[:, train_cols].values
 
-    pca = PCA(n_components = 0.99)
+    pca = PCA(n_components = 38)
 
     pca_reduce_train = pca.fit_transform(x_train)
     pca_reduce_test = pca.transform(x_test)
