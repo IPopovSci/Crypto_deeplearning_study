@@ -20,14 +20,14 @@ val_loss = None
 def train_models(x_t,y_t,x_val,y_val,x_test_t,y_test_t,lstm_model,num_models=10,model_name = 'Default'):
     for i in range(num_models):
         tf.keras.backend.clear_session()
-        mcp = ModelCheckpoint(os.path.join(f'data\output\models\{model_name}', f"best_lstm_model{model_name}_{i}_{round(random.uniform(1, 101), 3)}.h5"), monitor='val_loss', verbose=2,
+        mcp = ModelCheckpoint(os.path.join(f'data\output\models\{model_name}', "best_model-{epoch:02d}-{val_loss:.4f}.h5"), monitor='val_loss', verbose=2,
                           save_best_only=True, save_weights_only=False, mode='min', period=1)
 
         history_lstm = lstm_model.fit(x_t, y_t, epochs=args["epochs"], verbose=1, batch_size=BATCH_SIZE,
                                     shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
                                                                     trim_dataset(y_val, BATCH_SIZE)), callbacks=[mcp])
 
-train_models(x_t,y_t,x_val,y_val,x_test_t,y_test_t,lstm_model,15,'LSTM_MSFT')
+train_models(x_t,y_t,x_val,y_val,x_test_t,y_test_t,lstm_model,5,'LSTM_MSFT')
 
 def simple_mean_ensemble(ticker,model_name='Default'):
     preds = []
