@@ -9,21 +9,25 @@ from data_scaling import unscale_data
 from plotting import plot_results
 import numpy as np
 import os
+import tensorflow as tf
+import random
 
 x_t,y_t,x_val,y_val,x_test_t,y_test_t,lstm_model = data_prep('GME')
 BATCH_SIZE = args['batch_size']
-
+epoch = None
+val_loss = None
 
 def train_models(x_t,y_t,x_val,y_val,x_test_t,y_test_t,lstm_model,num_models=10,model_name = 'Default'):
     for i in range(num_models):
-        mcp = ModelCheckpoint(os.path.join(f'data\output\models\{model_name}', f"best_lstm_model{model_name}_{i}.h5"), monitor='val_loss', verbose=2,
+        tf.keras.backend.clear_session()
+        mcp = ModelCheckpoint(os.path.join(f'data\output\models\{model_name}', f"best_lstm_model{model_name}_{i}_{round(random.uniform(1, 101), 3)}.h5"), monitor='val_loss', verbose=2,
                           save_best_only=True, save_weights_only=False, mode='min', period=1)
 
         history_lstm = lstm_model.fit(x_t, y_t, epochs=args["epochs"], verbose=1, batch_size=BATCH_SIZE,
                                     shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
                                                                     trim_dataset(y_val, BATCH_SIZE)), callbacks=[mcp])
 
-train_models(x_t,y_t,x_val,y_val,x_test_t,y_test_t,lstm_model,10,'LSTM_MSFT')
+train_models(x_t,y_t,x_val,y_val,x_test_t,y_test_t,lstm_model,15,'LSTM_MSFT')
 
 def simple_mean_ensemble(ticker,model_name='Default'):
     preds = []
@@ -46,6 +50,6 @@ def simple_mean_ensemble(ticker,model_name='Default'):
     y_test = trim_dataset(y_test, BATCH_SIZE)
     plot_results(mean_preds,y_test)
 
-simple_mean_ensemble('GME',model_name='LSTM_GME')
+simple_mean_ensemble('GME',model_name='LSTM_MSFT')
 
 
