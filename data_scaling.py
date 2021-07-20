@@ -119,3 +119,19 @@ def min_max_sc(ticker,model='default'):
 def load_sc(ticker, model='default',scaler='mm'):
     print("LOADING=> "f'data/scalers/{model}/{ticker}_{scaler}.bin')
     return joblib.load(f'data/scalers/{model}/{ticker}_{scaler}.bin')
+
+def unscale_data(ticker,y_pred_lstm,y_test_t):
+    mm = load_sc(ticker, model='default', scaler='mm')
+    sc = load_sc(ticker, model='default', scaler='sc')
+
+    y_pred_lstm = y_pred_lstm.reshape(-1, 1)
+
+    y_pred_lstm_inv_mm = mm.inverse_transform(y_pred_lstm)
+    y_pred_lstm_inv_sc = sc.inverse_transform(y_pred_lstm_inv_mm)
+
+    y_test_t = y_test_t.reshape(-1, 1)
+
+    y_test_t_inv_mm = mm.inverse_transform(y_test_t)
+    y_test_t_inv_sc = sc.inverse_transform(y_test_t_inv_mm)
+
+    return y_pred_lstm_inv_sc,y_test_t_inv_sc

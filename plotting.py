@@ -15,3 +15,14 @@ def plot_stock(ticker,plot=True):
 
     if plot == True:
         plt.show()
+
+def plot_results(y_pred,y_test):
+    from matplotlib import pyplot as plt
+    plt.figure(figsize=(12, 6))
+    plt.plot(y_pred)
+    plt.plot(y_test)
+    plt.title('Prediction vs Real Stock Price')
+    plt.ylabel('Price')
+    plt.xlabel('Days')
+    plt.legend(['Prediction', 'Real'], loc='best')
+    plt.show()
