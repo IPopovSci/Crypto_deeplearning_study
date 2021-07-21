@@ -24,7 +24,8 @@ class Arguments:
                 'training': None,
                 'validation': None,
                 'test': None
-            }
+            },
+            'parent': 'C:/Users/Ivan/PycharmProjects/MlFinancialAnal/data/scalers/'
 
         }
 

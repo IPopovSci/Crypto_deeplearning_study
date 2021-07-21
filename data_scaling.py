@@ -6,6 +6,17 @@ import joblib
 import numpy as np
 import os
 
+def save_scaler(sc, model='default'):
+    '''Saving the scaler - rework into a separate function?'''
+    parent = args['parent']
+    directory = model
+    path = os.path.join(parent,directory)
+    try:
+        os.mkdir(path)
+    except:
+        print(f'Folder {model} at {path} already exists')
+    joblib.dump(sc, f'data/scalers/{model}/{ticker}_sc.bin', compress=True)
+
 def SS_transform(ticker,model='default'):
     train_cols = list(args['train_cols'])
 
@@ -22,7 +33,6 @@ def SS_transform(ticker,model='default'):
     sc = StandardScaler()
 
     x = df_train.loc[:, train_cols].values
-
 
     x_train = sc.fit_transform(x)
     x_test = sc.transform(df_test.loc[:, train_cols])
@@ -47,15 +57,7 @@ def SS_transform(ticker,model='default'):
     x_train_pd.to_csv(f"data/04_SC/{ticker}_train.csv")
     x_test_pd.to_csv(f"data/04_SC/{ticker}_test.csv")
 
-    '''Saving the scaler - rework into a separate function?'''
-    parent = 'C:/Users/Ivan/PycharmProjects/MlFinancialAnal/data/scalers/'
-    directory = model
-    path = os.path.join(parent,directory)
-    try:
-        os.mkdir(path)
-    except:
-        print(f'Folder {model} at {path} already exists')
-    joblib.dump(sc, f'data/scalers/{model}/{ticker}_sc.bin', compress=True)
+    save_scaler(sc, model)
 
 def min_max_sc(ticker,model='default'):
 
