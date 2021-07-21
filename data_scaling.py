@@ -7,17 +7,19 @@ import numpy as np
 import os
 
 def save_scaler(sc, model='default'):
-    '''Saving the scaler - rework into a separate function?'''
+    ticker = args['ticker']
     parent = args['parent']
     directory = model
-    path = os.path.join(parent,directory)
+    path = os.path.join(parent, directory)
     try:
         os.mkdir(path)
     except:
         print(f'Folder {model} at {path} already exists')
     joblib.dump(sc, f'data/scalers/{model}/{ticker}_sc.bin', compress=True)
 
-def SS_transform(ticker,model='default'):
+def SS_transform(model='default'):
+    ticker = args['ticker']
+
     train_cols = list(args['train_cols'])
 
     df_train = pd.read_csv(f"data/03_split/{ticker}_train.csv")
