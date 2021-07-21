@@ -13,6 +13,7 @@ import tensorflow as tf
 import random
 
 TICKER = args['ticker']
+
 x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(TICKER)
 BATCH_SIZE = args['batch_size']
 epoch = None
@@ -33,11 +34,11 @@ def train_models(x_t, y_t, x_val, y_val, num_models=10, model_name='Default'):
                                                                       trim_dataset(y_val, BATCH_SIZE)), callbacks=[mcp])
 
 
-# train_models(x_t,y_t,x_val,y_val,5,'LSTM_MSFT')
+train_models(x_t,y_t,x_val,y_val,15,'NASDAQ')
 
 def simple_mean_ensemble(ticker, model_name='Default',update=True):
     preds = []
-    x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(TICKER)
+    x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
 
     for model in os.listdir(f'data\output\models\{model_name}'):
         saved_model = load_model(os.path.join(f'data\output\models\{model_name}', model),
@@ -49,7 +50,7 @@ def simple_mean_ensemble(ticker, model_name='Default',update=True):
                                                                            trim_dataset(y_val, BATCH_SIZE)))
         y_pred_lstm = saved_model.predict(trim_dataset(x_test_t, BATCH_SIZE), batch_size=BATCH_SIZE)
         y_pred_lstm = y_pred_lstm.flatten()
-        y_pred, y_test = unscale_data(TICKER, y_pred_lstm, y_test_t)
+        y_pred, y_test = unscale_data(ticker, y_pred_lstm, y_test_t)
         preds.append(y_pred)
 
     mean_preds = np.mean(preds,axis=0)
@@ -66,7 +67,7 @@ def update_models(ticker_list=['AMD', 'AXR', 'TSLA','DIS','GME','^GSPC','AAPL'],
         i = 0
 
         for ticker in ticker_list:
-            x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(TICKER)
+            x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
 
             mcp = ModelCheckpoint(
                 os.path.join(f'data\output\models\{model_name_save}\{model}\{i}',
@@ -74,11 +75,11 @@ def update_models(ticker_list=['AMD', 'AXR', 'TSLA','DIS','GME','^GSPC','AAPL'],
                 monitor='val_loss', verbose=2,
                 save_best_only=True, save_weights_only=False, mode='min', period=1)
 
-            history_lstm = saved_model.fit(x_t, y_t, epochs=args["epochs"], verbose=1, batch_size=BATCH_SIZE,
+            history_lstm = saved_model.fit(x_val, y_val, epochs=args["epochs"], verbose=1, batch_size=BATCH_SIZE,
                                            shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
                                                                            trim_dataset(y_val, BATCH_SIZE)),
                                            callbacks=[mcp])
             i+=1
 
-simple_mean_ensemble(TICKER,model_name='the_best',update=True)
+simple_mean_ensemble(ticker,model_name='the_best',update=True)
 # update_models(model_name_load='LSTM_MSFT', model_name_save='Multi_Update_Models')
