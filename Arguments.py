@@ -1,7 +1,7 @@
 class Arguments:
     def __init__(self):
         self.args = {
-            'ticker': ['^GSPC'],
+            'ticker': ['GME'],
             'data_types': ['training', 'validation', 'test'],
             'n_components': None,  # n_components is responsible for designating number of features the data will be reduced to
             'time_steps': 7,

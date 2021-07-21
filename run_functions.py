@@ -18,10 +18,8 @@ BATCH_SIZE = args['batch_size']
 def data_prep(ticker):
     '''Step 1 - Download stock price data from yahoo finance'''
     ticker_data(ticker)
-
     '''Step 2 - Plot stock price & volume'''
     # plot_stock(ticker, False)
-
     '''Step 3 - Add TA Analysis'''
     add_ta(ticker)
     '''Step 4 - Split data into training set and test set'''
@@ -33,8 +31,7 @@ def data_prep(ticker):
     '''Step 6 - Perform MinMaxScaling'''
     x_train, x_test = min_max_sc(ticker)
     '''Step 7 - Create Time-series'''
-    y_col_index = args[
-                      'n_components'] - 1  # Minus one because y_col_index searches for the next column (I.e have to indicate the previous one)
+    y_col_index = args['n_components'] - 1  # Minus one because y_col_index searches for the next column (I.e have to indicate the previous one)
     x_t, y_t = build_timeseries(x_train, y_col_index)
     x_t = trim_dataset(x_t, BATCH_SIZE)
     y_t = trim_dataset(y_t, BATCH_SIZE)

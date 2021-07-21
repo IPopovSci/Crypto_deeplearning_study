@@ -11,7 +11,7 @@ from plotting import plot_results
 from build_timeseries import build_timeseries
 
 
-ticker = 'GME'
+ticker = args['ticker']
 BATCH_SIZE = args['batch_size']
 
 """Load Data and prep"""
