@@ -18,18 +18,18 @@ def create_lstm_model(x_t):
     input = Input(batch_shape=(BATCH_SIZE, TIME_STEPS, x_t.shape[2]))
 
     LSTM_1 = tf.keras.layers.Bidirectional(
-        LSTM(int(n_components*1.5), return_sequences=True, stateful=True, kernel_regularizer=regularizer,
+        LSTM(int(n_components*0.8), return_sequences=True, stateful=True, kernel_regularizer=regularizer,
              recurrent_dropout=0.3, dropout=0.3, bias_regularizer=tf.keras.regularizers.l2(1e-4),
              activity_regularizer=tf.keras.regularizers.l2(1e-5)))(input)
 
     LSTM_2 = tf.keras.layers.Bidirectional(
-        LSTM(int(n_components), return_sequences=True, stateful=True, kernel_regularizer=regularizer,
+        LSTM(int(n_components*0.8 ** 2), return_sequences=True, stateful=True, kernel_regularizer=regularizer,
              dropout=0.3, recurrent_dropout=0.3,bias_regularizer=tf.keras.regularizers.l2(1e-4),
              activity_regularizer=tf.keras.regularizers.l2(1e-5)))(LSTM_1)
 
-    attention_1 = Attention(int(n_components))(LSTM_2)
+    attention_1 = Attention(int(n_components * 0.8 ** 2))(LSTM_2)
 
-    Dense_1 = tf.keras.layers.Dense(n_components * 0.8 ** 2, activation='selu')(attention_1)
+    Dense_1 = tf.keras.layers.Dense(int(n_components * 0.8 ** 3), activation='selu')(attention_1)
 
     output = tf.keras.layers.Dense(1, activation='sigmoid')(Dense_1)
 
