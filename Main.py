@@ -8,6 +8,7 @@ from attention import Attention
 from data_scaling import unscale_data
 from run_functions import data_prep
 from plotting import plot_results
+from build_timeseries import build_timeseries
 
 
 ticker = 'GME'
@@ -27,14 +28,17 @@ saved_model = load_model(os.path.join('data\output\\', 'best_lstm_model.h5'), cu
 #                               shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
 #                                                               trim_dataset(y_val, BATCH_SIZE)),callbacks=[mcp])
 '''BIG OOF - the input is 3d, but output is 2d - how to predict?'''
-y_pred_lstm = saved_model.predict(x_val)
-future = []
-future_pred_count = 150
-currentStep = y_pred_lstm[:,-1:,:] #last step from the previous prediction
-
-for i in range(future_pred_count):
-    currentStep = saved_model.predict(currentStep) #get the next step
-    future.append(currentStep) #store the future steps
+# y_pred_lstm = saved_model.predict(x_val)
+# future = []
+# future_pred_count = 150
+# #y_pred_lstm,_ = build_timeseries(y_pred_lstm,0)
+# #currentStep = y_pred_lstm[:,-1:,:] #last step from the previous prediction
+#
+# for i in range(future_pred_count):
+#     y_pred_lstm,_ = build_timeseries(y_pred_lstm,0)
+#     currentStep = y_pred_lstm[:, -7:, :]
+#     currentStep = saved_model.predict(currentStep) #get the next step
+#     future.append(currentStep) #store the future steps
 
 #after processing a sequence, reset the states for safety
 saved_model.reset_states()

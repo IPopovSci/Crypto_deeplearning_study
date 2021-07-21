@@ -20,7 +20,7 @@ def data_prep(ticker):
     ticker_data(ticker)
 
     '''Step 2 - Plot stock price & volume'''
-    plot_stock(ticker, False)
+    # plot_stock(ticker, False)
 
     '''Step 3 - Add TA Analysis'''
     add_ta(ticker)
