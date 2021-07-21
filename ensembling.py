@@ -12,9 +12,9 @@ import os
 import tensorflow as tf
 import random
 
-TICKER = args['ticker']
+ticker = args['ticker']
 
-x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(TICKER)
+x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
 BATCH_SIZE = args['batch_size']
 epoch = None
 val_loss = None
