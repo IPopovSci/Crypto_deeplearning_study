@@ -34,7 +34,7 @@ def create_lstm_model(x_t):
     output = tf.keras.layers.Dense(1, activation='sigmoid')(Dense_1)
 
     lstm_model = tf.keras.Model(inputs=input, outputs=output)
-    optimizer = tf.keras.optimizers.Adam(learning_rate=tf.keras.optimizers.schedules.ExponentialDecay(args['LR'], 2500,
+    optimizer = tf.keras.optimizers.Adam(learning_rate=tf.keras.optimizers.schedules.ExponentialDecay(args['LR'], 10000,
                                                                                                       decay_rate=0.95))
     lstm_model.compile(loss=custom_loss, optimizer=optimizer)
     return lstm_model

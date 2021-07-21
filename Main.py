@@ -11,6 +11,7 @@ from plotting import plot_results
 from build_timeseries import build_timeseries
 
 
+
 ticker = args['ticker']
 BATCH_SIZE = args['batch_size']
 
