@@ -12,8 +12,8 @@ import os
 import tensorflow as tf
 import random
 
-ticker = 'GME'
-x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
+TICKER = args['ticker']
+x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(TICKER)
 BATCH_SIZE = args['batch_size']
 epoch = None
 val_loss = None
@@ -37,7 +37,7 @@ def train_models(x_t, y_t, x_val, y_val, num_models=10, model_name='Default'):
 
 def simple_mean_ensemble(ticker, model_name='Default',update=True):
     preds = []
-    x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
+    x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(TICKER)
 
     for model in os.listdir(f'data\output\models\{model_name}'):
         saved_model = load_model(os.path.join(f'data\output\models\{model_name}', model),
@@ -49,7 +49,7 @@ def simple_mean_ensemble(ticker, model_name='Default',update=True):
                                                                            trim_dataset(y_val, BATCH_SIZE)))
         y_pred_lstm = saved_model.predict(trim_dataset(x_test_t, BATCH_SIZE), batch_size=BATCH_SIZE)
         y_pred_lstm = y_pred_lstm.flatten()
-        y_pred, y_test = unscale_data(ticker, y_pred_lstm, y_test_t)
+        y_pred, y_test = unscale_data(TICKER, y_pred_lstm, y_test_t)
         preds.append(y_pred)
 
     mean_preds = np.mean(preds,axis=0)
@@ -66,7 +66,7 @@ def update_models(ticker_list=['AMD', 'AXR', 'TSLA','DIS','GME','^GSPC','AAPL'],
         i = 0
 
         for ticker in ticker_list:
-            x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
+            x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(TICKER)
 
             mcp = ModelCheckpoint(
                 os.path.join(f'data\output\models\{model_name_save}\{model}\{i}',
@@ -80,5 +80,5 @@ def update_models(ticker_list=['AMD', 'AXR', 'TSLA','DIS','GME','^GSPC','AAPL'],
                                            callbacks=[mcp])
             i+=1
 
-simple_mean_ensemble(ticker,model_name='the_best',update=True)
+simple_mean_ensemble(TICKER,model_name='the_best',update=True)
 # update_models(model_name_load='LSTM_MSFT', model_name_save='Multi_Update_Models')
