@@ -11,11 +11,11 @@ from plotting import plot_results
 from build_timeseries import build_timeseries
 
 
-ticker = args['ticker']
+TICKER = args['ticker']
 BATCH_SIZE = args['batch_size']
 
 """Load Data and prep"""
-x_t,y_t,x_val,y_val,x_test_t,y_test_t = data_prep(ticker)
+x_t,y_t,x_val,y_val,x_test_t,y_test_t = data_prep(TICKER)
 # '''Step 10 - Fit the model'''
 # history_lstm = lstm_model.fit(x_t, y_t, epochs=args["epochs"], verbose=1, batch_size=BATCH_SIZE,
 #                               shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
@@ -50,7 +50,7 @@ future = trim_dataset(future,BATCH_SIZE)
 y_test_t = trim_dataset(y_test_t, BATCH_SIZE)
 
 '''Step 12 - Revert the values to real (Scalers)'''
-future,y_test = unscale_data(ticker,y_pred_lstm,y_test_t)
+future,y_test = unscale_data(TICKER,y_pred_lstm,y_test_t)
 
 
 
