@@ -21,21 +21,32 @@ epoch = None
 val_loss = None
 
 
-def train_models(x_t, y_t, x_val, y_val, num_models=10, model_name='Default'):
+def train_models(x_t, y_t, x_val, y_val, num_models=1, model_name='Default',multiple=False):
+    continuous_list = ['^GSPC','^DJI','^RUT','^IXIC']
     for i in range(num_models):
         lstm_model = create_model(x_t)
         tf.keras.backend.clear_session()
         mcp = ModelCheckpoint(
-            os.path.join(f'data\output\models\{model_name}', "best_model-{epoch:02d}-{val_loss:.4f}.h5"),
+            os.path.join(f'data\output\models\{model_name}', f"3step-continuous{i}.h5"),
             monitor='val_loss', verbose=2,
             save_best_only=True, save_weights_only=False, mode='min', period=1)
+        if multiple:
+            for ticker in continuous_list:
+                print(f'Now Training {ticker}')
+                x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
+                history_lstm = lstm_model.fit(x_t, y_t, epochs=args["epochs"], verbose=1, batch_size=BATCH_SIZE,
+                                              shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
+                                                                              trim_dataset(y_val, BATCH_SIZE)),
+                                              callbacks=[mcp])
 
-        history_lstm = lstm_model.fit(x_t, y_t, epochs=args["epochs"], verbose=1, batch_size=BATCH_SIZE,
-                                      shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
-                                                                      trim_dataset(y_val, BATCH_SIZE)), callbacks=[mcp])
+                lstm_model.reset_states()
+        else:
+            history_lstm = lstm_model.fit(x_t, y_t, epochs=args["epochs"], verbose=1, batch_size=BATCH_SIZE,
+                                        shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
+                                                                        trim_dataset(y_val, BATCH_SIZE)), callbacks=[mcp])
 
 
-train_models(x_t,y_t,x_val,y_val,15,'NASDAQ')
+train_models(x_t,y_t,x_val,y_val,15,'NASDAQ',multiple=True)
 
 def simple_mean_ensemble(ticker, model_name='Default',update=True):
     preds = []
@@ -53,8 +64,10 @@ def simple_mean_ensemble(ticker, model_name='Default',update=True):
         y_pred, y_test = unscale_data(ticker, y_pred_lstm, y_test_t)
         preds.append(y_pred)
 
+
     mean_preds = np.mean(preds,axis=0)
 
+    
     y_test = trim_dataset(y_test, BATCH_SIZE)
     up_or_down(mean_preds)
     back_test(mean_preds,y_test)
@@ -80,11 +93,11 @@ def update_models(ticker_list=['^IXIC'], model_name_load='Default',
                 monitor='val_loss', verbose=2,
                 save_best_only=True, save_weights_only=False, mode='min', period=1)
 
-            history_lstm = saved_model.fit((trim_dataset(x_total, BATCH_SIZE)), (trim_dataset(y_total, BATCH_SIZE)), epochs=10, verbose=1, batch_size=BATCH_SIZE,
-                                           shuffle=False, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
-                                                                           trim_dataset(y_test_t, BATCH_SIZE)),
+            history_lstm = saved_model.fit(x_t,y_t, epochs=10, verbose=1, batch_size=BATCH_SIZE,
+                                           shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
+                                                                           trim_dataset(y_val, BATCH_SIZE)),
                                            callbacks=[mcp])
             i+=1
 
-#simple_mean_ensemble(ticker,model_name='NASDAQ_mix',update=False)
-#update_models(model_name_load='NASDAQ', model_name_save='NASDAQ_Update')
+#simple_mean_ensemble(ticker,model_name='NASDAQ_best_7step',update=False)
+# update_models(model_name_load='NASDAQ', model_name_save='NASDAQ_Update')
