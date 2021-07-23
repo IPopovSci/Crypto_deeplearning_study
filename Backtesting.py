@@ -16,7 +16,7 @@ def back_test(y_preds, y_true):
     prediction_list = []
     true_list = []
     same_sign_list = []
-    while i > -len(y_true) + 1:
+    while i > -len(y_preds) + 1:
         prediction = (y_preds[i - 1] - y_preds[i - 2]) / y_preds[i - 1] * 100
         true = (y_true[i] - y_true[i - 1]) / y_true[i] * 100
         if abs(prediction) + abs(true) == abs(prediction + true):
