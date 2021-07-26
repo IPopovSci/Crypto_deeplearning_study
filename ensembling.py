@@ -47,7 +47,7 @@ def train_models(x_t, y_t, x_val, y_val, num_models=1, model_name='Default',mult
                                                                             trim_dataset(y_val, BATCH_SIZE)), callbacks=[mcp])
 
 
-train_models(x_t,y_t,x_val,y_val,15,'NASDAQ_7_step_1000_ModelB_Simpler',multiple=True)
+#train_models(x_t,y_t,x_val,y_val,25,'NASDAQ_1_Step_smart',multiple=True)
 
 def simple_mean_ensemble(ticker, model_name='Default',update=True):
     preds = []
@@ -107,5 +107,5 @@ def update_models(ticker_list=['^IXIC'], model_name_load='Default',
             saved_model.reset_states()
             i+=1
 
-#simple_mean_ensemble(ticker,model_name='NASDAQ_5_step_Model_B',update=False)
+simple_mean_ensemble(ticker,model_name='\working_models\\NASDAQ_1_Step_smart',update=False)
 #update_models(model_name_load='NASDAQ_5_step_update', model_name_save='NASDAQ_5_step_update_1')
