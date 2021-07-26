@@ -81,7 +81,7 @@ def simple_mean_ensemble(ticker, model_name='Default',update=True):
 
     plot_results(mean_preds,y_test)
 
-def update_models(ticker_list=['^IXIC'], model_name_load='Default',
+def update_models(ticker_list=['RSV=F','BTC-USD','AAPL','AMZN','MSFT','DIS','PG','KO','PFE','^DJI','^RUT','^GSPC','^IXIC'], model_name_load='Default',
                   model_name_save='Default'):
     for model in os.listdir(f'data\output\models\{model_name_load}'):
         saved_model = load_model(os.path.join(f'data\output\models\{model_name_load}', model),
@@ -100,12 +100,12 @@ def update_models(ticker_list=['^IXIC'], model_name_load='Default',
                 monitor='val_loss', verbose=3,
                 save_best_only=True, save_weights_only=False, mode='min', period=1)
 
-            history_lstm = saved_model.fit(trim_dataset(x_total,BATCH_SIZE),trim_dataset(y_total,BATCH_SIZE), epochs=4, verbose=1, batch_size=BATCH_SIZE,
+            history_lstm = saved_model.fit(trim_dataset(x_total,BATCH_SIZE),trim_dataset(y_total,BATCH_SIZE), epochs=2, verbose=1, batch_size=BATCH_SIZE,
                                            shuffle=False, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
                                                                            trim_dataset(y_test_t, BATCH_SIZE)),
                                            callbacks=[mcp])
             saved_model.reset_states()
             i+=1
 
-simple_mean_ensemble(ticker,model_name='\working_models\\NASDAQ_1_Step_smart',update=False)
-#update_models(model_name_load='NASDAQ_5_step_update', model_name_save='NASDAQ_5_step_update_1')
+simple_mean_ensemble(ticker,model_name='\working_models_update\\',update=False)
+#update_models(model_name_load='/working_models/NASDAQ_best_7step', model_name_save='/working_models_update/NASDAQ_best_7step_update')
