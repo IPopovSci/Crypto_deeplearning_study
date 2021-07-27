@@ -20,12 +20,12 @@ def create_lstm_model(x_t):
     LSTM_1 = LSTM(int(n_components), return_sequences=True, stateful=True, kernel_regularizer=regularizer,
              recurrent_dropout=0.5, dropout=0.5, bias_regularizer=tf.keras.regularizers.l2(1e-4),
              activity_regularizer=tf.keras.regularizers.l2(1e-5))(input)
+    #
+    # LSTM_2 = LSTM(int(n_components*0.8), return_sequences=True, stateful=True, kernel_regularizer=regularizer,
+    #          dropout=0.5, recurrent_dropout=0.5,bias_regularizer=tf.keras.regularizers.l2(1e-4),
+    #          activity_regularizer=tf.keras.regularizers.l2(1e-5))(LSTM_1)
 
-    LSTM_2 = LSTM(int(n_components*0.8), return_sequences=True, stateful=True, kernel_regularizer=regularizer,
-             dropout=0.5, recurrent_dropout=0.5,bias_regularizer=tf.keras.regularizers.l2(1e-4),
-             activity_regularizer=tf.keras.regularizers.l2(1e-5))(LSTM_1)
-
-    attention_1 = Attention(int(n_components * 0.8))(LSTM_2)
+    attention_1 = Attention(int(n_components * 0.8))(LSTM_1)
 
     Dense_1 = tf.keras.layers.Dense(int(n_components * 0.8 ** 2), activation='selu')(attention_1)
 
