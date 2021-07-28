@@ -6,6 +6,8 @@ import joblib
 import numpy as np
 import os
 
+ticker = args['ticker']
+
 def save_scaler(sc, model='default'):
     ticker = args['ticker']
     parent = args['parent']
@@ -61,10 +63,10 @@ def SS_transform(model='default'):
 
     save_scaler(sc, model)
 
-def min_max_sc(ticker,model='default'):
+def min_max_sc(ticker,model='default', feature_range = (0,0.2),load_folder = f"data/05_pca/{ticker}_test.csv",save_folder =f"data/06_minmax/{ticker}_train.csv" ):
 
-    df_train = pd.read_csv(f"data/05_pca/{ticker}_train.csv")
-    df_test = pd.read_csv(f"data/05_pca/{ticker}_test.csv")
+    df_train = pd.read_csv(load_folder)
+    df_test = pd.read_csv(load_folder)
 
     train_cols = df_train.keys()
     train_cols = list(train_cols)
@@ -83,14 +85,14 @@ def min_max_sc(ticker,model='default'):
 
     x = df_train.loc[:, train_cols].values
 
-    min_max_scaler = MinMaxScaler(feature_range=(0,0.2))
+    min_max_scaler = MinMaxScaler(feature_range=feature_range)
     x_train = min_max_scaler.fit_transform(x)
     x_test = min_max_scaler.transform(df_test.loc[:, train_cols])
 
     x_close_train = x_close_train.reshape(-1,1)
     x_close_test = x_close_test.reshape(-1, 1)
 
-    min_max_scaler = MinMaxScaler(feature_range=(0, 0.2))
+    min_max_scaler = MinMaxScaler(feature_range=feature_range)
     x_close_train = min_max_scaler.fit_transform((x_close_train))
     x_close_test = min_max_scaler.transform(x_close_test)
 
@@ -105,8 +107,8 @@ def min_max_sc(ticker,model='default'):
     x_train_pd = x_train_pd.set_index(args['train_index'])
     x_test_pd = x_test_pd.set_index(args['test_index'])
 
-    x_train_pd.to_csv(f"data/06_minmax/{ticker}_train.csv")
-    x_test_pd.to_csv(f"data/06_minmax/{ticker}_test.csv")
+    x_train_pd.to_csv(save_folder)
+    x_test_pd.to_csv(save_folder)
 
     '''Saving the scaler - rework into a separate function?'''
     parent = 'C:/Users/Ivan/PycharmProjects/MlFinancialAnal/data/scalers/'
