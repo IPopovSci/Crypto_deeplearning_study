@@ -10,9 +10,8 @@ import numpy as np
 import os
 from ta_feature_add import add_ta
 from Visual_Network import data_proc
-import png
-
-
+from PIL import Image
+from matplotlib import pyplot as plt
 ticker = args['ticker']
 
 '''Step 1 - Download stock price data from yahoo finance'''
@@ -39,27 +38,22 @@ sc = MinMaxScaler((0,1))
 y_t = sc.fit_transform(y_t)
 x_t = sc.fit_transform(x_t)
 
-scaler_x = np.full((x_t.shape[0],x_t.shape[1]), 255, dtype = int)
-scaler_y = np.full((y_t.shape[0],y_t.shape[1]), 255, dtype = int)
-x_t = scaler_x*x_t #Multiple
-y_t = scaler_y*y_t
-x_t = np.round(x_t) #This rounds the numbers to ints and we should be done!
-y_t = np.round(y_t)
-x_t = x_t.astype(int)
-y_t = y_t.astype(int)
+x_t = (x_t * 255).astype(np.uint8)
+y_t = (y_t * 255).astype(np.uint8)
+# x_t = x_t.astype(int)
+# y_t = y_t.astype(int)
 print(x_t)
-
+"""Testing"""
+#x_t = x_t[0:88,:]
+print(x_t.shape)
 
 '''Step N - profits'''
-with open('/Visual_Network/foo_gray.png', 'wb') as f:
-    writer = png.Writer(width=x_t.shape[1], height=x_t.shape[0], bitdepth=16, greyscale=True)
-    writer.write(f, x_t)
-
-# w = png.Writer(x_t.shape[1], x_t.shape[0], greyscale=True, bitdepth=15)
-# f = open('test.png', 'wb')
-# w.write(f, x_t)
-# png.from_array(x_t,'L').save("/tmp/foo.png")
-
+w,h=x_t[1],x_t[0]     # Declared the Width and Height of an Image
+t=(h,w,1)       # To store pixels
+# Creation of Array
+i=Image.fromarray(y_t)
+i.show()
+i.save('^IXIC_y.png')
 
 
 

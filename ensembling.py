@@ -62,7 +62,7 @@ def simple_mean_ensemble(ticker, model_name='Default',update=True):
                                      custom_objects={'custom_loss': custom_loss, 'attention': Attention})
             if update == True:
                 history_lstm = saved_model.fit(trim_dataset(x_val, BATCH_SIZE), trim_dataset(y_val, BATCH_SIZE),
-                                               epochs=2, verbose=1, batch_size=BATCH_SIZE,
+                                               epochs=4, verbose=1, batch_size=BATCH_SIZE,
                                                shuffle=False, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
                                                                                trim_dataset(y_test_t, BATCH_SIZE)))
             y_pred_lstm = saved_model.predict(trim_dataset(x_test_t, BATCH_SIZE), batch_size=BATCH_SIZE)
@@ -107,5 +107,5 @@ def update_models(ticker_list=['^IXIC'], model_name_load='Default',
             saved_model.reset_states()
             i+=1
 
-simple_mean_ensemble(ticker,model_name='working_models\\NASDAQ_best_7step',update=True)
+simple_mean_ensemble(ticker,model_name='working_models\\NASDAQ_1_Step_Multitrain_1LSTM_10000_Update',update=True)
 #update_models(model_name_load='NASDAQ_1_Step_Multitrain_1LSTM_10000', model_name_save='NASDAQ_1_Step_Multitrain_1LSTM_10000_Update')

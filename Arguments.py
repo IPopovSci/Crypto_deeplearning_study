@@ -4,7 +4,7 @@ class Arguments:
             'ticker': '^IXIC',
             'data_types': ['training', 'validation', 'test'],
             'n_components': None,  # n_components is responsible for designating number of features the data will be reduced to
-            'time_steps':7,
+            'time_steps':1,
             'tokens': [],
             'largest_index': None,
             'training_constant': 0.6,
