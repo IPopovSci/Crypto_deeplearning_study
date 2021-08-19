@@ -18,6 +18,9 @@ def build_timeseries(mat, y_col_index):
     for i in range(dim_0):
         x[i] = mat[i:TIME_STEPS + i]
         y[i] = mat[TIME_STEPS + i, y_col_index]
+    '''Step 10 - offset target values'''
+    from data_shift import shift
+    y = shift(y,1,fill_value=0)
 
     print("length of time-series - inputs", x.shape)
     print("length of time-series - outputs", y.shape)
