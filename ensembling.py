@@ -119,7 +119,7 @@ def keras_ensembly():
     x_total = np.concatenate((x_t, x_val))
     y_total = np.concatenate((y_t, y_val))
 
-    saved_model = create_model_ensembly_average(x_t,'working_models\\new_scaler\\new_7_ada')
+    saved_model = create_model_ensembly_average(x_t,'working_models\\NASDAQ_best_7step')
     y_pred_lstm = saved_model.predict(trim_dataset(x_test_t, BATCH_SIZE), batch_size=BATCH_SIZE)
     y_pred_lstm = y_pred_lstm.flatten()
     y_pred, y_test = unscale_data(ticker, y_pred_lstm, y_test_t)

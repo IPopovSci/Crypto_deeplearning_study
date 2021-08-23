@@ -72,8 +72,8 @@ def create_model_ensembly_average(x_t,model_name_load):
     ensemble_output = tf.keras.layers.Average()(outputs)
 
     ensemble_model = tf.keras.Model(inputs=model_input, outputs=ensemble_output,name=f'ensemble_model_average')
-    optimizer = tf.keras.optimizers.Adadelta(learning_rate=0.0001, rho=0.9)
-    #optimizer = tf.keras.optimizers.Adam(learning_rate=0.000001)
+    #optimizer = tf.keras.optimizers.Adadelta(learning_rate=0.0001, rho=0.9)
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.000001)
     ensemble_model.compile(loss=custom_loss, optimizer=optimizer)
 
     return ensemble_model
