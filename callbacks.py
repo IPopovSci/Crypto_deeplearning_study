@@ -122,12 +122,14 @@ def stock_loss(y_true, y_pred):
         K.abs(y_true-y_pred)*(K.abs(y_true**2-y_pred*y_true)))
     return K.mean(loss, axis=-1)
 
+
+
 def stock_loss_money(y_true, y_pred): #only works with batch size = 1 i think
-    money_now = 1
-    money = K.switch(K.less_equal(tf.multiply(K.sign(y_true),K.sign(y_pred)),0), #sign of true values, sign of pred values
+    money_now = 1.
+    money_now = K.switch(K.less_equal(tf.multiply(K.sign(y_true),K.sign(y_pred)),0), #sign of true values, sign of pred values
         money_now - y_true,
         money_now + y_true)
-    money_now = K.mean(money)
+    #print('money_now - y_true',y_true.shape,'money_now + y_true',tf.multiply(K.sign(y_true),K.sign(y_pred)).shape,'shape of money:', tf.multiply(K.sign(y_true),K.sign(y_pred)).shape)
     # print('Money:',money_now)
-    loss = (1/money_now) * K.abs(y_true-y_pred)
-    return K.mean(loss, axis=-1)
+    loss = K.abs(y_true-y_pred) * (1/money_now)
+    return K.mean(loss)

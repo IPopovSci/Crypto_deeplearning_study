@@ -3,7 +3,7 @@ from plotting import plot_stock
 from ta_feature_add import add_ta
 from PCA import pca_reduction
 from tt_split import train_test_split_custom
-from data_scaling import SS_transform,min_max_sc
+from data_scaling import SS_transform,min_max_sc,min_max_sc_old
 from Arguments import args
 from build_timeseries import build_timeseries
 from data_trim import trim_dataset
@@ -27,8 +27,10 @@ def data_prep(ticker):
     SS_transform(TICKER)
     '''Step 6 - Perform PCA Reduction'''
     pca_reduction(TICKER)
+    '''Step 6- Perform Robust Scaling (Beta)'''
     '''Step 6 - Perform MinMaxScaling'''
-    x_train, x_test = min_max_sc(TICKER)
+    #x_train, x_test = min_max_sc(TICKER)
+    x_train, x_test = min_max_sc_old(TICKER)
     '''Step 7 - Create Time-series'''
     y_col_index = args['n_components'] - 1  # Minus one because y_col_index searches for the next column (I.e have to indicate the previous one)
     x_t, y_t = build_timeseries(x_train, y_col_index)

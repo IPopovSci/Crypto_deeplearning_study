@@ -18,9 +18,12 @@ def build_timeseries(mat, y_col_index):
     for i in range(dim_0):
         x[i] = mat[i:TIME_STEPS + i]
         y[i] = mat[TIME_STEPS + i, y_col_index]
-    '''Step 10 - offset target values'''
-    from data_shift import shift
-    y = shift(y,1,fill_value=0)
+    x_backup = x[-1]
+    # x = x[:-1] #what if we add a dummy row
+    # y = y[1:]
+    # '''Step 10 - offset target values''' #This is bad and should be done in a better way, besides I'm I even shifting it right? Do the x shift and stuff
+    # from data_shift import shift
+    #y = shift(y,1,fill_value=0)
 
     print("length of time-series - inputs", x.shape)
     print("length of time-series - outputs", y.shape)

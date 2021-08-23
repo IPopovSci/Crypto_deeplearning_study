@@ -2,7 +2,7 @@ from run_functions import data_prep, create_model
 from Arguments import args
 from data_trim import trim_dataset
 from tensorflow.keras.callbacks import ModelCheckpoint
-from callbacks import mcp, custom_loss,custom_loss_hinge,stock_loss
+from callbacks import mcp, custom_loss,custom_loss_hinge,stock_loss,stock_loss_money
 from tensorflow.keras.models import Sequential, load_model
 from attention import Attention
 from data_scaling import unscale_data,unscale_data_np
@@ -13,7 +13,7 @@ import os
 import tensorflow as tf
 import random
 from Backtesting import up_or_down,back_test
-
+#TODO: Read the timesries keras tutorial, look up special layers for using selu, can you lambda loop in the loss?
 ticker = args['ticker']
 
 x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
@@ -25,11 +25,12 @@ val_loss = None
 def train_models(x_t, y_t, x_val, y_val, num_models=1, model_name='Default',multiple=False):
     continuous_list = ['^RUT','AAPL','KO','^N225','PEP','PFE','^FTSE','IBM','ETH-USD','ED','BK','BTC-USD','^GDAXI','^FCHI','^STOXX50E','^N100','BFX','IMOEX.ME','^BUK100P','^XAX','^NYA','^GSPC','^IXIC']
     for i in range(num_models):
+        early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=12)
         mcp = ModelCheckpoint(
             os.path.join(f'data\output\models\{model_name}',
                          "{i}_{val_loss}_Adadelta_7step.h5".format(i=i, val_loss='{val_loss:.8f}')),
             monitor='val_loss', verbose=2,
-            save_best_only=False, save_weights_only=False, mode='min', period=1)
+            save_best_only=True, save_weights_only=False, mode='min', period=1)
         lstm_model = create_model(x_t)
         tf.keras.backend.clear_session()
         j = 0
@@ -41,16 +42,14 @@ def train_models(x_t, y_t, x_val, y_val, num_models=1, model_name='Default',mult
                                               shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
                                                                               trim_dataset(y_val, BATCH_SIZE)),
                                               callbacks=[mcp])
-                j += 1
-                if j % 2 == 0:
-                    lstm_model.reset_states()
+                lstm_model.reset_states()
         else:
             history_lstm = lstm_model.fit(x_t, y_t, epochs=args["epochs"], verbose=1, batch_size=BATCH_SIZE,
                                         shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
-                                                                        trim_dataset(y_val, BATCH_SIZE)), callbacks=[mcp])
+                                                                        trim_dataset(y_val, BATCH_SIZE)), callbacks=[mcp,early_stop])
 
 
-#train_models(x_t,y_t,x_val,y_val,10,'Adadelta_7_timeseries',multiple=True)
+#train_models(x_t,y_t,x_val,y_val,20,'New_7_Ada',multiple=False)
 
 def simple_mean_ensemble(ticker, model_name='Default',update=True,load_weights='False'):
     preds = []
@@ -88,7 +87,7 @@ def update_models(ticker_list=['^IXIC'], model_name_load='Default',
                   model_name_save='Default'):
     for model in os.listdir(f'data\output\models\{model_name_load}'):
         saved_model = load_model(os.path.join(f'data\output\models\{model_name_load}', model),
-                                 custom_objects={'stock_loss':stock_loss,'custom_loss': custom_loss, 'attention': Attention})
+                                 custom_objects={'stock_loss_money':stock_loss_money,'stock_loss':stock_loss,'custom_loss': custom_loss, 'attention': Attention})
 
         i = 0
 
@@ -103,15 +102,15 @@ def update_models(ticker_list=['^IXIC'], model_name_load='Default',
                 monitor='val_loss', verbose=3,
                 save_best_only=True, save_weights_only=False, mode='min', period=1)
 
-            history_lstm = saved_model.fit(trim_dataset(x_t,BATCH_SIZE),trim_dataset(y_t,BATCH_SIZE), epochs=16, verbose=1, batch_size=BATCH_SIZE,
+            history_lstm = saved_model.fit(trim_dataset(x_t,BATCH_SIZE),trim_dataset(y_t,BATCH_SIZE), epochs=4, verbose=1, batch_size=BATCH_SIZE,
                                            shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
                                                                            trim_dataset(y_val, BATCH_SIZE)),
                                            callbacks=[mcp])
             saved_model.reset_states()
             i+=1
 
-#simple_mean_ensemble(ticker,model_name='working_models\\Adam_7',update=True,load_weights=False)
-#update_models(model_name_load='working_models\\Adadelta_7', model_name_save='working_models\\Adadelta_7\\update')
+#simple_mean_ensemble(ticker,model_name='working_models\\old_scaler\\NASDAQ_best_7step',update=True,load_weights=False)
+#update_models(model_name_load='adadelta_7_timeseries', model_name_save='adadelta_7_timeseries\\update')
 
 def keras_ensembly():
     preds = []
@@ -120,11 +119,7 @@ def keras_ensembly():
     x_total = np.concatenate((x_t, x_val))
     y_total = np.concatenate((y_t, y_val))
 
-    saved_model = create_model_ensembly_average(x_t,'working_models\\adam_7')
-    history_lstm = saved_model.fit(trim_dataset(x_val, BATCH_SIZE), trim_dataset(y_val, BATCH_SIZE),
-                                   epochs=1, verbose=1, batch_size=BATCH_SIZE,
-                                   shuffle=False, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
-                                                                   trim_dataset(y_test_t, BATCH_SIZE)))
+    saved_model = create_model_ensembly_average(x_t,'working_models\\new_scaler\\new_7_ada')
     y_pred_lstm = saved_model.predict(trim_dataset(x_test_t, BATCH_SIZE), batch_size=BATCH_SIZE)
     y_pred_lstm = y_pred_lstm.flatten()
     y_pred, y_test = unscale_data(ticker, y_pred_lstm, y_test_t)
