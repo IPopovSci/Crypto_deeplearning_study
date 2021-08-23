@@ -113,11 +113,14 @@ def update_models(ticker_list=['^IXIC'], model_name_load='Default',
 #update_models(model_name_load='adadelta_7_timeseries', model_name_save='adadelta_7_timeseries\\update')
 
 def keras_ensembly():
+    #TODO: Modify to have fit and saving of models to make true ensemblies - and figure out the random number problem for naming
     preds = []
     back_test_info = []
     x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
     x_total = np.concatenate((x_t, x_val))
     y_total = np.concatenate((y_t, y_val))
+
+
 
     saved_model = create_model_ensembly_average(x_t,'working_models\\new_scaler\\new_7_ada')
     y_pred_lstm = saved_model.predict(trim_dataset(x_test_t, BATCH_SIZE), batch_size=BATCH_SIZE)
@@ -134,4 +137,4 @@ def keras_ensembly():
     back_test(mean_preds,y_test)
     plot_results(mean_preds, y_test)
 
-keras_ensembly()
+#keras_ensembly()

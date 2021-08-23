@@ -22,7 +22,7 @@ def create_lstm_model(x_t):
                   recurrent_dropout=0.5, dropout=0.5, bias_regularizer=tf.keras.regularizers.l2(1e-4),
                   activity_regularizer=tf.keras.regularizers.l2(1e-5))(LSTM_1)
 
-    attention_1 = Attention(int(32))(LSTM_2)
+    attention_1 = Attention()(LSTM_2) #You don't seem to need to specify # of layers
 
 
 

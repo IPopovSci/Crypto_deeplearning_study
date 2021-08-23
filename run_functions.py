@@ -13,7 +13,7 @@ import tensorflow as tf
 
 TICKER = args['ticker']
 BATCH_SIZE = args['batch_size']
-
+#todo: disable the un-scaling, buggy not needed currently
 def data_prep(ticker):
     '''Step 1 - Download stock price data from yahoo finance'''
     ticker_data(TICKER)
