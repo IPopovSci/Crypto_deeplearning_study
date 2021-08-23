@@ -124,7 +124,7 @@ def stock_loss(y_true, y_pred):
 
 
 
-def stock_loss_money(y_true, y_pred): #only works with batch size = 1 i think
+def stock_loss_money(y_true, y_pred): #If using this, important to shift data for training
     money_now = 1.
     money_now = K.switch(K.less_equal(tf.multiply(K.sign(y_true),K.sign(y_pred)),0), #sign of true values, sign of pred values
         money_now - y_true,
