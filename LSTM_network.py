@@ -1,6 +1,6 @@
 from tensorflow.keras.layers import LSTM, Dense, Dropout, Input
 from Arguments import args
-from callbacks import custom_loss,custom_loss_hinge, stock_loss_money,stock_loss
+from callbacks import custom_loss
 import tensorflow as tf
 from attention import Attention
 

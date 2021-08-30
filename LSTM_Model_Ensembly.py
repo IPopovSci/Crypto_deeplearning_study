@@ -1,6 +1,6 @@
 from tensorflow.keras.layers import LSTM, Dense, Dropout, Input,Activation
 from Arguments import args
-from callbacks import mcp, custom_loss,custom_loss_hinge,stock_loss,stock_loss_money
+from callbacks import mcp, custom_loss,ratio_loss,my_metric_fn
 from tensorflow.keras.models import Sequential, load_model
 from attention import Attention
 import os
@@ -60,7 +60,7 @@ def create_model_ensembly_average(x_t,model_name_load):
     i=0
     for model in os.listdir(f'data\output\models\{model_name_load}'):
         saved_model = load_model(os.path.join(f'data\output\models\{model_name_load}', model),
-                                 custom_objects={'stock_loss_money':stock_loss_money,'stock_loss':stock_loss,'custom_loss':custom_loss,'custom_loss_hinge': custom_loss_hinge, 'attention': Attention})
+                                 custom_objects={'my_metric_fn':my_metric_fn,'ratio_loss':ratio_loss,'custom_loss':custom_loss, 'attention': Attention})
         saved_model._name = f'Model_{i}'
         i += 1
         models.append(saved_model)
