@@ -23,34 +23,46 @@ epoch = None
 val_loss = None
 
 
-def train_models(x_t, y_t, x_val, y_val, num_models=1, model_name='Default',multiple=False):
+def train_models(x_t, y_t, x_val, y_val, x_test_t,y_test_t, num_models=1, model_name='Default',multiple=False):
+    ticker = args['ticker']
     continuous_list = ['^RUT','AAPL','KO','^N225','PEP','PFE','^FTSE','IBM','ETH-USD','ED','BK','BTC-USD','^GDAXI','^FCHI','^STOXX50E','^N100','BFX','IMOEX.ME','^BUK100P','^XAX','^NYA','^GSPC','^IXIC']
     for i in range(num_models):
-        early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=12)
+        early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=16)
+
+        reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5,
+                                                         patience=4, min_lr=0.000000000000000000000000000000000001,
+                                                         verbose=1, mode='min')
+
         mcp = ModelCheckpoint(
-            os.path.join(f'data\output\models\{model_name}',
-                         "{i}_{val_loss}_Adadelta_7step.h5".format(i=i, val_loss='{val_loss:.8f}')),
-            monitor='val_loss', verbose=2,
-            save_best_only=True, save_weights_only=False, mode='min', period=1)
+            os.path.join(f'data\output\models\{model_name}\\',
+                         "{val_my_metric_fn:.4f}-best_model-{epoch:02d}.h5"),
+            monitor='val_my_metric_fn', verbose=3,
+            save_best_only=False, save_weights_only=False, mode='max', period=1)
+
         lstm_model = create_model(x_t)
         tf.keras.backend.clear_session()
         j = 0
+        x_total = np.concatenate((x_t, x_val))
+        y_total = np.concatenate((y_t, y_val))
         if multiple:
             for ticker in continuous_list:
                 print(f'Now Training {ticker}')
                 x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
-                history_lstm = lstm_model.fit(x_t, y_t, epochs=args["epochs"], verbose=1, batch_size=BATCH_SIZE,
+                history_lstm = lstm_model.fit(x_t, y_t, epochs=12, verbose=1, batch_size=BATCH_SIZE,
                                               shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
                                                                               trim_dataset(y_val, BATCH_SIZE)),
                                               callbacks=[mcp])
                 lstm_model.reset_states()
         else:
-            history_lstm = lstm_model.fit(x_t, y_t, epochs=args["epochs"], verbose=1, batch_size=BATCH_SIZE,
-                                        shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
-                                                                        trim_dataset(y_val, BATCH_SIZE)), callbacks=[mcp,early_stop])
+            x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
+            x_total = np.concatenate((x_t, x_val))
+            y_total = np.concatenate((y_t, y_val))
+            history_lstm = lstm_model.fit(trim_dataset(x_total,BATCH_SIZE),trim_dataset(y_total,BATCH_SIZE), epochs=args["epochs"], verbose=1, batch_size=BATCH_SIZE,
+                                        shuffle=False, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
+                                                                        trim_dataset(y_test_t, BATCH_SIZE)), callbacks=[mcp,early_stop,reduce_lr])
 
 
-#train_models(x_t,y_t,x_val,y_val,20,'New_7_Ada',multiple=False)
+#train_models(x_t,y_t,x_val,y_val,x_test_t,y_test_t,20,'Exp_2',multiple=False)
 
 def simple_mean_ensemble(ticker, model_name='Default',update=True,load_weights='False'):
     preds = []
@@ -61,7 +73,7 @@ def simple_mean_ensemble(ticker, model_name='Default',update=True,load_weights='
     for model in os.listdir(f'data\output\models\{model_name}'):
         if model.endswith('.h5'):
             saved_model = load_model(os.path.join(f'data\output\models\{model_name}', model),
-                                     custom_objects={'stock_loss':stock_loss,'custom_loss': custom_loss, 'attention': Attention,'custom_loss_hinge':custom_loss_hinge})
+                                     custom_objects={'my_metric_fn':my_metric_fn,'ratio_loss': ratio_loss,'custom_loss': custom_loss, 'attention': Attention})
             if update == True:
                 history_lstm = saved_model.fit(trim_dataset(x_val, BATCH_SIZE), trim_dataset(y_val, BATCH_SIZE),
                                                epochs=1, verbose=1, batch_size=BATCH_SIZE,
@@ -99,9 +111,9 @@ def update_models(ticker_list=['^IXIC'], model_name_load='Default',
     for model in os.listdir(f'data\output\models\{model_name_load}'):
         saved_model = load_model(os.path.join(f'data\output\models\{model_name_load}', model),
                                  custom_objects={'ratio_loss': ratio_loss,'custom_loss': custom_loss, 'attention': Attention})
-        early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=100)
+        early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=25)
         i = 0
-        saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+        saved_model.compile(optimizer=tf.keras.optimizers.Adadelta(learning_rate=1),
                       loss=ratio_loss,
                       metrics=my_metric_fn)
 
@@ -109,22 +121,22 @@ def update_models(ticker_list=['^IXIC'], model_name_load='Default',
             x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
             x_total = np.concatenate((x_t, x_val))
             y_total = np.concatenate((y_t, y_val))
-            reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.95,
-                                          patience=1, min_lr=0.000000000000000000000000000000000001,verbose=1)
+            reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_my_metric_fn', factor=0.5,
+                                          patience=1, min_lr=0.000000000000000000000000000000000001,verbose=1,mode='max')
             mcp = ModelCheckpoint(
                 os.path.join(f'data\output\models\{model_name_save}\\',
-                             "{val_loss:.4f}-best_model-{epoch:02d}.h5"),
-                monitor='val_loss', verbose=3,
-                save_best_only=True, save_weights_only=False, mode='min', period=1)
+                             "{val_my_metric_fn:.4f}-best_model-{epoch:02d}.h5"),
+                monitor='val_my_metric_fn', verbose=3,
+                save_best_only=True, save_weights_only=False, mode='max', period=1)
 
-            history_lstm = saved_model.fit(trim_dataset(x_total,BATCH_SIZE),trim_dataset(y_total,BATCH_SIZE), epochs=10000, verbose=1, batch_size=BATCH_SIZE,
+            history_lstm = saved_model.fit(trim_dataset(x_total,BATCH_SIZE),trim_dataset(y_total,BATCH_SIZE), epochs=500, verbose=1, batch_size=BATCH_SIZE,
                                            shuffle=False, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
                                                                            trim_dataset(y_test_t, BATCH_SIZE)),
-                                           callbacks=[mcp,reduce_lr,early_stop])
+                                           callbacks=[mcp,early_stop])
             saved_model.reset_states()
             i+=1
 
-#simple_mean_ensemble(ticker,model_name='working_models\\old_scaler\\NASDAQ_best_7step',update=True,load_weights=False)
+simple_mean_ensemble(ticker,model_name='Exp_2',update=True,load_weights=False)
 #update_models(model_name_load='working_models\\NASDAQ_best_7step', model_name_save='working_models\\Exp_NASDAQ_best_7step')
 
 def keras_ensembly():
@@ -134,7 +146,7 @@ def keras_ensembly():
     x_total = np.concatenate((x_t, x_val))
     y_total = np.concatenate((y_t, y_val))
 
-    saved_model = create_model_ensembly_average(x_t,'working_models\\Exp_NASDAQ_best_7step')
+    saved_model = create_model_ensembly_average(x_t,'Exp_2')
     y_pred_lstm = saved_model.predict(trim_dataset(x_test_t, BATCH_SIZE), batch_size=BATCH_SIZE)
     y_pred_lstm = y_pred_lstm.flatten()
     y_pred, y_test = unscale_data(ticker, y_pred_lstm, y_test_t)
@@ -147,6 +159,6 @@ def keras_ensembly():
     y_test = trim_dataset(y_test, BATCH_SIZE)
     up_or_down(mean_preds)
     back_test(mean_preds,y_test)
-    plot_results(mean_preds, y_test)
+    plot_results(1.5*mean_preds, y_test)
 
 keras_ensembly()

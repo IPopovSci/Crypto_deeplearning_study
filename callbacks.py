@@ -2,6 +2,8 @@ import tensorflow as tf
 import tensorflow.keras.backend as K
 from tensorflow.keras.callbacks import ModelCheckpoint
 import os
+import numpy as np
+from Arguments import args
 tf.config.experimental_run_functions_eagerly(True)
 #TODO: Custom loss that simulates buying - add when moving in the same direction, substract when different
 def custom_loss(y_true, y_pred):
@@ -49,38 +51,41 @@ def custom_loss(y_true, y_pred):
     return custom_loss
 
 def ratio_loss(y_true, y_pred):
+    batch_size = args['batch_size']
     i = -1
-    prediction_list = []
-    true_list = []
     true_sign_list = []
-    moneys = []
+    soft_sign_error = []
     while i > -len(y_pred) + 1:
-        prediction = (y_pred[i-1] - y_pred[i - 2]) / y_pred[i-2] * 100
-        true = (y_true[i] - y_true[i - 1]) / y_true[i-1] * 100
-        if abs(prediction) + abs(true) == abs(prediction + true):
-            true_sign_list.append(1)
-            moneys.append(1/((y_true[i]-y_pred[i-1])**2))
+        prediction = (y_pred[i - 1] - y_pred[i - 2]) / (y_pred[i - 2]+0.000000001)
+        true = (y_true[i] - y_true[i - 1]) / (y_true[i - 1]+0.000000001)
+        x = tf.subtract(tf.add(tf.abs(prediction),tf.abs(true)),tf.abs(prediction+true))
+
+        # z = tf.multiply(y,x)
+
+        # tf.cond(prediction[i]==0,true_fn=soft_sign_error.append(y[0]*100),None)
+        if prediction == 0:
+            true_sign_list.append(10000)
+        elif abs(prediction) + abs(true) != abs(prediction + true):
+            true_sign_list.append(2)
         else:
-            true_sign_list.append(-1)
-            moneys.append(((1/((y_true[i] - y_pred[i - 1])))**2) * -1)
-        prediction_list.append(prediction)
-        true_list.append(true)
+            true_sign_list.append(0)
+        #soft_sign_error.append(y / (tf.abs(y) + 1)) #This should indicate how far away we are from 0 - which is when the signs of preds and truth allign. However x isn't a very good formula here
         i -= 1
 
-    y_true_tdy = y_true[-1]
-    y_pred_for_tdy = y_pred[-2]
+    y_true_tdy = y_true[1:]
+    y_pred_for_tdy = y_pred[:-1]
+    square_error = tf.divide(tf.subtract(tf.square(y_true_tdy), tf.multiply(y_true_tdy,y_pred_for_tdy)),tf.square(y_true_tdy)+0.00000000001)
+    soft_sign_error = tf.abs(square_error)
     mse = tf.square(y_true_tdy - y_pred_for_tdy)
-
-
+    #
     true_preds = tf.Variable(true_sign_list,shape=(len(true_sign_list)),dtype='float')
-    money_preds = tf.Variable(moneys, shape=(len(moneys),1), dtype='float')
 
+    # print((tf.reduce_mean(soft_sign_error)))
 
-
-    return tf.reduce_mean(mse) * (tf.reduce_sum(true_preds) * -1)
+    return tf.reduce_mean(true_preds) * tf.reduce_mean(soft_sign_error) * (tf.reduce_mean(mse) +1)
 
 mcp = ModelCheckpoint(os.path.join('data\output', "best_lstm_model.h5"), monitor='val_loss', verbose=2, save_best_only=True, save_weights_only=False, mode='max', period=1)
-
+#TODO: Debug this, I have a hunch it doesn't work right when calculating the metric
 def my_metric_fn(y_true, y_pred):
     i = -1
     prediction_list = []

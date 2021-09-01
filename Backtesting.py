@@ -21,6 +21,8 @@ def back_test(y_preds, y_true):
         true = (y_true[i] - y_true[i - 1]) / y_true[i-1] * 100
         if abs(prediction) + abs(true) == abs(prediction + true):
             same_sign_list.append('1')
+        elif prediction == 0:
+            same_sign_list.append('0')
         else:
             same_sign_list.append('0')
         prediction_list.append(prediction)
