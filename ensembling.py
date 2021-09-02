@@ -159,6 +159,6 @@ def keras_ensembly():
     y_test = trim_dataset(y_test, BATCH_SIZE)
     up_or_down(mean_preds)
     back_test(mean_preds,y_test)
-    plot_results(3*mean_preds, y_test)
+    plot_results(30000*mean_preds, y_test)
 
 keras_ensembly()
