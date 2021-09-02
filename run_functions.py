@@ -14,7 +14,7 @@ import tensorflow as tf
 TICKER = args['ticker']
 BATCH_SIZE = args['batch_size']
 
-def data_prep(ticker):
+def data_prep(TICKER):
     '''Step 1 - Download stock price data from yahoo finance'''
     ticker_data(TICKER)
     '''Step 2 - Plot stock price & volume'''
@@ -24,7 +24,7 @@ def data_prep(ticker):
     '''Step 4 - Split data into training set and test set'''
     train_test_split_custom(TICKER)
     '''Step 5 - Perform StanardScaler Reduction'''
-    SS_transform(TICKER)
+    SS_transform(model=TICKER)
     '''Step 6 - Perform PCA Reduction'''
     pca_reduction(TICKER)
     '''Step 6- Perform Robust Scaling (Beta)'''
