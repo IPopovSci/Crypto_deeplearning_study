@@ -90,15 +90,16 @@ def custom_loss_direction(y_true, y_pred):
     alpha = 1250
     direction_loss = tf.compat.v1.scatter_nd_update(direction_loss, indices, alpha * updates)
 
-    custom_loss = K.mean(tf.multiply(1, direction_loss), axis=-1)
+    custom_loss = K.mean(direction_loss)
 
-    return custom_loss_direction
+    return custom_loss
 
 def ratio_loss(y_true, y_pred):
     batch_size = args['batch_size']
-    i = -1
+    i = 0
     true_sign_list = []
     soft_sign_error = []
+    mse = []
 
     while i > -len(y_pred) + 1:
         prediction = (y_pred[i - 1] - y_pred[i - 2]) / (y_pred[i - 2]+0.000000001)
@@ -112,26 +113,32 @@ def ratio_loss(y_true, y_pred):
         # z = tf.multiply(y,x)
 
         # tf.cond(prediction[i]==0,true_fn=soft_sign_error.append(y[0]*100),None)
+        #mse.append(tf.sqrt(tf.abs(true-prediction)))
         if prediction == 0:
             true_sign_list.append(10000)
         elif abs(prediction) + abs(true) != abs(prediction + true):
-            true_sign_list.append(1250 * square_error_f)
+            true_sign_list.append(5)
         else:
-            true_sign_list.append(square_error_f)
+            true_sign_list.append(1)
         #soft_sign_error.append(y / (tf.abs(y) + 1)) #This should indicate how far away we are from 0 - which is when the signs of preds and truth allign. However x isn't a very good formula here
         i -= 1
 
     y_true_tdy = y_true[1:]
     y_pred_for_tdy = y_pred[:-1]
-    square_error = tf.divide(tf.subtract(tf.square(y_true_tdy), tf.multiply(y_true_tdy,y_pred_for_tdy)),tf.square(y_true_tdy)+0.00000000001)
-    soft_sign_error = tf.abs(square_error)
-    mse = tf.square(y_true_tdy - y_pred_for_tdy)
-    #
+    y_true_next_1 = y_true[1:]
+    y_pred_next_1 = y_pred[1:]
+
+    # extract the "today's price" of tensor
+    y_true_tdy_1 = y_true[:-1]
+    y_pred_tdy_1 = y_pred[:-1]
+    #square_error = tf.divide(tf.subtract(tf.square(y_true_tdy), tf.multiply(y_true_tdy,y_pred_for_tdy)),tf.square(y_true_tdy)+0.00000000001)
+    # soft_sign_error = tf.abs(square_error)
+    square_error = tf.sqrt(tf.abs(tf.subtract(y_true_tdy, y_pred_for_tdy)))
+    mse = tf.sqrt(tf.abs((y_true_next_1 - y_true_tdy_1) - (y_pred_next_1-y_pred_for_tdy)))
     true_preds = tf.Variable(true_sign_list,shape=(len(true_sign_list)),dtype='float')
+    #mse = tf.Variable(mse,shape=(len(mse),1),dtype='float')
 
-    # print((tf.reduce_mean(soft_sign_error)))
-
-    return tf.reduce_mean(true_preds*soft_sign_error*(mse+1)) * custom_loss_direction(y_true,y_pred)
+    return tf.reduce_mean(mse) * custom_loss_direction(y_true,y_pred) #tf.reduce_mean(true_preds)*tf.reduce_mean(soft_sign_error)
     #for 2 stable models have only tf.reduce_mean(true_preds) * tf.reduce_mean(soft_sign_error) here w/ append of 10 for wrong direction
 mcp = ModelCheckpoint(os.path.join('data\output', "best_lstm_model.h5"), monitor='val_loss', verbose=2, save_best_only=True, save_weights_only=False, mode='max', period=1)
 #TODO: Debug this, I have a hunch it doesn't work right when calculating the metric

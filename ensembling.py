@@ -27,7 +27,7 @@ def train_models(x_t, y_t, x_val, y_val, x_test_t,y_test_t, num_models=1, model_
     ticker = args['ticker']
     continuous_list = ['^RUT','AAPL','KO','^N225','PEP','PFE','^FTSE','IBM','ETH-USD','ED','BK','BTC-USD','^GDAXI','^FCHI','^STOXX50E','^N100','BFX','IMOEX.ME','^BUK100P','^XAX','^NYA','^GSPC','^IXIC']
     for i in range(num_models):
-        early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=16)
+        early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=50)
 
         reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5,
                                                          patience=4, min_lr=0.000000000000000000000000000000000001,
@@ -37,7 +37,7 @@ def train_models(x_t, y_t, x_val, y_val, x_test_t,y_test_t, num_models=1, model_
             os.path.join(f'data\output\models\{model_name}\\',
                          "{val_my_metric_fn:.4f}-best_model-{epoch:02d}.h5"),
             monitor='val_loss', verbose=3,
-            save_best_only=True, save_weights_only=False, mode='min', period=1)
+            save_best_only=False, save_weights_only=False, mode='min', period=1)
 
         lstm_model = create_model(x_t)
         tf.keras.backend.clear_session()
@@ -137,7 +137,7 @@ def update_models(ticker_list=['^IXIC'], model_name_load='Default',
             i+=1
 
 #simple_mean_ensemble(ticker,model_name='Exp_2',update=False,load_weights=False)
-update_models(model_name_load='working_models\\nasdaq_7step_multitrain_500alpha', model_name_save='working_models\\exp_nasdaq_7step_multitrain_500alpha')
+#update_models(model_name_load='working_models\\nasdaq_7step_multitrain_500alpha', model_name_save='working_models\\exp_nasdaq_7step_multitrain_500alpha')
 
 def keras_ensembly():
     preds = []
@@ -146,7 +146,7 @@ def keras_ensembly():
     x_total = np.concatenate((x_t, x_val))
     y_total = np.concatenate((y_t, y_val))
 
-    saved_model = create_model_ensembly_average(x_t,'working_models\\All_32batch')
+    saved_model = create_model_ensembly_average(x_t,'Exp_2')
     y_pred_lstm = saved_model.predict(trim_dataset(x_test_t, BATCH_SIZE), batch_size=BATCH_SIZE)
     y_pred_lstm = y_pred_lstm.flatten()
     y_pred, y_test = unscale_data(ticker, y_pred_lstm, y_test_t)
