@@ -102,8 +102,8 @@ def ratio_loss(y_true, y_pred):
     mse = []
 
     while i > -len(y_pred) + 1:
-        prediction = (y_pred[i - 1] - y_pred[i - 2]) / (y_pred[i - 2]+0.000000001)
-        true = (y_true[i] - y_true[i - 1]) / (y_true[i - 1]+0.000000001)
+        prediction = float((y_pred[i - 1] - y_pred[i - 2]) / (y_pred[i - 2]+0.000000001))
+        true = float((y_true[i] - y_true[i - 1]) / (y_true[i - 1]+0.000000001))
 
         square_error_f = tf.abs(tf.divide(tf.subtract(tf.square(true), tf.multiply(prediction, true)),
                                  tf.square(true) + 0.00000000001))
@@ -114,9 +114,9 @@ def ratio_loss(y_true, y_pred):
 
         # tf.cond(prediction[i]==0,true_fn=soft_sign_error.append(y[0]*100),None)
         #mse.append(tf.sqrt(tf.abs(true-prediction)))
-        if prediction == 0:
+        if prediction == float(0):
             true_sign_list.append(100)
-        elif abs(prediction) + abs(true) != abs(prediction + true):
+        elif tf.sign(prediction) != tf.sign(true):
             true_sign_list.append(2)
         else:
             true_sign_list.append(1)
@@ -134,11 +134,12 @@ def ratio_loss(y_true, y_pred):
     #square_error = tf.divide(tf.subtract(tf.square(y_true_tdy), tf.multiply(y_true_tdy,y_pred_for_tdy)),tf.square(y_true_tdy)+0.00000000001)
     # soft_sign_error = tf.abs(square_error)
     square_error = tf.sqrt(tf.abs(tf.subtract(y_true_tdy, y_pred_for_tdy)))
-    mse = tf.abs((y_true_next_1 - y_true_tdy_1) - (y_pred_next_1-y_pred_for_tdy))
+    mse = tf.abs(((y_true_next_1 - y_true_tdy_1) - (y_pred_next_1 - y_pred_for_tdy)) / ((y_pred_next_1 - y_pred_for_tdy)+0.000000001))
+    #mse = K.switch(((y_pred_next_1-y_pred_for_tdy)==0),(tf.abs((y_true_next_1 - y_true_tdy_1) - (y_pred_next_1-y_pred_for_tdy))*2),(tf.abs((y_true_next_1 - y_true_tdy_1) - (y_pred_next_1-y_pred_for_tdy))))
     true_preds = tf.Variable(true_sign_list,shape=(len(true_sign_list)),dtype='float')
     #mse = tf.Variable(mse,shape=(len(mse),1),dtype='float')
 
-    return tf.reduce_mean(true_preds)*tf.reduce_mean(mse) #* custom_loss_direction(y_true,y_pred) #tf.reduce_mean(true_preds)*tf.reduce_mean(soft_sign_error)
+    return tf.reduce_mean(mse) * custom_loss_direction(y_true,y_pred) #tf.reduce_mean(true_preds)*tf.reduce_mean(soft_sign_error)
     #for 2 stable models have only tf.reduce_mean(true_preds) * tf.reduce_mean(soft_sign_error) here w/ append of 10 for wrong direction
 mcp = ModelCheckpoint(os.path.join('data\output', "best_lstm_model.h5"), monitor='val_loss', verbose=2, save_best_only=True, save_weights_only=False, mode='max', period=1)
 #TODO: Debug this, I have a hunch it doesn't work right when calculating the metric
@@ -151,7 +152,9 @@ def my_metric_fn(y_true, y_pred):
     while i > -len(y_pred) + 1:
         prediction = (y_pred[i-1] - y_pred[i - 2]) / y_pred[i-2] * 100
         true = (y_true[i] - y_true[i - 1]) / y_true[i-1] * 100
-        if abs(prediction) + abs(true) == abs(prediction + true):
+        if prediction == 0:
+            true_sign_list.append(0)
+        elif abs(prediction) + abs(true) == abs(prediction + true):
             true_sign_list.append(1)
         else:
             true_sign_list.append(-1)
