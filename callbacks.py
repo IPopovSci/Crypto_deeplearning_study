@@ -87,10 +87,10 @@ def custom_loss_direction(y_true, y_pred):
     # create a tensor to store directional loss and put it into custom loss output
     direction_loss = tf.Variable(tf.ones_like(y_pred), dtype='float32')
     updates = K.cast(tf.ones_like(indices), dtype='float32')
-    alpha = 1250
+    alpha = 10000
     direction_loss = tf.compat.v1.scatter_nd_update(direction_loss, indices, alpha * updates)
 
-    custom_loss = K.mean(direction_loss)
+    custom_loss = direction_loss
 
     return custom_loss
 
@@ -132,14 +132,15 @@ def ratio_loss(y_true, y_pred):
     y_true_tdy_1 = y_true[:-1]
     y_pred_tdy_1 = y_pred[:-1]
     #square_error = tf.divide(tf.subtract(tf.square(y_true_tdy), tf.multiply(y_true_tdy,y_pred_for_tdy)),tf.square(y_true_tdy)+0.00000000001)
-    # soft_sign_error = tf.abs(square_error)
-    square_error = tf.sqrt(tf.abs(tf.subtract(y_true_tdy, y_pred_for_tdy)))
+    square_error = tf.abs(tf.subtract(y_true_tdy, y_pred_for_tdy))
+    soft_sign_error = square_error
+
     mse = tf.abs(((y_true_next_1 - y_true_tdy_1) - (y_pred_next_1 - y_pred_for_tdy)) / ((y_pred_next_1 - y_pred_for_tdy)+0.000000001))
     #mse = K.switch(((y_pred_next_1-y_pred_for_tdy)==0),(tf.abs((y_true_next_1 - y_true_tdy_1) - (y_pred_next_1-y_pred_for_tdy))*2),(tf.abs((y_true_next_1 - y_true_tdy_1) - (y_pred_next_1-y_pred_for_tdy))))
     true_preds = tf.Variable(true_sign_list,shape=(len(true_sign_list)),dtype='float')
     #mse = tf.Variable(mse,shape=(len(mse),1),dtype='float')
 
-    return tf.reduce_mean(mse) * custom_loss_direction(y_true,y_pred) #tf.reduce_mean(true_preds)*tf.reduce_mean(soft_sign_error)
+    return tf.reduce_mean(tf.reduce_mean(mse)*custom_loss_direction(y_true,y_pred)) #* custom_loss_direction(y_true,y_pred)#tf.reduce_mean(soft_sign_error) #tf.reduce_mean(true_preds)*tf.reduce_mean(soft_sign_error)
     #for 2 stable models have only tf.reduce_mean(true_preds) * tf.reduce_mean(soft_sign_error) here w/ append of 10 for wrong direction
 mcp = ModelCheckpoint(os.path.join('data\output', "best_lstm_model.h5"), monitor='val_loss', verbose=2, save_best_only=True, save_weights_only=False, mode='max', period=1)
 #TODO: Debug this, I have a hunch it doesn't work right when calculating the metric

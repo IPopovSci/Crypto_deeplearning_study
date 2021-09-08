@@ -27,7 +27,7 @@ def train_models(x_t, y_t, x_val, y_val, x_test_t,y_test_t, num_models=1, model_
     ticker = args['ticker']
     continuous_list = ['^RUT','AAPL','KO','^N225','PEP','PFE','^FTSE','IBM','ETH-USD','ED','BK','BTC-USD','^GDAXI','^FCHI','^STOXX50E','^N100','BFX','IMOEX.ME','^BUK100P','^XAX','^NYA','^GSPC','^IXIC']
     for i in range(num_models):
-        early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=50)
+        early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=25)
 
         reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5,
                                                          patience=4, min_lr=0.000000000000000000000000000000000001,
@@ -37,7 +37,7 @@ def train_models(x_t, y_t, x_val, y_val, x_test_t,y_test_t, num_models=1, model_
             os.path.join(f'data\output\models\{model_name}\\',
                          "{val_my_metric_fn:.4f}-best_model-{epoch:02d}.h5"),
             monitor='val_loss', verbose=3,
-            save_best_only=False, save_weights_only=False, mode='min', period=1)
+            save_best_only=True, save_weights_only=False, mode='min', period=1)
 
         lstm_model = create_model(x_t)
         tf.keras.backend.clear_session()
@@ -51,7 +51,7 @@ def train_models(x_t, y_t, x_val, y_val, x_test_t,y_test_t, num_models=1, model_
                 history_lstm = lstm_model.fit(x_t, y_t, epochs=12, verbose=1, batch_size=BATCH_SIZE,
                                               shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
                                                                               trim_dataset(y_val, BATCH_SIZE)),
-                                              callbacks=[mcp])
+                                              callbacks=[mcp,reduce_lr,early_stop])
                 lstm_model.reset_states()
         else:
             x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
@@ -62,7 +62,7 @@ def train_models(x_t, y_t, x_val, y_val, x_test_t,y_test_t, num_models=1, model_
                                                                         trim_dataset(y_test_t, BATCH_SIZE)), callbacks=[mcp,early_stop,reduce_lr])
 
 
-#train_models(x_t,y_t,x_val,y_val,x_test_t,y_test_t,20,'Exp_2',multiple=False)
+train_models(x_t,y_t,x_val,y_val,x_test_t,y_test_t,20,'360Step_32B',multiple=False)
 
 def simple_mean_ensemble(ticker, model_name='Default',update=True,load_weights='False'):
     preds = []
@@ -146,7 +146,7 @@ def keras_ensembly():
     x_total = np.concatenate((x_t, x_val))
     y_total = np.concatenate((y_t, y_val))
 
-    saved_model = create_model_ensembly_average(x_t,'working_models\\NASDAQ_1_Step_Multitrain_1LSTM_10000_Update')
+    saved_model = create_model_ensembly_average(x_t,'360Step_32B')
     y_pred_lstm = saved_model.predict(trim_dataset(x_test_t, BATCH_SIZE), batch_size=BATCH_SIZE)
     y_pred_lstm = y_pred_lstm.flatten()
     y_pred, y_test = unscale_data(ticker, y_pred_lstm, y_test_t)
@@ -159,6 +159,6 @@ def keras_ensembly():
     y_test = trim_dataset(y_test, BATCH_SIZE)
     up_or_down(mean_preds)
     back_test(mean_preds,y_test)
-    plot_results(10*mean_preds, y_test)
+    plot_results(mean_preds, y_test)
 
 keras_ensembly()
