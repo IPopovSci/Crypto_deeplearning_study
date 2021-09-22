@@ -59,10 +59,10 @@ def train_models(x_t, y_t, x_val, y_val, x_test_t,y_test_t, num_models=1, model_
             y_total = np.concatenate((y_t, y_val))
             history_lstm = lstm_model.fit(trim_dataset(x_total,BATCH_SIZE),trim_dataset(y_total,BATCH_SIZE), epochs=args["epochs"], verbose=1, batch_size=BATCH_SIZE,
                                         shuffle=False, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
-                                                                        trim_dataset(y_test_t, BATCH_SIZE)), callbacks=[mcp,early_stop,reduce_lr])
+                                                                        trim_dataset(y_test_t, BATCH_SIZE)), callbacks=[mcp,early_stop])
 
 
-train_models(x_t,y_t,x_val,y_val,x_test_t,y_test_t,20,'360Step_32B',multiple=False)
+#train_models(x_t,y_t,x_val,y_val,x_test_t,y_test_t,20,'360Step_32B',multiple=False)
 
 def simple_mean_ensemble(ticker, model_name='Default',update=True,load_weights='False'):
     preds = []
@@ -146,7 +146,7 @@ def keras_ensembly():
     x_total = np.concatenate((x_t, x_val))
     y_total = np.concatenate((y_t, y_val))
 
-    saved_model = create_model_ensembly_average(x_t,'360Step_32B')
+    saved_model = create_model_ensembly_average(x_t,'working_models\\14_256_BB')
     y_pred_lstm = saved_model.predict(trim_dataset(x_test_t, BATCH_SIZE), batch_size=BATCH_SIZE)
     y_pred_lstm = y_pred_lstm.flatten()
     y_pred, y_test = unscale_data(ticker, y_pred_lstm, y_test_t)
@@ -159,6 +159,6 @@ def keras_ensembly():
     y_test = trim_dataset(y_test, BATCH_SIZE)
     up_or_down(mean_preds)
     back_test(mean_preds,y_test)
-    plot_results(mean_preds, y_test)
+    plot_results(10*mean_preds, y_test)
 
 keras_ensembly()

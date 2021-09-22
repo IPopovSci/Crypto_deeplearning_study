@@ -115,9 +115,9 @@ def ratio_loss(y_true, y_pred):
         # tf.cond(prediction[i]==0,true_fn=soft_sign_error.append(y[0]*100),None)
         #mse.append(tf.sqrt(tf.abs(true-prediction)))
         if prediction == float(0):
-            true_sign_list.append(100)
-        elif tf.sign(prediction) != tf.sign(true):
             true_sign_list.append(2)
+        elif tf.sign(prediction) != tf.sign(true):
+            true_sign_list.append(3)
         else:
             true_sign_list.append(1)
         #soft_sign_error.append(y / (tf.abs(y) + 1)) #This should indicate how far away we are from 0 - which is when the signs of preds and truth allign. However x isn't a very good formula here
@@ -138,9 +138,10 @@ def ratio_loss(y_true, y_pred):
     mse = tf.abs(((y_true_next_1 - y_true_tdy_1) - (y_pred_next_1 - y_pred_for_tdy)) / ((y_pred_next_1 - y_pred_for_tdy)+0.000000001))
     #mse = K.switch(((y_pred_next_1-y_pred_for_tdy)==0),(tf.abs((y_true_next_1 - y_true_tdy_1) - (y_pred_next_1-y_pred_for_tdy))*2),(tf.abs((y_true_next_1 - y_true_tdy_1) - (y_pred_next_1-y_pred_for_tdy))))
     true_preds = tf.Variable(true_sign_list,shape=(len(true_sign_list)),dtype='float')
+
     #mse = tf.Variable(mse,shape=(len(mse),1),dtype='float')
 
-    return tf.reduce_mean(tf.reduce_mean(mse)*custom_loss_direction(y_true,y_pred)) #* custom_loss_direction(y_true,y_pred)#tf.reduce_mean(soft_sign_error) #tf.reduce_mean(true_preds)*tf.reduce_mean(soft_sign_error)
+    return tf.reduce_mean(custom_loss_direction(y_true,y_pred))#*custom_loss_direction(y_true,y_pred)) #* custom_loss_direction(y_true,y_pred)#tf.reduce_mean(soft_sign_error) #tf.reduce_mean(true_preds)*tf.reduce_mean(soft_sign_error)
     #for 2 stable models have only tf.reduce_mean(true_preds) * tf.reduce_mean(soft_sign_error) here w/ append of 10 for wrong direction
 mcp = ModelCheckpoint(os.path.join('data\output', "best_lstm_model.h5"), monitor='val_loss', verbose=2, save_best_only=True, save_weights_only=False, mode='max', period=1)
 #TODO: Debug this, I have a hunch it doesn't work right when calculating the metric
@@ -167,3 +168,13 @@ def my_metric_fn(y_true, y_pred):
     # print(true_preds)
 
     return tf.reduce_sum(true_preds)
+
+class new_loss(tf.keras.losses.Loss):
+    def __init__(self, regularization_factor=0.1, name="custom_mse"):
+        super().__init__(name=name)
+        self.regularization_factor = regularization_factor
+
+    def call(self, y_true, y_pred):
+        mse = tf.math.reduce_mean(tf.square(y_true - y_pred))
+        reg = tf.math.reduce_mean(tf.square(0.5 - y_pred))
+        return mse + reg * self.regularization_factor
