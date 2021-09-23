@@ -146,17 +146,17 @@ def keras_ensembly():
     x_total = np.concatenate((x_t, x_val))
     y_total = np.concatenate((y_t, y_val))
 
-    saved_model = create_model_ensembly_average(x_t,'working_models\\14_256_BB')
+    saved_model = create_model_ensembly_average(x_t,'working_models\\All_32Batch')
     y_pred_lstm = saved_model.predict(trim_dataset(x_test_t, BATCH_SIZE), batch_size=BATCH_SIZE)
     y_pred_lstm = y_pred_lstm.flatten()
-    y_pred, y_test = unscale_data(ticker, y_pred_lstm, y_test_t)
-    preds.append(y_pred)
-    back_test(y_pred, y_test)
+    # y_pred, y_test = unscale_data(ticker, y_pred_lstm, y_test_t)
+    preds.append(y_pred_lstm)
+    back_test(y_pred_lstm, y_test_t)
 
 
     mean_preds = np.mean(preds,axis=0)
 
-    y_test = trim_dataset(y_test, BATCH_SIZE)
+    y_test = trim_dataset(y_test_t, BATCH_SIZE)
     up_or_down(mean_preds)
     back_test(mean_preds,y_test)
     plot_results(10*mean_preds, y_test)
