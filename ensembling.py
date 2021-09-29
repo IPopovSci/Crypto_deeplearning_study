@@ -19,7 +19,7 @@ import statistics
 #TODO: Read the timesries keras tutorial, look up special layers for using selu, can you lambda loop in the loss?
 ticker = args['ticker']
 
-#x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
+x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
 BATCH_SIZE = args['batch_size']
 epoch = None
 val_loss = None
@@ -29,17 +29,17 @@ def train_models(x_t, y_t, x_val, y_val, x_test_t,y_test_t, num_models=1, model_
     ticker = args['ticker']
     continuous_list = ['^RUT','AAPL','KO','^N225','PEP','PFE','^FTSE','IBM','ETH-USD','ED','BK','BTC-USD','^GDAXI','^FCHI','^STOXX50E','^N100','BFX','IMOEX.ME','^BUK100P','^XAX','^NYA','^GSPC','^IXIC']
     for i in range(num_models):
-        early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=25)
+        early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=12)
 
         reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5,
-                                                         patience=4, min_lr=0.000000000000000000000000000000000001,
+                                                         patience=10, min_lr=0.000000000000000000000000000000000001,
                                                          verbose=1, mode='min')
 
         mcp = ModelCheckpoint(
             os.path.join(f'data\output\models\{model_name}\\',
-                         "{val_my_metric_fn:.4f}-best_model-{epoch:02d}.h5"),
+                         "{val_loss:.8f}_{loss:.8f}_{val_my_metric_fn:.4f}-best_model-{epoch:02d}.h5"),
             monitor='val_loss', verbose=3,
-            save_best_only=True, save_weights_only=False, mode='min', period=1)
+            save_best_only=False, save_weights_only=False, mode='min', period=1)
 
         lstm_model = create_model(x_t)
         tf.keras.backend.clear_session()
@@ -53,18 +53,18 @@ def train_models(x_t, y_t, x_val, y_val, x_test_t,y_test_t, num_models=1, model_
                 history_lstm = lstm_model.fit(x_t, y_t, epochs=12, verbose=1, batch_size=BATCH_SIZE,
                                               shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
                                                                               trim_dataset(y_val, BATCH_SIZE)),
-                                              callbacks=[mcp,reduce_lr,early_stop])
+                                              callbacks=[mcp,reduce_lr])
                 lstm_model.reset_states()
         else:
             x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
             x_total = np.concatenate((x_t, x_val))
             y_total = np.concatenate((y_t, y_val))
-            history_lstm = lstm_model.fit(trim_dataset(x_total,BATCH_SIZE),trim_dataset(y_total,BATCH_SIZE), epochs=args["epochs"], verbose=1, batch_size=BATCH_SIZE,
+            history_lstm = lstm_model.fit(trim_dataset(x_total,BATCH_SIZE),trim_dataset(y_total,BATCH_SIZE), epochs=256, verbose=1, batch_size=BATCH_SIZE,
                                         shuffle=False, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
-                                                                        trim_dataset(y_test_t, BATCH_SIZE)), callbacks=[mcp,early_stop])
+                                                                        trim_dataset(y_test_t, BATCH_SIZE)), callbacks=[mcp,reduce_lr])
 
 
-#train_models(x_t,y_t,x_val,y_val,x_test_t,y_test_t,20,'360Step_32B',multiple=False)
+#train_models(x_t,y_t,x_val,y_val,x_test_t,y_test_t,20,'^NDX',multiple=False)
 ticker = '^NDX'
 args['ticker'] = ticker
 def simple_mean_ensemble(ticker, model_name='Default',update=True,load_weights='False'):
@@ -83,14 +83,14 @@ def simple_mean_ensemble(ticker, model_name='Default',update=True,load_weights='
                                                shuffle=False, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
                                                                                trim_dataset(y_test_t, BATCH_SIZE)))
             i = 0
-            while i < 5:
+            while i < 1:
                 y_pred_lstm = saved_model.predict(trim_dataset(x_test_t, BATCH_SIZE), batch_size=BATCH_SIZE)
                 y_pred_lstm = y_pred_lstm.flatten()
                 # y_pred, y_test = unscale_data(ticker, y_pred_lstm, y_test_t)
 
                 print('Model',model)
                 percor = back_test(y_pred_lstm, y_test_t)
-                if percor >= 1:
+                if percor >= 0:
                     preds.append(y_pred_lstm)
                 i+=1
 
@@ -105,7 +105,7 @@ def simple_mean_ensemble(ticker, model_name='Default',update=True,load_weights='
 
 #simple_mean_ensemble(ticker,model_name=f'working_models_clean\\{ticker}',update=False,load_weights=False)
 
-def update_models(ticker_list=['^NDX'], model_name_load='Default',
+def update_models(ticker_list=['HUV.TO'], model_name_load='Default',
                   model_name_save='Default'):
     config = {
         'class_name': 'PolynomialDecay',
@@ -116,14 +116,14 @@ def update_models(ticker_list=['^NDX'], model_name_load='Default',
                    'name': None,
                    'power': 0.5}}
 
-    args['ticker'] = '^NDX'
+    args['ticker'] = 'HUV.TO'
     for model in random.sample(os.listdir(f'data\output\models\{model_name_load}'),len(os.listdir(f'data\output\models\{model_name_load}'))):
         #print('What is ostlistdir?',os.listdir(f'data\output\models\{model_name_load}'))
         saved_model = load_model(os.path.join(f'data\output\models\{model_name_load}', model),
                                  custom_objects={'stock_loss_money':custom_loss,'ratio_loss': ratio_loss,'custom_loss': custom_loss, 'attention': Attention,'my_metric_fn': my_metric_fn})
-        early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
+        early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=16)
         i = 0
-        saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0000001),
+        saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00001),
                       loss=custom_loss,
                       metrics=my_metric_fn)
 
@@ -132,14 +132,14 @@ def update_models(ticker_list=['^NDX'], model_name_load='Default',
             x_total = np.concatenate((x_t, x_val))
             y_total = np.concatenate((y_t, y_val))
             reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.2,
-                                          patience=2, min_lr=0.000000000000000000000000000000000001,verbose=1,mode='min')
+                                          patience=3, min_lr=0.000000000000000000000000000000000001,verbose=1,mode='min')
             mcp = ModelCheckpoint(
                 os.path.join(f'data\output\models\{model_name_save}\\',
                              "{loss:.8f}_{val_loss:.8f}_{val_my_metric_fn:.4f}-best_model-{epoch:02d}.h5"),
                 monitor='val_loss', verbose=3,
                 save_best_only=False, save_weights_only=False, mode='min', period=1)
 
-            history_lstm = saved_model.fit(trim_dataset(x_total,BATCH_SIZE),trim_dataset(y_total,BATCH_SIZE), epochs=8, verbose=1, batch_size=BATCH_SIZE,
+            history_lstm = saved_model.fit(trim_dataset(x_total,BATCH_SIZE),trim_dataset(y_total,BATCH_SIZE), epochs=32, verbose=1, batch_size=BATCH_SIZE,
                                            shuffle=False, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
                                                                            trim_dataset(y_test_t, BATCH_SIZE)),
                                            callbacks=[mcp,early_stop,reduce_lr])
@@ -147,12 +147,12 @@ def update_models(ticker_list=['^NDX'], model_name_load='Default',
             i+=1
 
 
-#update_models(model_name_load='working_models\\dump', model_name_save=f'working_models\\^NDX')
+#update_models(model_name_load='working_models\\dump', model_name_save=f'working_models\\HUV.TO')
 
 def keras_ensembly():
     preds = []
     back_test_info = []
-    ticker = '^IXIC'
+    ticker = '^NDX'
     args['ticker'] = ticker
     x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
     x_total = np.concatenate((x_t, x_val))
@@ -161,12 +161,14 @@ def keras_ensembly():
     saved_model = create_model_ensembly_average(x_test_t,f'working_models_clean\\{ticker}')
     #saved_model = create_model_ensembly(x_test_t,f'working_models_clean\\{ticker}')
     i = 0
-    while i < 10:
+    while i < 5:
         y_pred_lstm = saved_model.predict(trim_dataset(x_test_t, BATCH_SIZE), batch_size=BATCH_SIZE)
         y_pred_lstm = y_pred_lstm.flatten()
     # y_pred, y_test = unscale_data(ticker, y_pred_lstm, y_test_t)
-        preds.append(y_pred_lstm)
-        back_test(y_pred_lstm, y_test_t)
+        percor =  back_test(y_pred_lstm, y_test_t)
+        if percor >= 1.3:
+            preds.append(y_pred_lstm)
+
         i+=1
 
 
@@ -177,7 +179,7 @@ def keras_ensembly():
     back_test(mean_preds,y_test)
     plot_results(mean_preds, y_test)
 
-keras_ensembly()
+#keras_ensembly()
 
 def model_cleanup():
     for subdir, dirs, files in os.walk(f'data\output\models\cleanup'):
@@ -185,7 +187,7 @@ def model_cleanup():
             args['ticker'] = dir
             x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(dir)
 
-            for model in os.listdir(f'data\output\models\cleanup\\{dir}'):
+            for model in random.sample(os.listdir(f'data\output\models\cleanup\\{dir}'),len(os.listdir(f'data\output\models\cleanup\\{dir}'))):
                 model_path = os.path.join(f'data\output\models\cleanup\\{dir}', model)
                 saved_model = load_model(model_path,
                                          custom_objects={'ratio_loss': ratio_loss, 'custom_loss': custom_loss,
@@ -200,9 +202,9 @@ def model_cleanup():
                     percor = back_test(y_pred,y_test_t)
                     percor_list.append(percor)
                     i += 1
-                if statistics.mean(percor_list) <= 1.1: #NDX: 1.45 IXIC: 1.38 HUV: 3 #For HUV Use 4% test, FOR NDX 1%
+                if statistics.mean(percor_list) <= 1.9: #NDX: 1.45 IXIC: 1.38 HUV: 3 #For HUV Use 4% test, FOR NDX 1%
                     os.remove(os.path.join(f'data\output\models\cleanup\\{dir}', model))
                     print('Yeeted-Deleted!')
 
 
-#model_cleanup()
+model_cleanup()

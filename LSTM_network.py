@@ -17,17 +17,17 @@ def create_lstm_model(x_t):
     regularizer = tf.keras.regularizers.l1_l2(1e-4)
 
 
-    LSTM_1 = LSTM(int(44), return_sequences=True, stateful=True, kernel_regularizer=regularizer,
-             recurrent_dropout=0.3, dropout=0.3, bias_regularizer=tf.keras.regularizers.l2(1e-4),
-             activity_regularizer=tf.keras.regularizers.l2(1e-5))(input)
-
-    LSTM_2 = LSTM(int(22), return_sequences=True, stateful=True, kernel_regularizer=regularizer,
-                  recurrent_dropout=0.3, dropout=0.3, bias_regularizer=tf.keras.regularizers.l2(1e-4),
-                  activity_regularizer=tf.keras.regularizers.l2(1e-5))(LSTM_1)
-
-    LSTM_10 = LSTM(int(11), return_sequences=True, stateful=True, kernel_regularizer=regularizer,
-             recurrent_dropout=0.3, dropout=0.3, bias_regularizer=tf.keras.regularizers.l2(1e-4),
-             activity_regularizer=tf.keras.regularizers.l2(1e-5))(LSTM_2)
+    # LSTM_1 = LSTM(int(44), return_sequences=True, stateful=True, kernel_regularizer=regularizer,
+    #          recurrent_dropout=0.3, dropout=0.3, bias_regularizer=tf.keras.regularizers.l2(1e-4),
+    #          activity_regularizer=tf.keras.regularizers.l2(1e-5))(input)
+    #
+    # LSTM_2 = LSTM(int(22), return_sequences=True, stateful=True, kernel_regularizer=regularizer,
+    #               recurrent_dropout=0.3, dropout=0.3, bias_regularizer=tf.keras.regularizers.l2(1e-4),
+    #               activity_regularizer=tf.keras.regularizers.l2(1e-5))(LSTM_1)
+    #
+    # LSTM_10 = LSTM(int(11), return_sequences=True, stateful=True, kernel_regularizer=regularizer,
+    #          recurrent_dropout=0.3, dropout=0.3, bias_regularizer=tf.keras.regularizers.l2(1e-4),
+    #          activity_regularizer=tf.keras.regularizers.l2(1e-5))(LSTM_2)
 
     # LSTM_20 = LSTM(int(1), return_sequences=True, stateful=True, kernel_regularizer=regularizer,
     #               recurrent_dropout=0.3, dropout=0.3, bias_regularizer=tf.keras.regularizers.l2(1e-4),
@@ -46,19 +46,19 @@ def create_lstm_model(x_t):
     GRU_2 = tf.keras.layers.GRU(22, reset_after=False, dropout=0.3, recurrent_dropout=0.3,return_sequences=True)(GRU_1)
 
     GRU_10 = tf.keras.layers.GRU(11,reset_after=False,dropout=0.3,recurrent_dropout=0.3,return_sequences=True)(GRU_2)
-    #
-    # GRU_20 = tf.keras.layers.GRU(1, reset_after=False, dropout=0.3, recurrent_dropout=0.3,return_sequences=True)(GRU_10)
+
+    GRU_20 = tf.keras.layers.GRU(1, reset_after=False, dropout=0.3, recurrent_dropout=0.3,return_sequences=False)(GRU_10)
 
 
-    LSTM_5 = LSTM(int(240), return_sequences=True, stateful=True, kernel_regularizer=regularizer,
+    LSTM_5 = LSTM(int(100), return_sequences=True, stateful=True, kernel_regularizer=regularizer,
              recurrent_dropout=0, dropout=0, bias_regularizer=tf.keras.regularizers.l2(1e-4),
              activity_regularizer=tf.keras.regularizers.l2(1e-5))(input)
 
-    LSTM_6 = LSTM(int(200), return_sequences=True, stateful=True, kernel_regularizer=regularizer,
+    LSTM_6 = LSTM(int(50), return_sequences=True, stateful=True, kernel_regularizer=regularizer,
                   recurrent_dropout=0, dropout=0, bias_regularizer=tf.keras.regularizers.l2(1e-4),
                   activity_regularizer=tf.keras.regularizers.l2(1e-5))(LSTM_5)
 
-    LSTM_50 = LSTM(int(100), return_sequences=True, stateful=True, kernel_regularizer=regularizer,
+    LSTM_50 = LSTM(int(25), return_sequences=True, stateful=True, kernel_regularizer=regularizer,
              recurrent_dropout=0, dropout=0, bias_regularizer=tf.keras.regularizers.l2(1e-4),
              activity_regularizer=tf.keras.regularizers.l2(1e-5))(LSTM_6)
 
@@ -82,20 +82,20 @@ def create_lstm_model(x_t):
     #
     # GRU_40 = tf.keras.layers.GRU(1, reset_after=False, dropout=0.3, recurrent_dropout=0.3,return_sequences=False)(GRU_30)
 
-    # concat = tf.keras.layers.concatenate([LSTM_10,GRU_10])
+    concat = tf.keras.layers.concatenate([LSTM_60,GRU_20])
     #
     # attention_1 = Attention()(concat)
     # #
     # concat_2 = tf.keras.layers.concatenate([LSTM_50,GRU_30,attention_1])
     #
-    # Dense_4 = tf.keras.layers.Dense(100,activation='sigmoid')(concat_2)
+    #Dense_4 = tf.keras.layers.Dense(100,activation='sigmoid')(concat_2)
 
-    #output = tf.keras.layers.Dense(1, activation='sigmoid')(LSTM_60)
+    output = tf.keras.layers.Dense(1, activation='sigmoid')(concat)
 
-    lstm_model = tf.keras.Model(inputs=input, outputs=LSTM_60)
+    lstm_model = tf.keras.Model(inputs=input, outputs=output)
     # lstm_model = CRFModel(lstm_model, 5)
-    #optimizer = tf.keras.optimizers.Adam(learning_rate=0.001,amsgrad=True,epsilon=1.)
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.00001)
     #optimizer = tf.keras.optimizers.SGD(learning_rate=0.000000001,nesterov=True,momentum=0.3) #make it SGD
-    optimizer = tf.keras.optimizers.Adadelta(learning_rate=1,rho= 0.95)
-    lstm_model.compile(loss=ratio_loss, optimizer=optimizer,metrics=my_metric_fn)
+    #optimizer = tf.keras.optimizers.Adadelta(learning_rate=1,rho= 0.95)
+    lstm_model.compile(loss=custom_loss, optimizer=optimizer,metrics=my_metric_fn)
     return lstm_model
