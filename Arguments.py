@@ -1,6 +1,7 @@
 class Arguments:
     def __init__(self):
         self.args = {
+            'starting_date': "1982-01-03",
             'ticker': '^NDX',
             'data_types': ['training', 'validation', 'test'],
             'n_components': None,  # n_components is responsible for designating number of features the data will be reduced to
