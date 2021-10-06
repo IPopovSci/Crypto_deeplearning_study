@@ -4,7 +4,7 @@ from Arguments import args
 
 '''This module is for grabbing stock information from Yahoo Finance
 Ticker_data grabs specific ticker, vix_data will grab only vix data and rename its columns so its easier to differentiate down the line'''
-start_date = args['starting_date']
+
 def ticker_data(ticker,start_date):
     col = ['Open', 'High', 'Low', 'Close', 'Volume']  # Relevant Columns
 

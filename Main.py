@@ -1,19 +1,15 @@
 from Arguments import args
-from data_trim import trim_dataset
-from callbacks import mcp,custom_loss
-from keras.models import load_model
-from sklearn.metrics import mean_squared_error
-import os
-from attention import Attention
-from data_scaling import unscale_data
-from run_functions import data_prep
-from plotting import plot_results
-from build_timeseries import build_timeseries
-
+from yfinance_facade import ticker_data,vix_data
+from ta_feature_add import add_ta
 
 
 ticker = args['ticker']
 BATCH_SIZE = args['batch_size']
+start_date = args['starting_date']
 
-"""Load Data and prep"""
-x_t,y_t,x_val,y_val,x_test_t,y_test_t = data_prep(ticker)
+'''Step 1: Get Data'''
+ticker_history = ticker_data(ticker,start_date)
+vix_history = vix_data(start_date)
+'''Step 2: Apply TA Analysis'''
+ta_data = add_ta(ticker_history,ticker)
+print(ta_data)
