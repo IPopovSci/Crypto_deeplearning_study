@@ -9,7 +9,8 @@ from statsmodels.tsa.stattools import adfuller, acf, pacf,arma_order_select_ic
 import warnings
 warnings.filterwarnings("ignore")
 
-
+'''This tests the stationarity of the data - whenever the probability distribution 
+changes with progression of time or not. P values of near 0 indicate stationary series'''
 def test_stationarity(timeseries):
     # Perform Dickey-Fuller test:
     print('Results of Dickey-Fuller Test:')
@@ -19,12 +20,16 @@ def test_stationarity(timeseries):
         dfoutput['Critical Value (%s)' % key] = value
     print(dfoutput)
 
-def difference(dataset, interval=1):
-    diff = list()
-    for i in range(interval, len(dataset)):
-        value = dataset[i] - dataset[i - interval]
-        diff.append(value)
-    return Series(diff)
+'''Creates a new dataset filled with the differences of values of each day
+This will make the data stationary (Use the above test to check), as well
+as easier to work with for neural networks'''
+def row_difference(df):
+    df_diff = np.empty((df.shape[0], df.shape[1])) #Create a new dataset
+    for column in range(df.shape[1]): #Loop over columns
+        # print('Now working on column:', column)
+        for row in range(1,df.shape[0]): #Loop over rows, starting with the first one
+                df_diff[row, column] = df[row, column] - df[row - 1, column] #Difference itself
+    return df_diff
 
 # invert differenced forecast #Second element (Value) is diff[i], first one is data[i]
 def inverse_difference(last_ob, value):

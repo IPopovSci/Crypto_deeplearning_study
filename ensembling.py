@@ -179,7 +179,7 @@ def keras_ensembly():
     back_test(mean_preds,y_test)
     plot_results(mean_preds, y_test)
 
-#keras_ensembly()
+keras_ensembly()
 
 def model_cleanup():
     for subdir, dirs, files in os.walk(f'data\output\models\cleanup'):
@@ -207,4 +207,4 @@ def model_cleanup():
                     print('Yeeted-Deleted!')
 
 
-model_cleanup()
+#model_cleanup()

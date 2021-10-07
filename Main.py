@@ -1,7 +1,7 @@
 from Arguments import args
 from yfinance_facade import ticker_data,vix_data
 from ta_feature_add import add_ta
-from Detrending import test_stationarity,difference,inverse_difference
+from Detrending import test_stationarity,row_difference,inverse_difference
 import matplotlib.pyplot as plt
 
 ticker = args['ticker']
@@ -15,4 +15,4 @@ vix_history = vix_data(start_date)
 ta_data = add_ta(ticker_history,ticker) #The columns names can be acessed from arguments 'train_cols'
 print(ta_data['Close'])
 '''Step 3: Detrend the data'''
-one_day_detrend = difference(ta_data['Close'],1) #Need to modify this function to loop over columns, at least the Close, Open,etc ones
+one_day_detrend = row_difference(ta_data) #Need to modify this function to loop over columns, at least the Close, Open,etc ones
