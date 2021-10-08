@@ -20,16 +20,28 @@ def ticker_data(ticker,start_date):
 
     return hist_price
 
+'''Function for getting auxillilary data, such as VIX, bond yields, currency conversion values and so on
+Works similarly to the above, and does automatic column renaming so as not to interfece with target_features columns,
+accepts a list of tickers'''
+def aux_data(df_main,aux_ticker_list,start_date):
 
-def vix_data(start_date):
-    vix_col = ['Open', 'High', 'Low', 'Close']
-    vix = yf.Ticker('^VIX')
+    aux_total_df = df_main
 
-    vix_hist = vix.history(start=start_date)
+    for ticker in aux_ticker_list: #Loop over all the required tickers
 
-    vix_hist = vix_hist[vix_col]
+        target_col = ['Open', 'High', 'Low', 'Close'] #Required columns to grab from yahoo object
 
-    vix_hist.rename(columns = {'Open':'Vix Open','High':'Vix High','Low':'Vix Low','Close':'Vix Close'},inplace=True)
+        aux_data_object = yf.Ticker(f'{ticker}') #Grab the yahoo ticker object
 
-    return vix_hist
+        aux_hist = aux_data_object.history(start=start_date) #Grab history of the object with the indicated start date
+
+        aux_hist = aux_hist[target_col] #Grab target columns (Ignoring dividends and split columns)
+
+        aux_hist.rename(columns = {'Open':f'{ticker} Open','High':f'{ticker} High','Low':f'{ticker} Low','Close':f'{ticker} Close'},inplace=True)
+
+
+        aux_total_df = pd.concat([aux_total_df,aux_hist],axis=1)
+
+
+    return aux_total_df
 
