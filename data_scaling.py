@@ -18,38 +18,23 @@ def save_scaler(sc, model='default'):
     except:
         print(f'Folder {model} at {path} already exists')
     joblib.dump(sc, f'data/scalers/{model}/{ticker}_sc.bin', compress=True)
-
-def SS_transform(x_train,x_test):
+'''Standard scaler transform - it will substract the mean to center the data
+as well as bring the standard deviation to 1. Will transform incoming pandas data into numpy in the process
+The target columns are the first 5
+returns transformed train,validation,test sets as well as the scaler'''
+def SS_transform(x_train,x_validation,x_test):
 
     sc = StandardScaler()
 
-    x = df_train.loc[:, train_cols].values
+    x_train_ss = sc.fit_transform(x_train)
 
-    x_train = sc.fit_transform(x)
-    x_test = sc.transform(df_test.loc[:, train_cols])
+    x_validation_ss = sc.transform(x_validation)
 
-    x_close_train = x_close_train.reshape(-1,1)
-    x_close_test = x_close_test.reshape(-1, 1)
+    x_test_ss = sc.transform(x_test)
 
-    x_close_train = sc.fit_transform(x_close_train)
-    x_close_test = sc.transform(x_close_test)
+    #x_test = sc.transform(df_test.loc[:, train_cols])
 
-    x_train = np.concatenate([x_train,x_close_train],axis = 1)
-    x_test = np.concatenate([x_test, x_close_test], axis=1)
-
-    train_cols.insert(len(train_cols), 'Close')
-
-    x_train_pd = pd.DataFrame(x_train,columns = train_cols)
-    x_test_pd = pd.DataFrame(x_test,columns = train_cols)
-
-    x_train_pd = x_train_pd.set_index(args['train_index'])
-    x_test_pd = x_test_pd.set_index(args['test_index'])
-
-    x_train_pd.to_csv(f"data/04_SC/{ticker}_train.csv")
-    x_test_pd.to_csv(f"data/04_SC/{ticker}_test.csv")
-
-    save_scaler(sc, model)
-
+    return x_train_ss,x_validation_ss,x_test_ss,sc
 def min_max_sc(ticker,model='default'):
 
     df_train = pd.read_csv(f"data/05_pca/{ticker}_train.csv")

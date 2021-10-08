@@ -4,6 +4,7 @@ from ta_feature_add import add_ta
 from Detrending import test_stationarity, row_difference, inverse_difference
 import matplotlib.pyplot as plt
 from tt_split import train_test_split_custom
+from data_scaling import SS_transform
 
 ticker = args['ticker']
 BATCH_SIZE = args['batch_size']
@@ -19,6 +20,7 @@ one_day_detrend = row_difference(ta_data)
 '''Step 4: Split data into training/testing'''
 x_train,x_validation, x_test = train_test_split_custom(one_day_detrend) #doesn't work currently
 '''Step 5: SS Transform'''
+x_train,x_validation,x_test,SS_scaler = SS_transform(x_train,x_validation,x_test)
 
 '''From Paper what good practices should be: http://yann.lecun.com/exdb/publis/pdf/lecun-98b.pdf
 Shuffle the examples - Feed various companies/markets to the training
