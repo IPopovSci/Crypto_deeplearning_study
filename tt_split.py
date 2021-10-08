@@ -10,11 +10,9 @@ def train_test_split_custom(df):
     train_size = args['train_size']
     test_size = args['test_size']
 
-    # data_numpy = df.to_numpy()
-    #
-    # data_numpy.reshape(-1,1)
-
     df_train, df_test = train_test_split(df,train_size=train_size,test_size=test_size, shuffle=False)
 
-    return df_train,df_test
+    df_validation, df_test = train_test_split(df_test,train_size=0.5,test_size=0.5)
+
+    return df_train,df_validation,df_test
 

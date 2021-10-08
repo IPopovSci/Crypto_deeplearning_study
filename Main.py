@@ -17,7 +17,7 @@ ta_data = add_ta(aux_history, ticker)  # The columns names can be acessed from a
 '''Step 3: Detrend the data'''
 one_day_detrend = row_difference(ta_data)
 '''Step 4: Split data into training/testing'''
-x_train, x_test = train_test_split_custom(one_day_detrend) #doesn't work currently
+x_train,x_validation, x_test = train_test_split_custom(one_day_detrend) #doesn't work currently
 '''Step 5: SS Transform'''
 
 '''From Paper what good practices should be: http://yann.lecun.com/exdb/publis/pdf/lecun-98b.pdf
