@@ -19,20 +19,7 @@ def save_scaler(sc, model='default'):
         print(f'Folder {model} at {path} already exists')
     joblib.dump(sc, f'data/scalers/{model}/{ticker}_sc.bin', compress=True)
 
-def SS_transform(model='default'):
-    ticker = args['ticker']
-
-    train_cols = list(args['train_cols'])
-
-    df_train = pd.read_csv(f"data/03_split/{ticker}_train.csv")
-    df_test = pd.read_csv(f"data/03_split/{ticker}_test.csv")
-
-    x_close_train = df_train.loc[:,'Close'].values
-    x_close_test = df_test.loc[:,'Close'].values
-
-    del df_train['Close']
-    del df_test['Close']
-    train_cols.remove('Close')
+def SS_transform(x_train,x_test):
 
     sc = StandardScaler()
 

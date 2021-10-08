@@ -3,16 +3,16 @@ class Arguments:
         self.args = {
             'starting_date': "1990-01-02",
             'ticker': '^NDX',
+            'train_size': 0.95,
+            'test_size': 0.05,
+            'target_features':None,
             'data_types': ['training', 'validation', 'test'],
             'n_components': None,  # n_components is responsible for designating number of features the data will be reduced to
             'time_steps': 7,
-            'largest_index': None,
             'training_constant': 0.6,
             'validation_constant': 0.8,
             'batch_size': 32,
             'epochs': 256,
-            'mm_path': None,
-            'sc_path': None,
             'output_path': 'data\output',
             'LR': 0.00000010000,
             'split_constants': {
