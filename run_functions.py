@@ -2,7 +2,7 @@ from yfinance_facade import ticker_data
 from plotting import plot_stock
 from ta_feature_add import add_ta
 from PCA import pca_reduction
-from tt_split import train_test_split_custom
+from data_split import train_test_split_custom
 from data_scaling import SS_transform,min_max_sc,min_max_sc_old
 from Arguments import args
 from build_timeseries import build_timeseries

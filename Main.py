@@ -3,8 +3,9 @@ from yfinance_facade import ticker_data, aux_data
 from ta_feature_add import add_ta
 from Detrending import test_stationarity, row_difference, inverse_difference
 import matplotlib.pyplot as plt
-from tt_split import train_test_split_custom
+from data_split import train_test_split_custom,x_y_split
 from data_scaling import SS_transform
+from PCA import pca_reduction
 
 ticker = args['ticker']
 BATCH_SIZE = args['batch_size']
@@ -21,6 +22,10 @@ one_day_detrend = row_difference(ta_data)
 x_train,x_validation, x_test = train_test_split_custom(one_day_detrend) #doesn't work currently
 '''Step 5: SS Transform'''
 x_train,x_validation,x_test,SS_scaler = SS_transform(x_train,x_validation,x_test)
+'''Step 6: Split data into x and y'''
+x_train,x_validation,x_test,y_train,y_validation,y_test = x_y_split(x_train,x_validation,x_test)
+'''Step 7: PCA'''
+pca_reduction(x_train,x_validation,x_test)
 
 '''From Paper what good practices should be: http://yann.lecun.com/exdb/publis/pdf/lecun-98b.pdf
 Shuffle the examples - Feed various companies/markets to the training
