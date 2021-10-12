@@ -18,6 +18,12 @@ def train_test_split_custom(df):
     return df_train, df_validation, df_test
 
 
+'''This is a split between x (data) and y (targets). The amount of targets is currently hardcoded - something to think about in the future
+Since we have 5 targets, first 5 columns of original database represent those targets, while the rest is input data'''
+'''If we are using the custom loss in custom_function, we won't need to shift x and y variables, but we will have to do it if we decide not to use that loss'''
+
+
+
 def x_y_split(x_train, x_validation, x_test):
     x_train, x_validation, x_test = np.nan_to_num(x_train), np.nan_to_num(x_validation), np.nan_to_num(
         x_test)  # Get rid of any potential NaN values
@@ -32,4 +38,4 @@ def x_y_split(x_train, x_validation, x_test):
     y_validation = x_validation[:, :5]
     x_validation = x_validation[:, 5:]
 
-    return x_train,x_validation,x_test,y_train,y_validation,y_test
+    return x_train, x_validation, x_test, y_train, y_validation, y_test
