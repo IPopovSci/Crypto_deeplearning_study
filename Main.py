@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from data_split import train_test_split_custom, x_y_split
 from data_scaling import SS_transform,min_max_transform
 from PCA import pca_reduction
+from build_timeseries import build_timeseries
 
 ticker = args['ticker']
 BATCH_SIZE = args['batch_size']
@@ -28,7 +29,8 @@ x_train, x_validation, x_test, y_train, y_validation, y_test = x_y_split(x_train
 x_train, x_validation, x_test = pca_reduction(x_train, x_validation, x_test)
 '''Step 8: Min-max scaler (-1 to 1 for sigmoid)'''
 x_train,x_validation,x_test,y_train, y_validation, y_test, mm_scaler_y = min_max_transform(x_train, x_validation, x_test, y_train, y_validation, y_test)
-
+'''Step 9: Create time-series data'''
+x_train_ts,y_train_ts = build_timeseries(x_train,y_train)
 
 
 '''From Paper what good practices should be: http://yann.lecun.com/exdb/publis/pdf/lecun-98b.pdf

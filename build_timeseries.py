@@ -3,27 +3,26 @@ import numpy as np
 from Arguments import args
 
 '''This takes training or test data and returns x,y scaled using window approach (Unless TIME_STEPS = 1)'''
-def build_timeseries(mat, y_col_index):
+def build_timeseries(x_t,y_t):
     TIME_STEPS = args["time_steps"]
+    print(x_t.shape)
+    print(y_t.shape) #So we have 5 outputs now, need a new loop
 
-
-    dim_0 = mat.shape[0] - TIME_STEPS
-    dim_1 = mat.shape[1]
+    dim_0 = x_t.shape[0] - TIME_STEPS
+    dim_1 = x_t.shape[1]
 
     x = np.zeros((dim_0, TIME_STEPS, dim_1))
-    y = np.zeros((dim_0,))
+    y = np.zeros((dim_0,5))
 
     print("Length of inputs", dim_0)
 
+
     for i in range(dim_0):
-        x[i] = mat[i:TIME_STEPS + i]
-        y[i] = mat[TIME_STEPS + i, y_col_index]
-    x_backup = x[-1]
-    # x = x[:-1] #what if we add a dummy row
-    # y = y[1:]
-    # '''Step 10 - offset target values''' #This is bad and should be done in a better way, besides I'm I even shifting it right? Do the x shift and stuff
-    # from data_shift import shift
-    #y = shift(y,1,fill_value=0)
+        x[i] = x_t[i:TIME_STEPS + i]
+        #y[i] = y_t[TIME_STEPS + i]
+    for column in range(5):
+        for row in range(dim_0):
+            y[row,column] = y_t[TIME_STEPS + row,column]
 
     print("length of time-series - inputs", x.shape)
     print("length of time-series - outputs", y.shape)
