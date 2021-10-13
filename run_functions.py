@@ -1,51 +1,44 @@
-from yfinance_facade import ticker_data
-from plotting import plot_stock
-from ta_feature_add import add_ta
-from PCA import pca_reduction
-from data_split import train_test_split_custom
-from data_scaling import SS_transform,min_max_sc,min_max_sc_old
 from Arguments import args
+from yfinance_facade import ticker_data, aux_data
+from ta_feature_add import add_ta
+from Detrending import test_stationarity, row_difference, inverse_difference
+import matplotlib.pyplot as plt
+from data_split import train_test_split_custom, x_y_split
+from data_scaling import SS_transform,min_max_transform
+from PCA import pca_reduction
 from build_timeseries import build_timeseries
-from data_trim import trim_dataset
-from LSTM_network import create_lstm_model
-import numpy as np
-import tensorflow as tf
 
-TICKER = args['ticker']
+ticker = args['ticker']
 BATCH_SIZE = args['batch_size']
+start_date = args['starting_date']
 
 def data_prep(TICKER):
-    '''Step 1 - Download stock price data from yahoo finance'''
-    ticker_data(TICKER)
-    '''Step 2 - Plot stock price & volume'''
-    # plot_stock(ticker, False)
-    '''Step 3 - Add TA Analysis'''
-    add_ta(TICKER)
-    '''Step 4 - Split data into training set and test set'''
-    train_test_split_custom(TICKER)
-    '''Step 5 - Perform StanardScaler Reduction'''
-    SS_transform(model=TICKER)
-    '''Step 6 - Perform PCA Reduction'''
-    pca_reduction(TICKER)
-    '''Step 6- Perform Robust Scaling (Beta)'''
-    '''Step 6 - Perform MinMaxScaling'''
-    #x_train, x_test = min_max_sc(TICKER)
-    x_train, x_test = min_max_sc_old(TICKER)
-    '''Step 7 - Create Time-series'''
-    y_col_index = args['n_components'] - 1  # Minus one because y_col_index searches for the next column (I.e have to indicate the previous one)
-    x_t, y_t = build_timeseries(x_train, y_col_index)
-    x_t = trim_dataset(x_t, BATCH_SIZE)
-    y_t = trim_dataset(y_t, BATCH_SIZE)
-    '''Step 8 - Initialize Model'''
-    #lstm_model = create_lstm_model(x_t)
-    '''Step 9 - Break Test into test and validation'''
-    x_temp, y_temp = build_timeseries(x_test, y_col_index)
-    x_val, x_test_t = np.array_split(trim_dataset(x_temp, BATCH_SIZE), 2)
-    y_val, y_test_t = np.array_split(trim_dataset(y_temp, BATCH_SIZE), 2)
-    print("Test size", x_test_t.shape, y_test_t.shape, x_val.shape, y_val.shape)
-    return x_t,y_t,x_val,y_val,x_test_t,y_test_t
-
-def create_model(x_t):
-    lstm_model = create_lstm_model(x_t)
-    return lstm_model
-
+    '''Step 1: Get Data'''
+    ticker_history = ticker_data(ticker, start_date)
+    aux_history = aux_data(ticker_history, ['CL=F', 'GC=F', '^VIX', '^TNX'], start_date)  # Get any extra data
+    '''Step 2: Apply TA Analysis'''
+    ta_data = add_ta(aux_history, ticker)  # The columns names can be acessed from arguments 'train_cols'
+    '''Step 3: Detrend the data'''
+    one_day_detrend = row_difference(ta_data)
+    '''Step 4: Split data into training/testing'''
+    x_train, x_validation, x_test = train_test_split_custom(one_day_detrend)
+    '''Step 5: SS Transform'''
+    x_train, x_validation, x_test, SS_scaler = SS_transform(x_train, x_validation, x_test)
+    '''Step 6: Split data into x and y'''
+    x_train, x_validation, x_test, y_train, y_validation, y_test = x_y_split(x_train, x_validation, x_test)
+    '''Step 7: PCA'''
+    x_train, x_validation, x_test = pca_reduction(x_train, x_validation, x_test)
+    '''Step 8: Min-max scaler (-1 to 1 for sigmoid)'''
+    x_train, x_validation, x_test, y_train, y_validation, y_test, mm_scaler_y = min_max_transform(x_train, x_validation,
+                                                                                                  x_test, y_train,
+                                                                                                  y_validation, y_test)
+    '''Step 9: Create time-series data'''
+    x_train, y_train = build_timeseries(x_train, y_train)
+    x_validation, y_validation = build_timeseries(x_validation, y_validation)
+    x_test, y_test = build_timeseries(x_test, y_test)
+    return x_train, y_train, x_validation, y_validation, x_test, y_test
+#
+# def create_model(x_t):
+#     lstm_model = create_lstm_model(x_t)
+#     return lstm_model
+#

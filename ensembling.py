@@ -1,11 +1,10 @@
-from run_functions import data_prep, create_model
+from run_functions import data_prep
 from Arguments import args
 from data_trim import trim_dataset
 from tensorflow.keras.callbacks import ModelCheckpoint
 from callbacks import mcp, custom_loss,my_metric_fn,ratio_loss
 from tensorflow.keras.models import Sequential, load_model
 from attention import Attention
-from data_scaling import unscale_data,unscale_data_np
 from plotting import plot_results
 from LSTM_Model_Ensembly import create_model_ensembly,create_model_ensembly_average
 import numpy as np
@@ -14,6 +13,7 @@ import tensorflow as tf
 import random
 from Backtesting import up_or_down,back_test
 import statistics
+from LSTM_network import create_lstm_model as create_model
 
 
 #TODO: Read the timesries keras tutorial, look up special layers for using selu, can you lambda loop in the loss?
@@ -44,8 +44,8 @@ def train_models(x_t, y_t, x_val, y_val, x_test_t,y_test_t, num_models=1, model_
         lstm_model = create_model(x_t)
         tf.keras.backend.clear_session()
         j = 0
-        x_total = np.concatenate((x_t, x_val))
-        y_total = np.concatenate((y_t, y_val))
+        # x_total = np.concatenate((x_t, x_val))
+        # y_total = np.concatenate((y_t, y_val))
         if multiple:
             for ticker in continuous_list:
                 print(f'Now Training {ticker}')
@@ -56,7 +56,8 @@ def train_models(x_t, y_t, x_val, y_val, x_test_t,y_test_t, num_models=1, model_
                                               callbacks=[mcp,reduce_lr])
                 lstm_model.reset_states()
         else:
-            x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
+            # x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
+            print(y_t.shape,y_val.shape)
             x_total = np.concatenate((x_t, x_val))
             y_total = np.concatenate((y_t, y_val))
             history_lstm = lstm_model.fit(trim_dataset(x_total,BATCH_SIZE),trim_dataset(y_total,BATCH_SIZE), epochs=256, verbose=1, batch_size=BATCH_SIZE,
@@ -64,7 +65,7 @@ def train_models(x_t, y_t, x_val, y_val, x_test_t,y_test_t, num_models=1, model_
                                                                         trim_dataset(y_test_t, BATCH_SIZE)), callbacks=[mcp,reduce_lr])
 
 
-#train_models(x_t,y_t,x_val,y_val,x_test_t,y_test_t,20,'^NDX',multiple=False)
+train_models(x_t,y_t,x_val,y_val,x_test_t,y_test_t,20,'^NDX',multiple=False)
 ticker = '^NDX'
 args['ticker'] = ticker
 def simple_mean_ensemble(ticker, model_name='Default',update=True,load_weights='False'):

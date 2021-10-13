@@ -9,11 +9,8 @@ class Arguments:
             'data_types': ['training', 'validation', 'test'],
             'n_components': None,  # n_components is responsible for designating number of features the data will be reduced to
             'time_steps': 7,
-            'training_constant': 0.6,
-            'validation_constant': 0.8,
             'batch_size': 32,
             'epochs': 256,
-            'output_path': 'data\output',
             'LR': 0.00000010000,
             'split_constants': {
                 'training': None,

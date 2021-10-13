@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from Arguments import args
+from data_trim import trim_dataset
 
 '''This takes training or test data and returns x,y scaled using window approach (Unless TIME_STEPS = 1)'''
 def build_timeseries(x_t,y_t):
@@ -23,6 +24,9 @@ def build_timeseries(x_t,y_t):
     for column in range(5):
         for row in range(dim_0):
             y[row,column] = y_t[TIME_STEPS + row,column]
+
+    x = trim_dataset(x,batch_size=args['batch_size'])
+    y = trim_dataset(y, batch_size=args['batch_size'])
 
     print("length of time-series - inputs", x.shape)
     print("length of time-series - outputs", y.shape)

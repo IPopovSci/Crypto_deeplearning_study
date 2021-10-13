@@ -8,6 +8,7 @@ from data_scaling import SS_transform,min_max_transform
 from PCA import pca_reduction
 from build_timeseries import build_timeseries
 
+
 ticker = args['ticker']
 BATCH_SIZE = args['batch_size']
 start_date = args['starting_date']
