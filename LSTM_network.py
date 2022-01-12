@@ -1,9 +1,10 @@
-from tensorflow.keras.layers import LSTM, Dense, Dropout, Input
+from tensorflow.keras.layers import LSTM, Dense, Dropout, Input,TimeDistributed
 from Arguments import args
-from callbacks import custom_loss,ratio_loss,my_metric_fn
+from callbacks import custom_loss,ratio_loss,my_metric_fn,mean_squared_error_custom
 import tensorflow as tf
 from attention import Attention
 from keras_crf import CRFModel
+from keras_self_attention import SeqSelfAttention
 
 
 
@@ -16,24 +17,39 @@ def create_lstm_model(x_t):
     input = Input(batch_shape=(BATCH_SIZE, TIME_STEPS, x_t.shape[2]))
     regularizer = tf.keras.regularizers.l1_l2(1e-4)
 
+# #This is First side-chain: input>LSTM(stateful)>LSTM(stateful)>TD Dense layer. The output is a 3d vector
+    LSTM_1 = LSTM(int(80), return_sequences=True, stateful=True,activation='softsign')(input)
+#
+    LSTM_2 = LSTM(int(40), return_sequences=True, stateful=True,activation='softsign')(LSTM_1)
 
-    LSTM_1 = LSTM(int(88), return_sequences=True, stateful=True, kernel_regularizer=regularizer,
-             recurrent_dropout=0.3, dropout=0.3, bias_regularizer=tf.keras.regularizers.l2(1e-4),
-             activity_regularizer=tf.keras.regularizers.l2(1e-5))(input)
+    Dense_1 = TimeDistributed(Dense(40,activation='softsign'))(LSTM_2)
+#This is the attention side-chain: LSTM(Stateless)>LSTM>Attention. The output is a 3d vector
+    LSTM_3 = LSTM(int(80), return_sequences=True, stateful=False,activation='softsign')(input)
 
-    LSTM_2 = LSTM(int(66), return_sequences=False, stateful=True, kernel_regularizer=regularizer,
-                  recurrent_dropout=0.3, dropout=0.3, bias_regularizer=tf.keras.regularizers.l2(1e-4),
-                  activity_regularizer=tf.keras.regularizers.l2(1e-5))(LSTM_1)
+    LSTM_4 = LSTM(int(40), return_sequences=True, stateful=False,activation='softsign')(LSTM_3)
 
-    Dense_1 = Dense(10)(LSTM_2)
+    attention = SeqSelfAttention(attention_activation='softsign')(LSTM_4)
+#Concat the sidechains and provide output (5 values, 2d vector)
+
+    concat = tf.keras.layers.concatenate([Dense_1,attention])
+
+    LSTM_fin = LSTM(200,return_sequences=True,stateful=True,activation='softsign')(concat)
+
+    LSTM_fin_2 = LSTM(150,return_sequences=False,stateful=False,activation='softsign')(LSTM_fin)
 
 
-    output = tf.keras.layers.Dense(5, activation='sigmoid')(Dense_1)
+    Dense_fin = Dense(200,activation='softsign')(LSTM_fin_2)
+#
+
+
+
+
+    output = tf.keras.layers.Dense(5,activation='softsign')(Dense_fin)
+
 
     lstm_model = tf.keras.Model(inputs=input, outputs=output)
-    # lstm_model = CRFModel(lstm_model, 5)
-    optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001)
-    #optimizer = tf.keras.optimizers.SGD(learning_rate=0.000000001,nesterov=True,momentum=0.3) #make it SGD
-    #optimizer = tf.keras.optimizers.Adadelta(learning_rate=1,rho= 0.95)
-    lstm_model.compile(loss=custom_loss, optimizer=optimizer,metrics=my_metric_fn)
+
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+
+    lstm_model.compile(loss=[mean_squared_error_custom,mean_squared_error_custom,mean_squared_error_custom,mean_squared_error_custom,mean_squared_error_custom], optimizer=optimizer)
     return lstm_model

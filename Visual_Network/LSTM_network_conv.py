@@ -1,13 +1,6 @@
-from keras.models import Sequential, load_model
-from keras.layers import LSTM, Dense, Dropout, Input,ConvLSTM2D,BatchNormalization,Conv3D
-from keras import optimizers
+from keras.layers import Input,ConvLSTM2D,BatchNormalization,Conv3D
 from Arguments import args
-from build_timeseries import build_timeseries
-from callbacks import custom_loss
-from keras.layers import TimeDistributed
 import tensorflow as tf
-from attention import Attention
-from data_trim import trim_dataset_conv
 
 
 def LSTM_network_conv_create(x_t):

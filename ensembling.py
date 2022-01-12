@@ -2,7 +2,7 @@ from run_functions import data_prep
 from Arguments import args
 from data_trim import trim_dataset
 from tensorflow.keras.callbacks import ModelCheckpoint
-from callbacks import mcp, custom_loss,my_metric_fn,ratio_loss
+from callbacks import custom_loss,ratio_loss,my_metric_fn,mean_squared_error_custom
 from tensorflow.keras.models import Sequential, load_model
 from attention import Attention
 from plotting import plot_results
@@ -11,9 +11,11 @@ import numpy as np
 import os, random
 import tensorflow as tf
 import random
-from Backtesting import up_or_down,back_test
+from Backtesting_old import up_or_down,back_test
 import statistics
 from LSTM_network import create_lstm_model as create_model
+from keras_self_attention import SeqSelfAttention
+from Backtesting.Backtest_DaysCorrect import backtest
 
 
 #TODO: Read the timesries keras tutorial, look up special layers for using selu, can you lambda loop in the loss?
@@ -32,79 +34,89 @@ def train_models(x_t, y_t, x_val, y_val, x_test_t,y_test_t, num_models=1, model_
         early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=12)
 
         reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5,
-                                                         patience=10, min_lr=0.000000000000000000000000000000000001,
+                                                         patience=4, min_lr=0.000000000000000000000000000000000001,
                                                          verbose=1, mode='min')
 
         mcp = ModelCheckpoint(
             os.path.join(f'data\output\models\{model_name}\\',
-                         "{val_loss:.8f}_{loss:.8f}_{val_my_metric_fn:.4f}-best_model-{epoch:02d}.h5"),
+                         "{val_loss:.8f}_{loss:.8f}-best_model-{epoch:02d}.h5"),
             monitor='val_loss', verbose=3,
             save_best_only=False, save_weights_only=False, mode='min', period=1)
 
         lstm_model = create_model(x_t)
         tf.keras.backend.clear_session()
         j = 0
-        # x_total = np.concatenate((x_t, x_val))
-        # y_total = np.concatenate((y_t, y_val))
+        x_total = np.concatenate((x_t, x_val))
+        y_total = np.concatenate((y_t, y_val))
         if multiple:
             for ticker in continuous_list:
                 print(f'Now Training {ticker}')
                 x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
-                history_lstm = lstm_model.fit(x_t, y_t, epochs=12, verbose=1, batch_size=BATCH_SIZE,
-                                              shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
-                                                                              trim_dataset(y_val, BATCH_SIZE)),
-                                              callbacks=[mcp,reduce_lr])
+                history_lstm = lstm_model.fit(x_total, y_total, epochs=12, verbose=1, batch_size=BATCH_SIZE,
+                                              shuffle=False, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
+                                                                              trim_dataset(y_test_t, BATCH_SIZE)),
+                                              callbacks=[mcp,reduce_lr,early_stop])
                 lstm_model.reset_states()
         else:
             # x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
-            print(y_t.shape,y_val.shape)
+            #print(y_t.shape,y_val.shape)
             x_total = np.concatenate((x_t, x_val))
             y_total = np.concatenate((y_t, y_val))
+            #print(trim_dataset(y_test_t,BATCH_SIZE))
             history_lstm = lstm_model.fit(trim_dataset(x_total,BATCH_SIZE),trim_dataset(y_total,BATCH_SIZE), epochs=256, verbose=1, batch_size=BATCH_SIZE,
                                         shuffle=False, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
                                                                         trim_dataset(y_test_t, BATCH_SIZE)), callbacks=[mcp,reduce_lr])
 
 
-train_models(x_t,y_t,x_val,y_val,x_test_t,y_test_t,20,'^NDX',multiple=False)
-ticker = '^NDX'
+#train_models(x_t,y_t,x_val,y_val,x_test_t,y_test_t,20,'QQQ',multiple=False)
+ticker = 'QQQ'
 args['ticker'] = ticker
-def simple_mean_ensemble(ticker, model_name='Default',update=True,load_weights='False'):
-    preds = []
-    back_test_info = []
-    x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
-    x_total = np.concatenate((x_t, x_val))
-    y_total = np.concatenate((y_t, y_val))
-    for model in os.listdir(f'data\output\models\{model_name}'):
-        if model.endswith('.h5'):
-            saved_model = load_model(os.path.join(f'data\output\models\{model_name}', model),
-                                     custom_objects={'my_metric_fn':my_metric_fn,'ratio_loss': ratio_loss,'custom_loss': custom_loss, 'attention': Attention})
-            if update == True:
-                history_lstm = saved_model.fit(trim_dataset(x_val, BATCH_SIZE), trim_dataset(y_val, BATCH_SIZE),
-                                               epochs=1, verbose=1, batch_size=BATCH_SIZE,
-                                               shuffle=False, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
-                                                                               trim_dataset(y_test_t, BATCH_SIZE)))
-            i = 0
-            while i < 1:
+
+
+def get_custom_objects():
+    SeqSelfAttention.get_custom_objects()
+
+
+def simple_mean_ensemble(ticker, model_name='Default',update=False,load_weights='False'):
+    i = 0
+    while i < 10:
+        preds = []
+        back_test_info = []
+        x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
+        x_total = np.concatenate((x_t, x_val))
+        y_total = np.concatenate((y_t, y_val))
+        for model in os.listdir(f'data\output\models\{model_name}'):
+            if model.endswith('.h5'):
+                saved_model = load_model(os.path.join(f'data\output\models\{model_name}', model),
+                                         custom_objects={'SeqSelfAttention': SeqSelfAttention,'mean_squared_error_custom':mean_squared_error_custom})
+                if update == True:
+                    history_lstm = saved_model.fit(trim_dataset(x_val, BATCH_SIZE), trim_dataset(y_val, BATCH_SIZE),
+                                                   epochs=1, verbose=1, batch_size=BATCH_SIZE,
+                                                   shuffle=False, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
+                                                                                   trim_dataset(y_test_t, BATCH_SIZE)))
+
                 y_pred_lstm = saved_model.predict(trim_dataset(x_test_t, BATCH_SIZE), batch_size=BATCH_SIZE)
-                y_pred_lstm = y_pred_lstm.flatten()
+                #y_pred_lstm = y_pred_lstm.flatten()
                 # y_pred, y_test = unscale_data(ticker, y_pred_lstm, y_test_t)
 
                 print('Model',model)
-                percor = back_test(y_pred_lstm, y_test_t)
-                if percor >= 0:
-                    preds.append(y_pred_lstm)
+                backtest(y_test_t, y_pred_lstm)
                 i+=1
 
 
-    mean_preds = np.mean(preds,axis=0)
+        mean_preds = np.mean(preds,axis=0)
 
-    y_test = trim_dataset(y_test_t, BATCH_SIZE)
-    up_or_down(mean_preds)
-    back_test(mean_preds,y_test)
 
-    plot_results(mean_preds,y_test)
 
-#simple_mean_ensemble(ticker,model_name=f'working_models_clean\\{ticker}',update=False,load_weights=False)
+        y_test = trim_dataset(y_test_t, BATCH_SIZE)
+        np.set_printoptions(threshold=np.inf)
+
+        # up_or_down(mean_preds)
+        # back_test(mean_preds,y_test)
+        #
+        # plot_results(mean_preds,y_test)
+
+simple_mean_ensemble(ticker,model_name=f'working_models_clean\\{ticker}',update=True,load_weights=False)
 
 def update_models(ticker_list=['HUV.TO'], model_name_load='Default',
                   model_name_save='Default'):
@@ -167,7 +179,7 @@ def keras_ensembly():
         y_pred_lstm = y_pred_lstm.flatten()
     # y_pred, y_test = unscale_data(ticker, y_pred_lstm, y_test_t)
         percor =  back_test(y_pred_lstm, y_test_t)
-        if percor >= 1.3:
+        if percor >= 1:
             preds.append(y_pred_lstm)
 
         i+=1
@@ -180,7 +192,7 @@ def keras_ensembly():
     back_test(mean_preds,y_test)
     plot_results(mean_preds, y_test)
 
-keras_ensembly()
+#keras_ensembly()
 
 def model_cleanup():
     for subdir, dirs, files in os.walk(f'data\output\models\cleanup'):

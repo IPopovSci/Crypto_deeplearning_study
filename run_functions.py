@@ -1,18 +1,17 @@
 from Arguments import args
-from yfinance_facade import ticker_data, aux_data
-from ta_feature_add import add_ta
-from Detrending import test_stationarity, row_difference, inverse_difference
-import matplotlib.pyplot as plt
-from data_split import train_test_split_custom, x_y_split
-from data_scaling import SS_transform,min_max_transform
+from Data_Processing.get_data import ticker_data, aux_data, scv_data
+from Data_Processing.ta_feature_add import add_ta
+from Data_Processing.Detrending import row_difference
+from Data_Processing.data_split import train_test_split_custom, x_y_split
+from Data_Processing.data_scaling import SS_transform,min_max_transform
 from PCA import pca_reduction
-from build_timeseries import build_timeseries
+from Data_Processing.build_timeseries import build_timeseries
 
 ticker = args['ticker']
 BATCH_SIZE = args['batch_size']
 start_date = args['starting_date']
 
-def data_prep(TICKER):
+def data_prep():
     '''Step 1: Get Data'''
     ticker_history = ticker_data(ticker, start_date)
     aux_history = aux_data(ticker_history, ['CL=F', 'GC=F', '^VIX', '^TNX'], start_date)  # Get any extra data

@@ -1,16 +1,16 @@
 
-from yfinance_facade import ticker_data
+from Data_Processing.get_data import ticker_data
 import pandas as pd
 from Arguments import args
 
 import numpy as np
 from data_trim import trim_dataset_conv
-from ta_feature_add import add_ta
+from Data_Processing.ta_feature_add import add_ta
 from Visual_Network import data_proc
 import tensorflow as tf
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import minmax_scale,scale
-from build_timeseries import build_timeseries_conv
+from Data_Processing.build_timeseries import build_timeseries_conv
 from Visual_Network import LSTM_network_conv
 
 ticker = args['ticker']

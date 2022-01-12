@@ -5,6 +5,11 @@ import os
 import numpy as np
 from Arguments import args
 tf.config.experimental_run_functions_eagerly(True)
+from tensorflow.python.framework import ops
+from tensorflow.python.ops import array_ops
+from tensorflow.python.ops import math_ops
+from tensorflow.python.ops import nn
+
 #TODO: Custom loss that simulates buying - add when moving in the same direction, substract when different
 def custom_loss(y_true, y_pred):
     # extract the "next day's price" of tensor
@@ -43,7 +48,7 @@ def custom_loss(y_true, y_pred):
     # create a tensor to store directional loss and put it into custom loss output
     direction_loss = tf.Variable(tf.ones_like(y_pred), dtype='float32')
     updates = K.cast(tf.ones_like(indices), dtype='float32')
-    alpha = 3250
+    alpha = 2500
     direction_loss = tf.compat.v1.scatter_nd_update(direction_loss, indices, alpha * updates)
 
     custom_loss = K.mean(tf.multiply(K.square((K.log(y_true + 1.)) - (K.log(y_pred + 1.))), direction_loss), axis=-1)
@@ -103,6 +108,7 @@ def ratio_loss(y_true, y_pred):
 
     while i > -len(y_pred) + 1:
         prediction = float((y_pred[i - 1] - y_pred[i - 2]) / (y_pred[i - 2]+0.000000001))
+        #print(prediction)
         true = float((y_true[i] - y_true[i - 1]) / (y_true[i - 1]+0.000000001))
 
         square_error_f = tf.abs(tf.divide(tf.subtract(tf.square(true), tf.multiply(prediction, true)),
@@ -141,7 +147,7 @@ def ratio_loss(y_true, y_pred):
 
     #mse = tf.Variable(mse,shape=(len(mse),1),dtype='float')
 
-    return tf.reduce_mean(custom_loss_direction(y_true,y_pred))#*custom_loss_direction(y_true,y_pred)) #* custom_loss_direction(y_true,y_pred)#tf.reduce_mean(soft_sign_error) #tf.reduce_mean(true_preds)*tf.reduce_mean(soft_sign_error)
+    return tf.reduce_mean(true_preds) * tf.reduce_mean(soft_sign_error)#*custom_loss_direction(y_true,y_pred)) #* custom_loss_direction(y_true,y_pred)#tf.reduce_mean(soft_sign_error) #tf.reduce_mean(true_preds)*tf.reduce_mean(soft_sign_error)
     #for 2 stable models have only tf.reduce_mean(true_preds) * tf.reduce_mean(soft_sign_error) here w/ append of 10 for wrong direction
 mcp = ModelCheckpoint(os.path.join('data\output', "best_lstm_model.h5"), monitor='val_loss', verbose=2, save_best_only=True, save_weights_only=False, mode='max', period=1)
 #TODO: Debug this, I have a hunch it doesn't work right when calculating the metric
@@ -169,12 +175,15 @@ def my_metric_fn(y_true, y_pred):
 
     return tf.reduce_sum(true_preds)
 
-class new_loss(tf.keras.losses.Loss):
-    def __init__(self, regularization_factor=0.1, name="custom_mse"):
-        super().__init__(name=name)
-        self.regularization_factor = regularization_factor
+def mean_squared_error_custom(y_true, y_pred):
+    y_pred = ops.convert_to_tensor_v2(y_pred)
+    y_true = math_ops.cast(y_true, y_pred.dtype)
+    y_pred_sign = math_ops.sign(y_pred)
+    y_true_sign = math_ops.sign(y_true)
+    abs_sign = math_ops.abs(math_ops.subtract(y_pred_sign,y_true_sign))
+    first_log = math_ops.log(K.maximum(y_pred, K.epsilon()) + 1.)
+    second_log = math_ops.log(K.maximum(y_true, K.epsilon()) + 1.)
+    loss_sign = math_ops.add(math_ops.multiply(math_ops.abs(math_ops.subtract(0, math_ops.multiply(y_pred,100))),abs_sign),(math_ops.squared_difference(y_pred, y_true)))
 
-    def call(self, y_true, y_pred):
-        mse = tf.math.reduce_mean(tf.square(y_true - y_pred))
-        reg = tf.math.reduce_mean(tf.square(0.5 - y_pred))
-        return mse + reg * self.regularization_factor
+    return K.mean(loss_sign) #Substracting by how close it is off
+tf.keras.losses.MeanSquaredLogarithmicError()

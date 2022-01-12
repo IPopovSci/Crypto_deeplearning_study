@@ -1,15 +1,15 @@
 class Arguments:
     def __init__(self):
         self.args = {
-            'starting_date': "1990-01-02",
-            'ticker': '^NDX',
-            'train_size': 0.95,
-            'test_size': 0.05,
+            'starting_date': "1991-01-02",
+            'ticker': 'QQQ',
+            'train_size': 0.8,
+            'test_size': 0.2,
             'target_features':None,
             'data_types': ['training', 'validation', 'test'],
             'n_components': None,  # n_components is responsible for designating number of features the data will be reduced to
-            'time_steps': 7,
-            'batch_size': 32,
+            'time_steps': 120,
+            'batch_size': 256,
             'epochs': 256,
             'LR': 0.00000010000,
             'split_constants': {
