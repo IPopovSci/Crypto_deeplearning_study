@@ -1,7 +1,6 @@
-import pandas as pd
 import numpy as np
 from Arguments import args
-from data_trim import trim_dataset
+from Data_Processing.data_trim import trim_dataset
 
 '''This takes training or test data and returns x,y scaled using window approach (Unless TIME_STEPS = 1)'''
 def build_timeseries(x_t,y_t):

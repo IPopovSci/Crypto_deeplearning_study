@@ -149,7 +149,7 @@ def ratio_loss(y_true, y_pred):
 
     return tf.reduce_mean(true_preds) * tf.reduce_mean(soft_sign_error)#*custom_loss_direction(y_true,y_pred)) #* custom_loss_direction(y_true,y_pred)#tf.reduce_mean(soft_sign_error) #tf.reduce_mean(true_preds)*tf.reduce_mean(soft_sign_error)
     #for 2 stable models have only tf.reduce_mean(true_preds) * tf.reduce_mean(soft_sign_error) here w/ append of 10 for wrong direction
-mcp = ModelCheckpoint(os.path.join('data\output', "best_lstm_model.h5"), monitor='val_loss', verbose=2, save_best_only=True, save_weights_only=False, mode='max', period=1)
+mcp = ModelCheckpoint(os.path.join('../data/output', "best_lstm_model.h5"), monitor='val_loss', verbose=2, save_best_only=True, save_weights_only=False, mode='max', period=1)
 #TODO: Debug this, I have a hunch it doesn't work right when calculating the metric
 def my_metric_fn(y_true, y_pred):
     i = -1

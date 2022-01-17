@@ -1,11 +1,3 @@
-from Arguments import args
-from Data_Processing.get_data import ticker_data, aux_data
-from Data_Processing.ta_feature_add import add_ta
-from Data_Processing.Detrending import row_difference
-from Data_Processing.data_split import train_test_split_custom, x_y_split
-from Data_Processing.data_scaling import SS_transform,min_max_transform
-from PCA import pca_reduction
-from Data_Processing.build_timeseries import build_timeseries
 '''Operation: Pancake swap guess
 Goal: 5 Minute predictions for pancakeswap prediction game
 Needed: Train the network on ETH-USDT dataset

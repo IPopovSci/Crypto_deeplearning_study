@@ -4,7 +4,7 @@ import pandas as pd
 from Arguments import args
 
 import numpy as np
-from data_trim import trim_dataset_conv
+from Data_Processing.data_trim import trim_dataset_conv
 from Data_Processing.ta_feature_add import add_ta
 from Visual_Network import data_proc
 import tensorflow as tf

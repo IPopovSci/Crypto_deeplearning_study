@@ -1,19 +1,19 @@
 from pipeline import data_prep
 from Arguments import args
-from data_trim import trim_dataset
+from Data_Processing.data_trim import trim_dataset
 from tensorflow.keras.callbacks import ModelCheckpoint
-from callbacks import custom_loss,ratio_loss,my_metric_fn,mean_squared_error_custom
-from tensorflow.keras.models import Sequential, load_model
+from LSTM.callbacks import custom_loss,ratio_loss,my_metric_fn,mean_squared_error_custom
+from tensorflow.keras.models import load_model
 from attention import Attention
 #from plotting import plot_results
-from LSTM_Model_Ensembly import create_model_ensembly,create_model_ensembly_average
+from LSTM.LSTM_Model_Ensembly import create_model_ensembly_average
 import numpy as np
-import os, random
+import os
 import tensorflow as tf
 import random
 from Backtesting_old import up_or_down,back_test
 import statistics
-from LSTM_network import create_lstm_model as create_model
+from LSTM.LSTM_network import create_lstm_model as create_model
 from keras_self_attention import SeqSelfAttention
 from Backtesting.Backtest_DaysCorrect import backtest
 
@@ -195,7 +195,7 @@ def keras_ensembly():
 #keras_ensembly()
 
 def model_cleanup():
-    for subdir, dirs, files in os.walk(f'data\output\models\cleanup'):
+    for subdir, dirs, files in os.walk(f'../data/output/models/Cleanup'):
         for dir in dirs:
             args['ticker'] = dir
             x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(dir)
