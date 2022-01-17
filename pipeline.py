@@ -1,5 +1,5 @@
 from Arguments import args
-from Data_Processing.get_data import ticker_data, aux_data, scv_data
+from Data_Processing.get_data import ticker_data, aux_data, scv_data, cryptowatch_data
 from Data_Processing.ta_feature_add import add_ta
 from Data_Processing.Detrending import row_difference
 from Data_Processing.data_split import train_test_split_custom, x_y_split
@@ -11,12 +11,18 @@ ticker = args['ticker']
 BATCH_SIZE = args['batch_size']
 start_date = args['starting_date']
 
-def data_prep():
+'''This is the pipeline function, which will call upon required functions to load and process the data'''
+def data_prep(data_from):
     '''Step 1: Get Data'''
-    ticker_history = ticker_data(ticker, start_date)
-    aux_history = aux_data(ticker_history, ['CL=F', 'GC=F', '^VIX', '^TNX'], start_date)  # Get any extra data
+    if data_from == 'Yahoo':
+        history = ticker_data(ticker, start_date)
+        history = aux_data(history, ['CL=F', 'GC=F', '^VIX', '^TNX'], start_date)  # Get any extra data
+    elif data_from == 'CSV':
+        history = scv_data(ticker)
+    elif data_from == 'cryptowatch':
+        history = cryptowatch_data(ticker,'5m')
     '''Step 2: Apply TA Analysis'''
-    ta_data = add_ta(aux_history, ticker)  # The columns names can be acessed from arguments 'train_cols'
+    ta_data = add_ta(history, ticker)  # The columns names can be acessed from arguments 'train_cols'
     '''Step 3: Detrend the data'''
     one_day_detrend = row_difference(ta_data)
     '''Step 4: Split data into training/testing'''

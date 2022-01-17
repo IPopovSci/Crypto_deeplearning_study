@@ -1,11 +1,11 @@
-from run_functions import data_prep
+from pipeline import data_prep
 from Arguments import args
 from data_trim import trim_dataset
 from tensorflow.keras.callbacks import ModelCheckpoint
 from callbacks import custom_loss,ratio_loss,my_metric_fn,mean_squared_error_custom
 from tensorflow.keras.models import Sequential, load_model
 from attention import Attention
-from plotting import plot_results
+#from plotting import plot_results
 from LSTM_Model_Ensembly import create_model_ensembly,create_model_ensembly_average
 import numpy as np
 import os, random
@@ -21,7 +21,7 @@ from Backtesting.Backtest_DaysCorrect import backtest
 #TODO: Read the timesries keras tutorial, look up special layers for using selu, can you lambda loop in the loss?
 ticker = args['ticker']
 
-x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
+x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep('CSV')
 BATCH_SIZE = args['batch_size']
 epoch = None
 val_loss = None
@@ -68,8 +68,8 @@ def train_models(x_t, y_t, x_val, y_val, x_test_t,y_test_t, num_models=1, model_
                                                                         trim_dataset(y_test_t, BATCH_SIZE)), callbacks=[mcp,reduce_lr])
 
 
-#train_models(x_t,y_t,x_val,y_val,x_test_t,y_test_t,20,'QQQ',multiple=False)
-ticker = 'QQQ'
+#train_models(x_t,y_t,x_val,y_val,x_test_t,y_test_t,20,'ethust',multiple=False)
+ticker = 'ethust'
 args['ticker'] = ticker
 
 
@@ -82,7 +82,7 @@ def simple_mean_ensemble(ticker, model_name='Default',update=False,load_weights=
     while i < 10:
         preds = []
         back_test_info = []
-        x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
+        x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep('CSV')
         x_total = np.concatenate((x_t, x_val))
         y_total = np.concatenate((y_t, y_val))
         for model in os.listdir(f'data\output\models\{model_name}'):

@@ -6,31 +6,17 @@ from Data_Processing.data_split import train_test_split_custom, x_y_split
 from Data_Processing.data_scaling import SS_transform,min_max_transform
 from PCA import pca_reduction
 from Data_Processing.build_timeseries import build_timeseries
+'''Operation: Pancake swap guess
+Goal: 5 Minute predictions for pancakeswap prediction game
+Needed: Train the network on ETH-USDT dataset
+Required: New model training module, with data batch-load to avoid loading whole set into RAM
+Needed: Transfer learning to BNB-USDT dataset
+Required: Coingecko API hookup (Going to use a different one)
+          1 minute to 5 minute candle conversions (Can we make it universal, from 1 minute to any interval?)
+Required: Test hand-made dataset to test neural network
+Required: Shift the 5m dataset so it alligns with pancake swap one'''
 
 
-ticker = args['ticker']
-BATCH_SIZE = args['batch_size']
-start_date = args['starting_date']
-
-'''Step 1: Get Data'''
-ticker_history = ticker_data(ticker, start_date)
-aux_history = aux_data(ticker_history, ['CL=F', 'GC=F', '^VIX', '^TNX'], start_date)  # Get any extra data
-'''Step 2: Apply TA Analysis'''
-ta_data = add_ta(aux_history, ticker)  # The columns names can be acessed from arguments 'train_cols'
-'''Step 3: Detrend the data'''
-one_day_detrend = row_difference(ta_data)
-'''Step 4: Split data into training/testing'''
-x_train, x_validation, x_test = train_test_split_custom(one_day_detrend)
-'''Step 5: SS Transform'''
-x_train, x_validation, x_test, SS_scaler = SS_transform(x_train, x_validation, x_test)
-'''Step 6: Split data into x and y'''
-x_train, x_validation, x_test, y_train, y_validation, y_test = x_y_split(x_train, x_validation, x_test)
-'''Step 7: PCA'''
-x_train, x_validation, x_test = pca_reduction(x_train, x_validation, x_test)
-'''Step 8: Min-max scaler (-1 to 1 for sigmoid)'''
-x_train,x_validation,x_test,y_train, y_validation, y_test, mm_scaler_y = min_max_transform(x_train, x_validation, x_test, y_train, y_validation, y_test)
-'''Step 9: Create time-series data'''
-x_train_ts,y_train_ts = build_timeseries(x_train,y_train)
 
 
 '''From Paper what good practices should be: http://yann.lecun.com/exdb/publis/pdf/lecun-98b.pdf
