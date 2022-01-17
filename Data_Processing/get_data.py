@@ -85,8 +85,8 @@ def cryptowatch_data(pair, periods):
 
     hist_list = getattr(hist, f'of_{periods}')  # Calling a method on a class to get the desired interval
 
-    col = ['time', 'open', 'high', 'low', 'close', 'volume_a',
-           'volume']  # Volume is the volume in USDT in this case, volume_a is the volume in first currency
+    col = ['time', 'Open', 'High', 'Low', 'Close', 'volume_a',
+           'Volume']  # Volume is the volume in USDT in this case, volume_a is the volume in first currency
     df = pd.DataFrame(hist_list, columns=col)
     df.drop(['time', 'volume_a'], axis=1, inplace=True)  # getting rid of first currency volume
     print(df)
