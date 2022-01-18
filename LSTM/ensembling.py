@@ -26,7 +26,7 @@ BATCH_SIZE = args['batch_size']
 epoch = None
 val_loss = None
 
-
+'''This is deprecated af, leaving as reference'''
 def train_models(x_t, y_t, x_val, y_val, x_test_t,y_test_t, num_models=1, model_name='Default',multiple=False):
     ticker = args['ticker']
     continuous_list = ['^RUT','AAPL','KO','^N225','PEP','PFE','^FTSE','IBM','ETH-USD','ED','BK','BTC-USD','^GDAXI','^FCHI','^STOXX50E','^N100','BFX','IMOEX.ME','^BUK100P','^XAX','^NYA','^GSPC','^IXIC']

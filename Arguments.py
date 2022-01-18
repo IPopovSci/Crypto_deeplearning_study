@@ -2,7 +2,7 @@ class Arguments:
     def __init__(self):
         self.args = {
             'starting_date': "1991-01-02",
-            'ticker': 'ethust',
+            'ticker': 'ethusd',
             'train_size': 0.9,
             'test_size': 0.1,
             'target_features':None,

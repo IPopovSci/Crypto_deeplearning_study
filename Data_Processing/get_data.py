@@ -54,11 +54,13 @@ def aux_data(df_main, aux_ticker_list, start_date):
 
 
 def scv_data(pair):
-    col = ['open', 'high', 'low', 'close', 'volume']
+    col = ['time', 'open', 'high', 'low', 'close', 'volume']
     df = pd.read_csv(f'C:\\Users\\Ivan\\PycharmProjects\\MlFinancialAnal\\data\datasets\{pair}\{pair}.csv')
     df = df[col]
     df.rename(columns={'open': 'Open', 'high': 'High', 'low': 'Low', 'close': 'Close', 'volume': 'Volume'},
               inplace=True)  # Data from kaggle doesn't have capitalization, this is a fix
+    df['time'] = pd.to_datetime(df['time'], unit='ms')  # Unix to datetime conversion
+    df.set_index('time', inplace=True)
 
     return df
 
@@ -88,6 +90,9 @@ def cryptowatch_data(pair, periods):
     col = ['time', 'Open', 'High', 'Low', 'Close', 'volume_a',
            'Volume']  # Volume is the volume in USDT in this case, volume_a is the volume in first currency
     df = pd.DataFrame(hist_list, columns=col)
-    df.drop(['time', 'volume_a'], axis=1, inplace=True)  # getting rid of first currency volume
-    print(df)
+    df.drop(['volume_a'], axis=1, inplace=True)  # getting rid of first currency volume
+
+    df['time'] = pd.to_datetime(df['time'], unit='s')  # Unix to datetime conversion
+    df.set_index('time', inplace=True)
+
 # cryptowatch_data('BNBUSDT','5m')
