@@ -21,7 +21,7 @@ from Backtesting.Backtest_DaysCorrect import backtest
 #TODO: Read the timesries keras tutorial, look up special layers for using selu, can you lambda loop in the loss?
 ticker = args['ticker']
 
-x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep('CSV')
+# x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep('CSV')
 BATCH_SIZE = args['batch_size']
 epoch = None
 val_loss = None
@@ -68,8 +68,8 @@ def train_models(x_t, y_t, x_val, y_val, x_test_t,y_test_t, num_models=1, model_
                                                                         trim_dataset(y_test_t, BATCH_SIZE)), callbacks=[mcp,reduce_lr])
 
 
-#train_models(x_t,y_t,x_val,y_val,x_test_t,y_test_t,20,'ethust',multiple=False)
-ticker = 'ethust'
+#train_models(x_t,y_t,x_val,y_val,x_test_t,y_test_t,20,'ethusd',multiple=False)
+ticker = 'bnbusdt'
 args['ticker'] = ticker
 
 
@@ -82,12 +82,12 @@ def simple_mean_ensemble(ticker, model_name='Default',update=False,load_weights=
     while i < 10:
         preds = []
         back_test_info = []
-        x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep('CSV')
+        x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep('cryptowatch')
         x_total = np.concatenate((x_t, x_val))
         y_total = np.concatenate((y_t, y_val))
-        for model in os.listdir(f'data\output\models\{model_name}'):
+        for model in os.listdir(f'data\output\\'):
             if model.endswith('.h5'):
-                saved_model = load_model(os.path.join(f'data\output\models\{model_name}', model),
+                saved_model = load_model(os.path.join(f'data\output\\', model),
                                          custom_objects={'SeqSelfAttention': SeqSelfAttention,'mean_squared_error_custom':mean_squared_error_custom})
                 if update == True:
                     history_lstm = saved_model.fit(trim_dataset(x_val, BATCH_SIZE), trim_dataset(y_val, BATCH_SIZE),

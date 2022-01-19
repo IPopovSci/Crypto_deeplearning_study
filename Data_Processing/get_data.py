@@ -95,4 +95,6 @@ def cryptowatch_data(pair, periods):
     df['time'] = pd.to_datetime(df['time'], unit='s')  # Unix to datetime conversion
     df.set_index('time', inplace=True)
 
-# cryptowatch_data('BNBUSDT','5m')
+    return df
+
+print(cryptowatch_data('BNBUSDT','5m'))

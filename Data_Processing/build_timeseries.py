@@ -9,8 +9,8 @@ def build_timeseries(x_t,y_t):
     y_t = y_t[1:]
 
     TIME_STEPS = args["time_steps"]
-    print(x_t.shape)
-    print(y_t.shape) #So we have 5 outputs now, need a new loop
+    # print(x_t.shape)
+    # print(y_t.shape) #So we have 5 outputs now, need a new loop
 
     dim_0 = x_t.shape[0] - TIME_STEPS
     dim_1 = x_t.shape[1]
