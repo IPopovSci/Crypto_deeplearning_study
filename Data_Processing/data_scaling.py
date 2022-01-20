@@ -21,6 +21,15 @@ def SS_transform(x_train,x_validation,x_test):
     x_test_ss = sc.transform(x_test)
 
     return x_train_ss,x_validation_ss,x_test_ss,sc
+'''For transfer learning on small datasets, no validation, no test'''
+def SS_transform_small(x_train):
+
+    sc = StandardScaler()
+
+    x_train_ss = sc.fit_transform(x_train)
+
+
+    return x_train_ss,sc
 
 '''Min-max Scaler for convering values to (-1,1) domain
 y values are converted based on y training data'''
@@ -42,3 +51,16 @@ def min_max_transform(x_train,x_validation,x_test,y_train, y_validation, y_test)
     y_test = mm.transform(y_test)
 
     return x_train,x_validation,x_test,y_train, y_validation, y_test, mm
+
+'''min max for a singular dataset'''
+
+def min_max_transform_small(x_train,y_train): #old version doesn't do robust scaling, use when predding from older models
+
+    mm = MinMaxScaler(feature_range=(-1,1)) #Define scaler
+
+    x_train = mm.fit_transform(x_train)
+
+    y_train = mm.fit_transform(y_train)
+
+
+    return x_train,y_train, mm
