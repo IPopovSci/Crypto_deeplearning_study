@@ -1,4 +1,4 @@
-from pipeline import data_prep_batch
+from pipeline import data_prep_batch_1,data_prep_batch_2
 from Arguments import args
 from Data_Processing.data_trim import trim_dataset
 from tensorflow.keras.callbacks import ModelCheckpoint
@@ -22,7 +22,7 @@ BATCH_SIZE = args['batch_size']
 ticker = args['ticker']
 
 def train_model_batch(start,increment,model_name='Default'):
-    x_t, y_t, x_val, y_val, x_test_t, y_test_t, size = data_prep_batch('CSV',start, increment)
+    x_t, y_t, x_val, y_val, x_test_t, y_test_t, size = data_prep_batch_1('CSV')
 
     early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=12)
 
@@ -30,16 +30,17 @@ def train_model_batch(start,increment,model_name='Default'):
                                                      patience=4, min_lr=0.000000000000000000000000000000000001,
                                                      verbose=1, mode='min')
     mcp = ModelCheckpoint(
-        os.path.join(f'data\output\models\{ticker}\\',
+        os.path.join(f'F:\MM\models\{ticker}\\',
                      "{val_loss:.8f}_{loss:.8f}-best_model-{epoch:02d}.h5"),
         monitor='val_loss', verbose=3,
         save_best_only=False, save_weights_only=False, mode='min', period=1)
 
-    lstm_model = create_model(x_t)
+    x_ts, y_ts = data_prep_batch_2(x_t, y_t, start, increment)
+    lstm_model = create_model(x_ts) #We can eliminate dependancy on x_ts (And therefore previous line) if we get the number of features somewhere in the pipeline
     end = increment
     while end < size:
-        x_t, y_t, _, _, _, _, _ = data_prep_batch('CSV',start, end)
-        history_lstm = lstm_model.fit(trim_dataset(x_t, BATCH_SIZE), trim_dataset(y_t, BATCH_SIZE), epochs=1,
+        x_train, y_train = data_prep_batch_2(x_t,y_t,start, end)
+        history_lstm = lstm_model.fit(trim_dataset(x_train, BATCH_SIZE), trim_dataset(y_train, BATCH_SIZE), epochs=1,
                                       verbose=1, batch_size=BATCH_SIZE,
                                       shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
                                                                       trim_dataset(y_val, BATCH_SIZE)),

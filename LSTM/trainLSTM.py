@@ -57,7 +57,7 @@ def train_model_batch(model_name='Default'):
                                                      patience=4, min_lr=0.000000000000000000000000000000000001,
                                                      verbose=1, mode='min')
     mcp = ModelCheckpoint(
-        os.path.join(f'data\output\\',
+        os.path.join(f'F:\models\{ticker}\\',
                      "{val_loss:.8f}_{loss:.8f}-best_model-{epoch:02d}.h5"),
         monitor='val_loss', verbose=3,
         save_best_only=False, save_weights_only=False, mode='min', period=1)

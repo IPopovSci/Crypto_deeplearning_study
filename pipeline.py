@@ -55,7 +55,7 @@ def data_prep(data_from):
     print('timeseries = built')
     return x_train, y_train, x_validation, y_validation, x_test, y_test
 
-def data_prep_batch(data_from,i,j):
+def data_prep_batch_1(data_from):
     '''Step 1: Get Data'''
     if data_from == 'Yahoo':
         history = ticker_data(ticker, start_date)
@@ -91,15 +91,13 @@ def data_prep_batch(data_from,i,j):
     print('Min-maxed to the tits')
     size = len(x_train) - 1
     '''Step 9: Create time-series data'''
-    x_train_save, y_train_save = build_timeseries(x_train[i:j], y_train[i:j])
-    # x_train_save.tofile(f'x_{ticker}_{i}_to_{j}.csv',sep = ',')
-    # y_train_save.tofile(f'y_{ticker}_{i}_to_{j}.csv', sep=',')
-    # np.savetxt(f'data/datasets/partial/{ticker}/x_{ticker}_{i}_to_{j}.csv',x_train_save,delimiter=',')
-    # np.savetxt(f'data/datasets/partial/{ticker}/y_{ticker}_{i}_to_{j}.csv', y_train_save, delimiter=',') #Saving 3d array to file is a phail
-    print(f'Loaded {ticker} {i} to {j}')
 
     x_validation, y_validation = build_timeseries(x_validation, y_validation) #Can make validation and set arbitrary small, so just the x_train, y_train that need to be cut
     x_test, y_test = build_timeseries(x_test, y_test)
     print('timeseries = built')
-    return x_train_save, y_train_save, x_validation, y_validation, x_test, y_test, size
-#data_prep_batch('CSV',0,10000)
+    return x_train, y_train, x_validation, y_validation, x_test, y_test, size
+
+def data_prep_batch_2(x_train,y_train,i,j):
+    x_train_save, y_train_save = build_timeseries(x_train[i:j], y_train[i:j])
+    print(f'Loaded {ticker} {i} to {j}')
+    return x_train_save,y_train_save

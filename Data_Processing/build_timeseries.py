@@ -14,7 +14,7 @@ def build_timeseries(x_t,y_t):
 
     dim_0 = x_t.shape[0] - TIME_STEPS
     dim_1 = x_t.shape[1]
-
+    print(dim_0,TIME_STEPS,dim_1)
 
 
     x = np.zeros((dim_0, TIME_STEPS, dim_1))
