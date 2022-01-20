@@ -3,7 +3,7 @@ from Arguments import args
 from LSTM.callbacks import mean_squared_error_custom
 import tensorflow as tf
 from keras_self_attention import SeqSelfAttention
-
+from tensorflow.keras import initializers
 
 
 
@@ -14,41 +14,42 @@ def create_lstm_model(x_t):
 
     input = Input(batch_shape=(BATCH_SIZE, TIME_STEPS, x_t.shape[2]))
     regularizer = tf.keras.regularizers.l1_l2(1e-4)
+    kernel_init = initializers.RandomNormal(stddev=0.5)
 
 # #This is First side-chain: input>LSTM(stateful)>LSTM(stateful)>TD Dense layer. The output is a 3d vector
-    LSTM_1 = LSTM(int(50), return_sequences=True, stateful=True,activation='softsign')(input)
+    LSTM_1 = LSTM(int(75), return_sequences=True, stateful=True,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(input)
 #
-    LSTM_2 = LSTM(int(25), return_sequences=True, stateful=True,activation='softsign')(LSTM_1)
+    LSTM_2 = LSTM(int(50), return_sequences=True, stateful=True,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(LSTM_1)
 
-    Dense_1 = TimeDistributed(Dense(25,activation='softsign'))(LSTM_2)
+    Dense_1 = TimeDistributed(Dense(50,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init))(LSTM_2)
 #This is the attention side-chain: LSTM(Stateless)>LSTM>Attention. The output is a 3d vector
-    LSTM_3 = LSTM(int(50), return_sequences=True, stateful=False,activation='softsign')(input)
+    LSTM_3 = LSTM(int(75), return_sequences=True, stateful=True,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(input)
 
-    LSTM_4 = LSTM(int(25), return_sequences=True, stateful=False,activation='softsign')(LSTM_3)
+    LSTM_4 = LSTM(int(50), return_sequences=True, stateful=False,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(LSTM_3)
 
-    attention_1 = SeqSelfAttention(attention_activation='softsign',attention_type='additive')(LSTM_4)
+    attention_1 = SeqSelfAttention(attention_activation='softsign',attention_type='additive',kernel_initializer=kernel_init,bias_initializer=kernel_init)(LSTM_4)
 # This is the attention side-chain: LSTM(Stateless)>LSTM>Attention. The output is a 3d vector
-    LSTM_5 = LSTM(int(50), return_sequences=True, stateful=False, activation='softsign')(input)
+    LSTM_5 = LSTM(int(75), return_sequences=True, stateful=True, activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(input)
 
-    LSTM_6 = LSTM(int(25), return_sequences=True, stateful=False, activation='softsign')(LSTM_5)
+    LSTM_6 = LSTM(int(50), return_sequences=True, stateful=False, activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(LSTM_5)
 
-    attention_2 = SeqSelfAttention(attention_activation='softsign',attention_type='multiplicative')(LSTM_6)
+    attention_2 = SeqSelfAttention(attention_activation='softsign',attention_type='multiplicative',kernel_initializer=kernel_init,bias_initializer=kernel_init)(LSTM_6)
 #Concat the sidechains and provide output (5 values, 2d vector)
 
     concat = tf.keras.layers.concatenate([Dense_1,attention_1,attention_2])
 
-    LSTM_fin = LSTM(150,return_sequences=True,stateful=True,activation='softsign')(concat)
+    LSTM_fin = LSTM(200,return_sequences=True,stateful=True,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(concat)
 
-    LSTM_fin_2 = LSTM(150,return_sequences=False,stateful=False,activation='softsign')(LSTM_fin)
+    LSTM_fin_2 = LSTM(150,return_sequences=False,stateful=False,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(LSTM_fin)
 
 
-    Dense_fin = Dense(100,activation='softsign')(LSTM_fin_2)
+    Dense_fin = Dense(150,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(LSTM_fin_2)
 #
 
 
 
 
-    output = tf.keras.layers.Dense(5,activation='softsign')(Dense_fin)
+    output = tf.keras.layers.Dense(5,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(Dense_fin)
 
 
     lstm_model = tf.keras.Model(inputs=input, outputs=output)
