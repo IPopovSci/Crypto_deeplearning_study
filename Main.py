@@ -8,6 +8,7 @@ Required: Coingecko API hookup (Going to use a different one)
 Required: Test hand-made dataset to test neural network
 Required: Shift the 5m dataset so it alligns with pancake swap one'''
 
+#TODO:create transfer_learning function (to update model), create prediction function, create backtests, train model, test out models by hand.
 
 
 

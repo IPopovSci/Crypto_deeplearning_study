@@ -6,7 +6,7 @@ from LSTM.callbacks import custom_loss,ratio_loss,my_metric_fn,mean_squared_erro
 from tensorflow.keras.models import load_model
 from attention import Attention
 #from plotting import plot_results
-from LSTM.LSTM_Model_Ensembly import create_model_ensembly_average
+from Old_and_crap.LSTM_Model_Ensembly import create_model_ensembly_average
 import numpy as np
 import os
 import tensorflow as tf

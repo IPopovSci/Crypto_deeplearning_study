@@ -14,7 +14,7 @@ def create_lstm_model(x_t):
 
     input = Input(batch_shape=(BATCH_SIZE, TIME_STEPS, x_t.shape[2]))
     regularizer = tf.keras.regularizers.l1_l2(1e-4)
-    kernel_init = initializers.RandomNormal(stddev=0.5)
+    kernel_init = initializers.RandomNormal(stddev=0.05)
 
 # #This is First side-chain: input>LSTM(stateful)>LSTM(stateful)>TD Dense layer. The output is a 3d vector
     LSTM_1 = LSTM(int(75), return_sequences=True, stateful=True,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(input)
@@ -23,13 +23,13 @@ def create_lstm_model(x_t):
 
     Dense_1 = TimeDistributed(Dense(50,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init))(LSTM_2)
 #This is the attention side-chain: LSTM(Stateless)>LSTM>Attention. The output is a 3d vector
-    LSTM_3 = LSTM(int(75), return_sequences=True, stateful=True,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(input)
+    LSTM_3 = LSTM(int(75), return_sequences=True, stateful=False,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(input)
 
     LSTM_4 = LSTM(int(50), return_sequences=True, stateful=False,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(LSTM_3)
 
     attention_1 = SeqSelfAttention(attention_activation='softsign',attention_type='additive',kernel_initializer=kernel_init,bias_initializer=kernel_init)(LSTM_4)
 # This is the attention side-chain: LSTM(Stateless)>LSTM>Attention. The output is a 3d vector
-    LSTM_5 = LSTM(int(75), return_sequences=True, stateful=True, activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(input)
+    LSTM_5 = LSTM(int(75), return_sequences=True, stateful=False, activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(input)
 
     LSTM_6 = LSTM(int(50), return_sequences=True, stateful=False, activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(LSTM_5)
 
@@ -54,7 +54,13 @@ def create_lstm_model(x_t):
 
     lstm_model = tf.keras.Model(inputs=input, outputs=output)
 
-    optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+    lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
+        0.001,
+        decay_steps=100,
+        decay_rate=0.99,
+        staircase=True)
+
+    optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
 
     lstm_model.compile(loss=[mean_squared_error_custom,mean_squared_error_custom,mean_squared_error_custom,mean_squared_error_custom,mean_squared_error_custom], optimizer=optimizer)
     return lstm_model

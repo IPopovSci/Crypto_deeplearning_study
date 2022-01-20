@@ -2,20 +2,10 @@ from pipeline import data_prep_batch_1,data_prep_batch_2
 from Arguments import args
 from Data_Processing.data_trim import trim_dataset
 from tensorflow.keras.callbacks import ModelCheckpoint
-from LSTM.callbacks import custom_loss, ratio_loss, my_metric_fn, mean_squared_error_custom
-from tensorflow.keras.models import load_model
-from attention import Attention
 # from plotting import plot_results
-from LSTM.LSTM_Model_Ensembly import create_model_ensembly_average
-import numpy as np
 import os
 import tensorflow as tf
-import random
-from Backtesting_old import up_or_down, back_test
-import statistics
 from LSTM.LSTM_network import create_lstm_model as create_model
-from keras_self_attention import SeqSelfAttention
-from Backtesting.Backtest_DaysCorrect import backtest
 
 BATCH_SIZE = args['batch_size']
 
@@ -47,4 +37,4 @@ def train_model_batch(start,increment,model_name='Default'):
                                       callbacks=[mcp, reduce_lr])
         start = end
         end += increment
-train_model_batch(0,10000, ticker)
+train_model_batch(0,50000, ticker)

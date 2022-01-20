@@ -76,7 +76,8 @@ def scv_data(pair):
 
 '''Get data from cryptowatch API'''
 '''private key: x4p1k7VvUiRdd+5JLmE5SOm3P1cM/ZQyjPTE61lp
-periods can be: 1m,5m,4h,1d and other (see api docs)'''
+periods can be: 1m,5m,4h,1d and other (see api docs)
+One thousand data points only'''
 import cryptowatch as cw
 
 
@@ -97,4 +98,24 @@ def cryptowatch_data(pair, periods):
 
     return df
 
-print(cryptowatch_data('BNBUSDT','5m'))
+#cryptowatch_data('bnbusdt','5m')
+
+'''Coinapi history grab - only 100 requests/day but 10000 points
+Use for transfer learning step 1, then apply real world with cryptowatch api
+useless for bnb-usd, has no data on it (It says it does but returns empty array)'''
+
+from coinapi_rest_v1.restapi import CoinAPIv1
+import datetime, sys
+
+
+
+# def coinapi_data():
+#     api = CoinAPIv1('7E9EEDF3-DDEA-4176-8046-7BD4BFFE1670')
+#     starting_date = datetime.date(2021, 8, 2).isoformat() #Need to dynamically get 500000 minutes ago, this will do for now
+#
+#     symbols = api.metadata_list_symbols() # FCOIN_SPOT_BNB_USDT
+#     ohlcv_historical = api.ohlcv_historical_data('FCOIN_SPOT_BNB_USDT', {'period_id': '5MIN', 'time_start': starting_date})
+#     print(ohlcv_historical)
+#
+# coinapi_data()
+
