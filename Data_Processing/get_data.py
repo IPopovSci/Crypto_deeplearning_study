@@ -102,18 +102,30 @@ def cryptowatch_data(pair, periods):
 Use for transfer learning step 1, then apply real world with cryptowatch api
 useless for bnb-usd, has no data on it (It says it does but returns empty array)'''
 
-# from coinapi_rest_v1.restapi import CoinAPIv1
-# import datetime, sys
-#
-#
-#
-# def coinapi_data():
-#     api = CoinAPIv1('7E9EEDF3-DDEA-4176-8046-7BD4BFFE1670')
-#     starting_date = datetime.date(2018, 2, 8).isoformat() #Need to dynamically get 500000 minutes ago, this will do for now
-#
-#     #symbols = api.metadata_list_symbols() # FCOIN_SPOT_BNB_USDT
-#     ohlcv_historical = api.ohlcv_latest_data('FCOIN_SPOT_BNB_USDT', {'period_id': '5MIN'})
-#     print(ohlcv_historical)
-#
-# coinapi_data()
+from coinapi_rest_v1.restapi import CoinAPIv1
+import datetime, sys
 
+
+
+def coinapi_data():
+    api = CoinAPIv1('86B0BD38-FA87-4FA1-A4F1-A93819B09DF9') #7E9EEDF3-DDEA-4176-8046-7BD4BFFE1670 #86B0BD38-FA87-4FA1-A4F1-A93819B09DF9
+    starting_date = datetime.date(2018, 2, 8).isoformat() #Need to dynamically get 500000 minutes ago, this will do for now
+
+    #symbols = api.metadata_list_symbols({'filter_symbol_id':'binance_spot_bnb'}) # FCOIN_SPOT_BNB_USDT
+    ohlcv_historical = api.ohlcv_latest_data('BINANCE_SPOT_BNB_USDT', {'period_id': '5min','limit':'100000'})
+
+    col = ['time_start','time_end','time_open','time_close', 'Open', 'High', 'Low', 'Close', 'volume_traded',
+           'trades_count']
+    df = pd.DataFrame(ohlcv_historical, columns=col)
+    df.to_csv(f'F:\MM\Data\BNBUSDT\\bnbusdt.csv')  # saves to csv
+    print(ohlcv_historical)
+#
+#coinapi_data()
+
+#COINDCX_SPOT_BNB_LINK - FATBTC_SPOT_LINK_USDT,EXRATES_SPOT_LINK_USDT,FATBTC_SPOT_LINK_USDT
+# COINDCX_SPOT_BNB_ROSE -COINDCX_SPOT_BUSD_ROSE
+#COINDCX_SPOT_BNB_LUNA - COINDCX_SPOT_ETH_LUNA,COINDCX_SPOT_BUSD_LUNA
+#COINDCX_SPOT_BNB_BETA - COINDCX_SPOT_USDT_BETA
+#COINDCX_SPOT_BNB_KP3R -  COINDCX_SPOT_BUSD_KP3R
+#COINDCX_SPOT_BNB_DAR - COINDCX_SPOT_USDT_DAR
+#

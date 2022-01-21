@@ -34,7 +34,7 @@ def train_model_batch(start,increment,model_name='Default'):
                                       verbose=1, batch_size=BATCH_SIZE,
                                       shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
                                                                       trim_dataset(y_val, BATCH_SIZE)),
-                                      callbacks=[mcp, reduce_lr])
+                                      callbacks=[mcp])
         start = end
         end += increment
 train_model_batch(0,50000, ticker)

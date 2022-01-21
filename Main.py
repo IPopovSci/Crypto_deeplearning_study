@@ -9,7 +9,7 @@ Required: Test hand-made dataset to test neural network
 Required: Shift the 5m dataset so it alligns with pancake swap one'''
 
 #TODO:create transfer_learning function (to update model),create separate pipepiline for transfer learning (small dataset), create prediction function, create backtests, train model, test out models by hand.
-
+#Grab as much data as possible from coinapi, implement function to continue learning (load and continue)
 
 
 '''From Paper what good practices should be: http://yann.lecun.com/exdb/publis/pdf/lecun-98b.pdf
