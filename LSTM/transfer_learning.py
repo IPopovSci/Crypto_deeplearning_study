@@ -23,6 +23,8 @@ def transfer_learning(ticker, model,start,increment):
 
     lstm_model = create_lstm_model_transfer(x_t,model)
 
+
+
     lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
         0.0005,
         decay_steps=100,
