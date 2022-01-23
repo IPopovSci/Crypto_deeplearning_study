@@ -59,7 +59,7 @@ def scv_data(pair):
     df = df[col]
     df.rename(columns={'open': 'Open', 'high': 'High', 'low': 'Low', 'close': 'Close', 'volume': 'Volume'},
               inplace=True)  # Data from kaggle doesn't have capitalization, this is a fix
-    df['time'] = pd.to_datetime(df['time'], unit='ms')  # Unix to datetime conversion
+#    df['time'] = pd.to_datetime(df['time'], unit='ms')  # Unix to datetime conversion
     df.set_index('time', inplace=True)
 
     return df
