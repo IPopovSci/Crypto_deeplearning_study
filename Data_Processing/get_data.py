@@ -107,20 +107,22 @@ import datetime, sys
 
 
 
-def coinapi_data():
-    api = CoinAPIv1('86B0BD38-FA87-4FA1-A4F1-A93819B09DF9') #7E9EEDF3-DDEA-4176-8046-7BD4BFFE1670 #86B0BD38-FA87-4FA1-A4F1-A93819B09DF9
-    starting_date = datetime.date(2018, 2, 8).isoformat() #Need to dynamically get 500000 minutes ago, this will do for now
-
+def coinapi_data(historical):
+    api = CoinAPIv1('8BF8FA2A-C4B9-4651-8FE3-48B75B8CEE87') #7E9EEDF3-DDEA-4176-8046-7BD4BFFE1670 #86B0BD38-FA87-4FA1-A4F1-A93819B09DF9 #EAB93C31-D483-44EC-BF6B-A095635C96EF #59821645-ABBF-43EF-884A-D613F3542507
+    starting_date = datetime.date(2020, 2, 20).isoformat() #Need to dynamically get 500000 minutes ago, this will do for now
+#5C58BD30-97D0-4F9A-BB6C-A2AC22F63E86 #8BF8FA2A-C4B9-4651-8FE3-48B75B8CEE87
     #symbols = api.metadata_list_symbols({'filter_symbol_id':'binance_spot_bnb'}) # FCOIN_SPOT_BNB_USDT
-    ohlcv_historical = api.ohlcv_latest_data('BINANCE_SPOT_BNB_USDT', {'period_id': '5min','limit':'100000'})
+    if historical == True:
+        ohlcv_historical = api.ohlcv_historical_data('BINANCE_SPOT_BNB_USDT', {'period_id': '5MIN', 'time_start': starting_date,'limit':'100000'})
+    else:
+        ohlcv_historical = api.ohlcv_latest_data('BINANCE_SPOT_BNB_USDT', {'period_id': '5min','limit':'100000'})
 
-    col = ['time_start','time_end','time_open','time_close', 'Open', 'High', 'Low', 'Close', 'volume_traded',
-           'trades_count']
+    col = ['time_period_start','price_open','price_high','price_low','price_close', 'volume_traded']
     df = pd.DataFrame(ohlcv_historical, columns=col)
-    df.to_csv(f'F:\MM\Data\BNBUSDT\\bnbusdt.csv')  # saves to csv
+    df.to_csv(f'F:\MM\Data\BNBUSDT\\bnbusdt_2020.csv')  # saves to csv
     print(ohlcv_historical)
 #
-#coinapi_data()
+#coinapi_data(historical=True)
 
 #COINDCX_SPOT_BNB_LINK - FATBTC_SPOT_LINK_USDT,EXRATES_SPOT_LINK_USDT,FATBTC_SPOT_LINK_USDT
 # COINDCX_SPOT_BNB_ROSE -COINDCX_SPOT_BUSD_ROSE
