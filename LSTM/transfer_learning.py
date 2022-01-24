@@ -42,6 +42,7 @@ def transfer_learning(ticker, model,start,increment):
     end = increment + start
 
     x_t, y_t, x_val, y_val, x_test_t, y_test_t, size = data_prep_batch_1('CSV')
+    print(x_val)
     while end < size:
         x_train, y_train = data_prep_batch_2(x_t, y_t, start, end)
         history_lstm = lstm_model.fit(trim_dataset(x_train, BATCH_SIZE), trim_dataset(y_train, BATCH_SIZE),
@@ -53,4 +54,4 @@ def transfer_learning(ticker, model,start,increment):
         start = end
         end += increment
 
-transfer_learning('bnbusdt','0.00030713_0.00702284-best_model-01',0,50000)
+transfer_learning('bnbusdt','0.00030713_0.00702284-best_model-01',0,25000)

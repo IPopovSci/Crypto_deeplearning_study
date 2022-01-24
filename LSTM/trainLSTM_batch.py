@@ -27,7 +27,7 @@ def train_model_batch(start,increment,model_name='Default'):
 
     x_ts, y_ts = data_prep_batch_2(x_t, y_t, start, increment)
     lstm_model = create_model(x_ts) #We can eliminate dependancy on x_ts (And therefore previous line) if we get the number of features somewhere in the pipeline
-    end = increment
+    end = increment + start
     while end < size:
         x_train, y_train = data_prep_batch_2(x_t,y_t,start, end)
         history_lstm = lstm_model.fit(trim_dataset(x_train, BATCH_SIZE), trim_dataset(y_train, BATCH_SIZE), epochs=1,

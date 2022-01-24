@@ -11,40 +11,51 @@ import tensorflow as tf
 
 
 BATCH_SIZE = args['batch_size']
-ticker = 'ethusd'
-def continue_learning_batch(ticker, model,start,increment):
+ticker = 'bnbusdt'
+def continue_learning_batch(ticker, model,start,increment,final_pass):
         x_t, y_t, x_val, y_val, x_test_t, y_test_t, size = data_prep_batch_1('CSV')
 
         saved_model = load_model(f'F:\MM\models\{ticker}\{model}.h5',
                                  custom_objects={'SeqSelfAttention': SeqSelfAttention,'mean_squared_error_custom':mean_squared_error_custom})
 
         lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-            0.0005,
-            decay_steps=100,
-            decay_rate=0.99,
+            0.0001,
+            decay_steps=50,
+            decay_rate=0.95,
             staircase=True)
+
 
         saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=lr_schedule),
                       loss=mean_squared_error_custom)
 
         mcp = ModelCheckpoint(
-            os.path.join(f'F:\MM\models\ethusd\\',
+            os.path.join(f'F:\MM\models\\bnbusdt\\',
                          "{val_loss:.8f}_{loss:.8f}-best_model-{epoch:02d}.h5"),
             monitor='val_loss', verbose=3,
             save_best_only=False, save_weights_only=False, mode='min', period=1)
-        end = increment + start
-        while end < size:
-            x_train, y_train = data_prep_batch_2(x_t, y_t, start, end)
-            history_lstm = saved_model.fit(trim_dataset(x_train, BATCH_SIZE), trim_dataset(y_train, BATCH_SIZE),
+        y_pred_lstm = saved_model.predict(trim_dataset(x_test_t, BATCH_SIZE), batch_size=BATCH_SIZE)
+        print('Model', y_pred_lstm)
+        if final_pass == True:
+            history_lstm = saved_model.fit(trim_dataset(x_test_t, BATCH_SIZE), trim_dataset(y_test_t, BATCH_SIZE),
                                           epochs=1,
                                           verbose=1, batch_size=BATCH_SIZE,
-                                          shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
-                                                                          trim_dataset(y_val, BATCH_SIZE)),
+                                          shuffle=False, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
+                                                                          trim_dataset(y_test_t, BATCH_SIZE)),
                                           callbacks=[mcp])
-            start = end
-            end += increment
+        else:
+            end = increment + start
+            while end < size:
+                x_train, y_train = data_prep_batch_2(x_t, y_t, start, end)
+                history_lstm = saved_model.fit(trim_dataset(x_train, BATCH_SIZE), trim_dataset(y_train, BATCH_SIZE),
+                                              epochs=1,
+                                              verbose=1, batch_size=BATCH_SIZE,
+                                              shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
+                                                                              trim_dataset(y_val, BATCH_SIZE)),
+                                              callbacks=[mcp])
+                start = end
+                end += increment
         #saved_model.reset_states()
-continue_learning_batch(ticker, '0.00034652_0.00996967-best_model-01',1200000,50000)
+continue_learning_batch(ticker, '0.06252777_0.07094257-best_model-01',400000,50000,True)
 
 #
 # def continue_learning(ticker, model):

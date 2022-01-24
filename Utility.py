@@ -73,4 +73,4 @@ def join_files():
     f.set_index('time_period_start', inplace=True)
     f.to_csv('F:\MM\Data\BNBUSDT\\bnbusdt_merge.csv',index=True)
 
-join_files()
+#def multiply_volume_by_price():

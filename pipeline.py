@@ -1,5 +1,5 @@
 from Arguments import args
-from Data_Processing.get_data import ticker_data, aux_data, scv_data, cryptowatch_data
+from Data_Processing.get_data import ticker_data, aux_data, scv_data, cryptowatch_data,coinapi_data
 from Data_Processing.ta_feature_add import add_ta
 from Data_Processing.Detrending import row_difference
 from Data_Processing.data_split import train_test_split_custom, x_y_split,x_y_split_small
@@ -62,7 +62,7 @@ def data_prep_batch_1(data_from):
         history = aux_data(history, ['CL=F', 'GC=F', '^VIX', '^TNX'], start_date)  # Get any extra data
     elif data_from == 'CSV':
         history = scv_data(ticker)
-        #history = history[2450000:] #This is bad, but the dataset is too big, I'm too newb, and the beggining of the dataset has a lot of gaps anyways
+        history = history[350000:] #This is bad, but the dataset is too big, I'm too newb, and the beggining of the dataset has a lot of gaps anyways
     elif data_from == 'cryptowatch':
         history = cryptowatch_data(ticker,'5m')
     print('Got the Data!')
@@ -109,9 +109,11 @@ def data_prep_transfer(data_from):
         history = aux_data(history, ['CL=F', 'GC=F', '^VIX', '^TNX'], start_date)  # Get any extra data
     elif data_from == 'CSV':
         history = scv_data(ticker)
-        # history = history[2325000:] #This is bad, but the dataset is too big, I'm too newb, and the beggining of the dataset has a lot of gaps anyways
+        #history = history[450000:] #This is bad, but the dataset is too big, I'm too newb, and the beggining of the dataset has a lot of gaps anyways
     elif data_from == 'cryptowatch':
         history = cryptowatch_data(ticker, '5m')
+    elif data_from == 'coinapi':
+        history = coinapi_data(historical=False)
     print('Got the Data!')
     '''Step 2: Apply TA Analysis'''
     ta_data = add_ta(history, ticker)  # The columns names can be acessed from arguments 'train_cols'
