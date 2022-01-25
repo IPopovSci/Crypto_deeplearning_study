@@ -48,25 +48,44 @@ y values are converted based on y training data'''
 
 def min_max_transform(x_train,x_validation,x_test,y_train, y_validation, y_test,initial_training=True,MM_path = []): #old version doesn't do robust scaling, use when predding from older models
     if initial_training == False:
-        scaler = joblib.load(MM_path)
-        mm = scaler
+        mm_x = joblib.load(MM_path + ".x" )
+        mm_y = joblib.load(MM_path + ".y")
+
+        x_train = mm_x.transform(x_train)
+
+        x_validation = mm_x.transform(x_validation)
+
+        x_test = mm_x.transform(x_test)
+
+        y_train = mm_y.transform(y_train)
+
+        y_validation = mm_y.transform(y_validation)
+
+        y_test = mm_y.transform(y_test)
+
+
     elif initial_training == True:
-        mm = MinMaxScaler(feature_range=(-1,1))
+        mm_x = MinMaxScaler(feature_range=(-1,1))
 
-    x_train = mm.fit_transform(x_train)
+        mm_y = MinMaxScaler(feature_range=(-1, 1))
 
-    x_validation = mm.transform(x_validation)
+        x_train = mm_x.fit_transform(x_train)
 
-    x_test = mm.transform(x_test)
+        x_validation = mm_x.transform(x_validation)
 
-    y_train = mm.fit_transform(y_train)
+        x_test = mm_x.transform(x_test)
 
-    y_validation = mm.transform(y_validation)
+        y_train = mm_y.fit_transform(y_train)
 
-    y_test = mm.transform(y_test)
+        y_validation = mm_y.transform(y_validation)
+
+        y_test = mm_y.transform(y_test)
+
+
 
     if initial_training == True:
-        joblib.dump(mm, MM_path)
+        joblib.dump(mm_x, MM_path + '.x')
+        joblib.dump(mm_y, MM_path + '.y')
 
     return x_train,x_validation,x_test,y_train, y_validation, y_test, mm
 
