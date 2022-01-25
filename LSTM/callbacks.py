@@ -183,7 +183,8 @@ def mean_squared_error_custom(y_true, y_pred):
     abs_sign = math_ops.abs(math_ops.subtract(y_pred_sign,y_true_sign))
     first_log = math_ops.log(K.maximum(y_pred, K.epsilon()) + 1.)
     second_log = math_ops.log(K.maximum(y_true, K.epsilon()) + 1.)
-    loss_sign = math_ops.add(math_ops.multiply(math_ops.abs(math_ops.subtract(0, math_ops.multiply(y_pred,100))),abs_sign),(math_ops.squared_difference(y_pred, y_true)))
+    #loss_sign = math_ops.add(math_ops.multiply(math_ops.abs(math_ops.subtract(0, math_ops.multiply(y_pred,25))),abs_sign),(math_ops.squared_difference(y_pred, y_true)))
+    loss_sign = math_ops.add(math_ops.squared_difference(y_pred, y_true),math_ops.abs(math_ops.subtract(y_pred,y_true)))
 
     return K.mean(loss_sign) #Substracting by how close it is off
-tf.keras.losses.MeanSquaredLogarithmicError()
+print(mean_squared_error_custom(-1,-0.1))

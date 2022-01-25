@@ -55,9 +55,9 @@ def create_lstm_model(x_t):
     lstm_model = tf.keras.Model(inputs=input, outputs=output)
 
     lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-        0.001,
-        decay_steps=100,
-        decay_rate=0.99,
+        0.01,
+        decay_steps=50,
+        decay_rate=0.95,
         staircase=True)
 
     optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)

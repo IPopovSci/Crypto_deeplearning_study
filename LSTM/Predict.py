@@ -1,4 +1,4 @@
-from pipeline import data_prep,data_prep_batch_1,data_prep_transfer
+from pipeline import data_prep,data_prep_transfer
 from Arguments import args
 from Data_Processing.data_trim import trim_dataset
 from tensorflow.keras.callbacks import ModelCheckpoint
@@ -18,10 +18,9 @@ ticker = 'bnbusdt'
 def predict(ticker, model_name='Default',update=False,load_weights='False'):
     preds = []
     back_test_info = []
-    x_t, y_t = data_prep_transfer('cryptowatch')
+    x_t, y_t, x_val, y_val, x_test_t, y_test_t,size,SS_scaler,mm_scaler = data_prep('CSV',initial_training=False,batch=True,SS_path='F:\MM\scalers\BNBusdt_SS',MM_path='F:\MM\scalers\BNBusdt_MM')
 
-    print(x_t)
-    saved_model = load_model(os.path.join(f'F:\MM\models\\bnbusdt\\5m_transfer', f'{model_name}.h5'),
+    saved_model = load_model(os.path.join(f'F:\MM\models\\bnbusdt\\', f'{model_name}.h5'),
                              custom_objects={'SeqSelfAttention': SeqSelfAttention,'mean_squared_error_custom':mean_squared_error_custom})
     saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00005),
                         loss=mean_squared_error_custom)
@@ -30,11 +29,15 @@ def predict(ticker, model_name='Default',update=False,load_weights='False'):
                                        epochs=1, verbose=1, batch_size=BATCH_SIZE,
                                        shuffle=False)
 
-    y_pred_lstm = saved_model.predict(trim_dataset(x_t, BATCH_SIZE), batch_size=BATCH_SIZE)
-    #y_pred_lstm = y_pred_lstm.flatten()
-    # y_pred, y_test = unscale_data(ticker, y_pred_lstm, y_test_t)
+    y_pred_lstm = saved_model.predict(trim_dataset(x_test_t, BATCH_SIZE), batch_size=BATCH_SIZE)
+    # y_pred_lstm = y_pred_lstm.reshape(-1,1)
+    # y_pred_lstm = y_pred_lstm.flatten()
+    y_pred_lstm = mm_scaler.inverse_transform(y_pred_lstm)
 
-    print('Model',y_pred_lstm)
+    y_pred_lstm = SS_scaler.inverse_transform(y_pred_lstm)
+
+
+    print('Model',y_pred_lstm[-10:-1,:])
     #backtest(y_test_t, y_pred_lstm)
 
-predict(ticker,'0.08364866_0.02244842-best_model-01_125000',True)
+predict(ticker,'0.00822960_0.04998357-best_model-01',False)

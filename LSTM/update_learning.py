@@ -34,7 +34,7 @@ def continue_learning_batch(ticker, model,start,increment,final_pass):
             monitor='val_loss', verbose=3,
             save_best_only=False, save_weights_only=False, mode='min', period=1)
         y_pred_lstm = saved_model.predict(trim_dataset(x_test_t, BATCH_SIZE), batch_size=BATCH_SIZE)
-        print('Model', y_pred_lstm)
+        print(y_pred_lstm)
         if final_pass == True:
             history_lstm = saved_model.fit(trim_dataset(x_test_t, BATCH_SIZE), trim_dataset(y_test_t, BATCH_SIZE),
                                           epochs=1,
@@ -55,7 +55,7 @@ def continue_learning_batch(ticker, model,start,increment,final_pass):
                 start = end
                 end += increment
         #saved_model.reset_states()
-continue_learning_batch(ticker, '0.06252777_0.07094257-best_model-01',400000,50000,True)
+continue_learning_batch(ticker, '3.90114927_0.27628192-best_model-01',400000,50000,True)
 
 #
 # def continue_learning(ticker, model):

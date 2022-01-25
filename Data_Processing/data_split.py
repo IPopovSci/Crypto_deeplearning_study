@@ -25,6 +25,20 @@ Since we have 5 targets, first 5 columns of original database represent those ta
 
 
 def x_y_split(x_train, x_validation, x_test):
+
+    '''converting pandas> numpy'''
+    x_train = x_train.to_numpy()
+    x_validation = x_validation.to_numpy()
+    x_test = x_test.to_numpy()
+
+
+
+    x_train = np.insert(x_train, [5], x_train[:, 0:5], axis=1)
+    x_validation = np.insert(x_validation, [5], x_validation[:, 0:5], axis=1)
+    x_test = np.insert(x_test, [5], x_test[:, 0:5], axis=1)
+
+
+
     x_train, x_validation, x_test = np.nan_to_num(x_train), np.nan_to_num(x_validation), np.nan_to_num(
         x_test)  # Get rid of any potential NaN values
 

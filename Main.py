@@ -10,7 +10,7 @@ Required: Shift the 5m dataset so it alligns with pancake swap one'''
 
 #TODO:create transfer_learning function (to update model),create separate pipepiline for transfer learning (small dataset), create prediction function, create backtests, train model, test out models by hand.
 #Grab as much data as possible from coinapi, implement function to continue learning (load and continue)
-
+#TODO: GET RID OF PCA, check loss functions, retrain networks. Same results suuuuck. Let's add a metric to training to see how well its actually doing. Should we have previous day values as x?
 
 '''From Paper what good practices should be: http://yann.lecun.com/exdb/publis/pdf/lecun-98b.pdf
 Shuffle the examples - Feed various companies/markets to the training

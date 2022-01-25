@@ -1,4 +1,4 @@
-from pipeline import data_prep_batch_1,data_prep_batch_2
+from pipeline import data_prep_batch_2, data_prep
 from Arguments import args
 from Data_Processing.data_trim import trim_dataset
 from tensorflow.keras.callbacks import ModelCheckpoint
@@ -12,7 +12,7 @@ BATCH_SIZE = args['batch_size']
 ticker = args['ticker']
 
 def train_model_batch(start,increment,model_name='Default'):
-    x_t, y_t, x_val, y_val, x_test_t, y_test_t, size = data_prep_batch_1('CSV')
+    x_t, y_t, x_val, y_val, x_test_t, y_test_t,size,_,_ = data_prep('CSV',initial_training=True,batch=True,SS_path='F:\MM\scalers\BNBusdt_SS',MM_path='F:\MM\scalers\BNBusdt_MM')
 
     early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=12)
 
@@ -30,10 +30,10 @@ def train_model_batch(start,increment,model_name='Default'):
     end = increment + start
     while end < size:
         x_train, y_train = data_prep_batch_2(x_t,y_t,start, end)
-        history_lstm = lstm_model.fit(trim_dataset(x_train, BATCH_SIZE), trim_dataset(y_train, BATCH_SIZE), epochs=1,
+        history_lstm = lstm_model.fit(trim_dataset(x_val, BATCH_SIZE), trim_dataset(y_val, BATCH_SIZE), epochs=1,
                                       verbose=1, batch_size=BATCH_SIZE,
-                                      shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
-                                                                      trim_dataset(y_val, BATCH_SIZE)),
+                                      shuffle=False, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
+                                                                      trim_dataset(y_test_t, BATCH_SIZE)),
                                       callbacks=[mcp])
         start = end
         end += increment

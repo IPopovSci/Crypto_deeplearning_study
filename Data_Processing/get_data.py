@@ -61,7 +61,7 @@ def scv_data(pair):
               inplace=True)  # Data from kaggle doesn't have capitalization, this is a fix
 #    df['time'] = pd.to_datetime(df['time'], unit='ms')  # Unix to datetime conversion
     df.set_index('time', inplace=True)
-    print(df.head())
+    #print(df.head())
 
     return df
 
@@ -122,7 +122,7 @@ def coinapi_data(historical):
     col = ['time_period_start','price_open','price_high','price_low','price_close', 'volume_traded']
     df = pd.DataFrame(ohlcv_historical, columns=col)
     df.to_csv(f'F:\MM\Data\BNBUSDT\\bnbusdt_2018_5.csv')  # saves to csv
-    print(ohlcv_historical)
+    #print(ohlcv_historical)
 #coinapi_data(historical=True)
 
 #COINDCX_SPOT_BNB_LINK - FATBTC_SPOT_LINK_USDT,EXRATES_SPOT_LINK_USDT,FATBTC_SPOT_LINK_USDT
