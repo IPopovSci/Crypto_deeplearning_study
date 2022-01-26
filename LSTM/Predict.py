@@ -12,6 +12,7 @@ import os
 from keras_self_attention import SeqSelfAttention
 from Backtesting.Backtest_DaysCorrect import backtest
 import tensorflow as tf
+import joblib
 
 BATCH_SIZE = args['batch_size']
 ticker = 'bnbusdt'
@@ -25,19 +26,33 @@ def predict(ticker, model_name='Default',update=False,load_weights='False'):
     saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00005),
                         loss=mean_squared_error_custom)
     if update == True:
-        history_lstm = saved_model.fit(trim_dataset(x_t, BATCH_SIZE), trim_dataset(y_t, BATCH_SIZE),
-                                       epochs=1, verbose=1, batch_size=BATCH_SIZE,
+        history_lstm = saved_model.fit(trim_dataset(x_val[-1000:-1,:], BATCH_SIZE), trim_dataset(y_val[-1000:-1,:], BATCH_SIZE),
+                                       epochs=1, verbose=1, batch_size=BATCH_SIZE, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
+                                                                      trim_dataset(y_test_t, BATCH_SIZE)),
                                        shuffle=False)
 
     y_pred_lstm = saved_model.predict(trim_dataset(x_test_t, BATCH_SIZE), batch_size=BATCH_SIZE)
     # y_pred_lstm = y_pred_lstm.reshape(-1,1)
     # y_pred_lstm = y_pred_lstm.flatten()
-    y_pred_lstm = mm_scaler.inverse_transform(y_pred_lstm)
 
-    y_pred_lstm = SS_scaler.inverse_transform(y_pred_lstm)
+    print("Loss before inverse",mean_squared_error_custom(y_test_t,y_pred_lstm))
+    MM_path = 'F:\MM\scalers\BNBusdt_MM'
+    SS_path = 'F:\MM\scalers\BNBusdt_SS'
+    mm_y = joblib.load(MM_path + ".y")
+    sc_y = joblib.load(SS_path + ".y")
+    y_test_t = mm_y.inverse_transform(y_test_t)
+    y_test_t = sc_y.inverse_transform(y_test_t)
 
+    y_pred_lstm = mm_y.inverse_transform(y_pred_lstm)
 
-    print('Model',y_pred_lstm[-10:-1,:])
+    y_pred_lstm = sc_y.inverse_transform(y_pred_lstm)
+
+    print('test after inversing:',y_test_t[-100:-1,:])
+    # print('------------------------------------')
+    #
+    print('Model',y_pred_lstm[-100:-1,:])
+    # print("Loss after inverse", mean_squared_error_custom(y_test_t, y_pred_lstm))
     #backtest(y_test_t, y_pred_lstm)
 
-predict(ticker,'0.00822960_0.04998357-best_model-01',False)
+predict(ticker,'0.00064315_0.00000140-best_model-01',False)
+

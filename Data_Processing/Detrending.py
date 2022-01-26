@@ -30,7 +30,6 @@ as easier to work with for neural networks'''
 
 
 def row_difference(df):
-    print(df)
     df_diff = df.diff()
     df_diff = df_diff.iloc[1:, :]
     print(df_diff)

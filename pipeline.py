@@ -34,9 +34,11 @@ def data_prep(data_from,initial_training=True,batch=True,SS_path = [],MM_path = 
     print('detrending = donzo')
     '''Step 4: Split data into training/testing'''
     x_train, x_validation, x_test = train_test_split_custom(one_day_detrend)
+
     print('AND I SPLIT IT IN HALF')
     '''Step 5: SS Transform'''
     x_train, x_validation, x_test, y_train, y_validation, y_test = x_y_split(x_train, x_validation, x_test)
+    #print('test right after split:', y_test[-10:-1, :])
     print('SS, but this aint 1942')
     '''Step 6: Split data into x and y'''
 

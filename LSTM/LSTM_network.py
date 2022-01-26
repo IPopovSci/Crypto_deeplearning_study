@@ -1,6 +1,6 @@
 from tensorflow.keras.layers import LSTM, Dense, Input,TimeDistributed
 from Arguments import args
-from LSTM.callbacks import mean_squared_error_custom
+from LSTM.callbacks import mean_squared_error_custom,custom_cosine_similarity
 import tensorflow as tf
 from keras_self_attention import SeqSelfAttention
 from tensorflow.keras import initializers
@@ -14,7 +14,7 @@ def create_lstm_model(x_t):
 
     input = Input(batch_shape=(BATCH_SIZE, TIME_STEPS, x_t.shape[2]))
     regularizer = tf.keras.regularizers.l1_l2(1e-4)
-    kernel_init = initializers.RandomNormal(stddev=0.05)
+    kernel_init = initializers.RandomNormal(stddev=0.1)
 
 # #This is First side-chain: input>LSTM(stateful)>LSTM(stateful)>TD Dense layer. The output is a 3d vector
     LSTM_1 = LSTM(int(75), return_sequences=True, stateful=True,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(input)
@@ -55,12 +55,14 @@ def create_lstm_model(x_t):
     lstm_model = tf.keras.Model(inputs=input, outputs=output)
 
     lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-        0.01,
-        decay_steps=50,
+        0.0001,
+        decay_steps=15,
         decay_rate=0.95,
         staircase=True)
 
+
     optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
 
-    lstm_model.compile(loss=[mean_squared_error_custom,mean_squared_error_custom,mean_squared_error_custom,mean_squared_error_custom,mean_squared_error_custom], optimizer=optimizer)
+    # lstm_model.compile(loss=[mean_squared_error_custom,mean_squared_error_custom,mean_squared_error_custom,mean_squared_error_custom,'mse'], optimizer=optimizer)
+    lstm_model.compile(loss=[custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity], optimizer=optimizer)
     return lstm_model

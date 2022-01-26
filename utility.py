@@ -1,6 +1,18 @@
 import pandas as pd
 from Data_Processing.get_data import scv_data
 from Arguments import args
+import tensorflow as tf
+import tensorflow.keras.backend as K
+from tensorflow.keras.callbacks import ModelCheckpoint
+import os
+import numpy as np
+from Arguments import args
+tf.config.experimental_run_functions_eagerly(True)
+from tensorflow.python.framework import ops
+from tensorflow.python.ops import array_ops
+from tensorflow.python.ops import math_ops
+from tensorflow.python.ops import nn
+import joblib
 
 def one_to_five(data):
     ohlc = {
@@ -74,3 +86,31 @@ def join_files():
     f.to_csv('F:\MM\Data\BNBUSDT\\bnbusdt_merge.csv',index=True)
 
 #def multiply_volume_by_price():
+
+'''Rewriting inverse transform in tensorflow notation to use in loss function'''
+
+import inspect
+
+
+MM_path = 'F:\MM\scalers\BNBusdt_MM'
+SS_path = 'F:\MM\scalers\BNBusdt_SS'
+
+mm_y = joblib.load(MM_path + ".y")
+sc_y = joblib.load(SS_path + ".y")
+attributes = inspect.getmembers(mm_y, lambda a:not(inspect.isroutine(a)))
+attributes = ([a for a in attributes if not(a[0].startswith('__') and a[0].endswith('__'))]) #
+# print(attributes)
+# print(attributes[5])
+# print(attributes[8])
+
+def tf_mm_inverse_transform(X):
+    MM_path = 'F:\MM\scalers\BNBusdt_MM'
+    SS_path = 'F:\MM\scalers\BNBusdt_SS'
+
+    mm_y = joblib.load(MM_path + ".y")
+    sc_y = joblib.load(SS_path + ".y")
+    #X = ops.convert_to_tensor_v2(X,dtype=tf.float32)
+
+    X = (X - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)
+
+    return X

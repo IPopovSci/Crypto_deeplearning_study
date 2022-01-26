@@ -9,6 +9,9 @@ from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
 from tensorflow.python.ops import math_ops
 from tensorflow.python.ops import nn
+import joblib
+from utility import tf_mm_inverse_transform
+
 
 #TODO: Custom loss that simulates buying - add when moving in the same direction, substract when different
 def custom_loss(y_true, y_pred):
@@ -175,16 +178,49 @@ def my_metric_fn(y_true, y_pred):
 
     return tf.reduce_sum(true_preds)
 
+
+
+
+MM_path = 'F:\MM\scalers\BNBusdt_MM'
+SS_path = 'F:\MM\scalers\BNBusdt_SS'
+
+mm_y = joblib.load(MM_path + ".y")
+sc_y = joblib.load(SS_path + ".y")
+
+
+
+
+#Todo: Grab the parameters from above, re-write inverse transform in tf
 def mean_squared_error_custom(y_true, y_pred):
+
+
+    y_true = ops.convert_to_tensor_v2(y_true)
     y_pred = ops.convert_to_tensor_v2(y_pred)
     y_true = math_ops.cast(y_true, y_pred.dtype)
+
     y_pred_sign = math_ops.sign(y_pred)
     y_true_sign = math_ops.sign(y_true)
     abs_sign = math_ops.abs(math_ops.subtract(y_pred_sign,y_true_sign))
-    first_log = math_ops.log(K.maximum(y_pred, K.epsilon()) + 1.)
-    second_log = math_ops.log(K.maximum(y_true, K.epsilon()) + 1.)
+
+    loss_sign = math_ops.abs(math_ops.subtract(y_pred, y_true))
+    #loss_sign = math_ops.add(math_ops.squared_difference(y_pred, y_true),math_ops.abs(math_ops.subtract(y_pred,y_true)))
     #loss_sign = math_ops.add(math_ops.multiply(math_ops.abs(math_ops.subtract(0, math_ops.multiply(y_pred,25))),abs_sign),(math_ops.squared_difference(y_pred, y_true)))
-    loss_sign = math_ops.add(math_ops.squared_difference(y_pred, y_true),math_ops.abs(math_ops.subtract(y_pred,y_true)))
 
     return K.mean(loss_sign) #Substracting by how close it is off
-print(mean_squared_error_custom(-1,-0.1))
+
+def custom_cosine_similarity(y_true,y_pred):
+    y_true = ops.convert_to_tensor_v2(y_true)
+    y_pred = ops.convert_to_tensor_v2(y_pred)
+    y_true = math_ops.cast(y_true, y_pred.dtype)
+
+
+
+    y_true_un = (((y_true - K.constant(mm_y.min_)) / K.constant(mm_y.scale_))* sc_y.scale_) + sc_y.mean_
+
+
+    y_pred_un = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
+
+
+    loss = tf.keras.losses.cosine_similarity(y_true_un, y_pred_un, axis=-1)
+
+    return math_ops.subtract(1,loss)

@@ -30,11 +30,11 @@ def train_model_batch(start,increment,model_name='Default'):
     end = increment + start
     while end < size:
         x_train, y_train = data_prep_batch_2(x_t,y_t,start, end)
-        history_lstm = lstm_model.fit(trim_dataset(x_val, BATCH_SIZE), trim_dataset(y_val, BATCH_SIZE), epochs=1,
+        history_lstm = lstm_model.fit(trim_dataset(x_train, BATCH_SIZE), trim_dataset(y_train, BATCH_SIZE), epochs=1,
                                       verbose=1, batch_size=BATCH_SIZE,
                                       shuffle=False, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
                                                                       trim_dataset(y_test_t, BATCH_SIZE)),
                                       callbacks=[mcp])
         start = end
         end += increment
-train_model_batch(0,50000, ticker)
+train_model_batch(0,10000, ticker)
