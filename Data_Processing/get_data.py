@@ -123,7 +123,7 @@ def coinapi_data(historical):
     df = pd.DataFrame(ohlcv_historical, columns=col)
     df.to_csv(f'F:\MM\Data\BNBUSDT\\bnbusdt_2020.csv')  # saves to csv
     print(ohlcv_historical)
-coinapi_data(historical=True)
+#coinapi_data(historical=True)
 
 #COINDCX_SPOT_BNB_LINK - FATBTC_SPOT_LINK_USDT,EXRATES_SPOT_LINK_USDT,FATBTC_SPOT_LINK_USDT
 # COINDCX_SPOT_BNB_ROSE -COINDCX_SPOT_BUSD_ROSE

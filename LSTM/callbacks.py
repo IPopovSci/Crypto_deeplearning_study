@@ -223,4 +223,4 @@ def custom_cosine_similarity(y_true,y_pred):
 
     loss = tf.keras.losses.cosine_similarity(y_true_un, y_pred_un, axis=-1)
 
-    return math_ops.subtract(1,loss)
+    return K.mean(math_ops.subtract(1,loss))
