@@ -1,4 +1,4 @@
-from pipeline import data_prep,data_prep_transfer
+from pipeline import data_prep,data_prep_transfer,data_prep_batch_2
 from Arguments import args
 from Data_Processing.data_trim import trim_dataset
 from tensorflow.keras.callbacks import ModelCheckpoint
@@ -22,20 +22,21 @@ def predict(ticker, model_name='Default',update=False,load_weights='False'):
     x_t, y_t, x_val, y_val, x_test_t, y_test_t,size,SS_scaler,mm_scaler = data_prep('CSV',initial_training=False,batch=True,SS_path='F:\MM\scalers\BNBusdt_SS',MM_path='F:\MM\scalers\BNBusdt_MM')
 
     saved_model = load_model(os.path.join(f'F:\MM\models\\bnbusdt\\', f'{model_name}.h5'),
-                             custom_objects={'SeqSelfAttention': SeqSelfAttention,'custom_cosine_similarity':custom_cosine_similarity})
-    saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00005),
-                        loss=mean_squared_error_custom)
+                             custom_objects={'SeqSelfAttention': SeqSelfAttention,'custom_cosine_similarity':custom_cosine_similarity,'mean_squared_error_custom':mean_squared_error_custom})
+    saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0000005),
+                        loss= mean_squared_error_custom)
+    #x_ts, y_ts = data_prep_batch_2(x_t, y_t, 0, 1500)
     if update == True:
-        history_lstm = saved_model.fit(trim_dataset(x_val[-1000:-1,:], BATCH_SIZE), trim_dataset(y_val[-1000:-1,:], BATCH_SIZE),
-                                       epochs=1, verbose=1, batch_size=BATCH_SIZE, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
-                                                                      trim_dataset(y_test_t, BATCH_SIZE)),
+        history_lstm = saved_model.fit(trim_dataset(x_test_t, BATCH_SIZE), trim_dataset(y_test_t, BATCH_SIZE),
+                                       epochs=1, verbose=1, batch_size=BATCH_SIZE,
                                        shuffle=False)
 
-    y_pred_lstm = saved_model.predict(trim_dataset(x_test_t, BATCH_SIZE), batch_size=BATCH_SIZE)
+    y_pred_lstm = saved_model.predict(trim_dataset(x_test_t[-100:], BATCH_SIZE), batch_size=BATCH_SIZE)
+    print('pred done')
     # y_pred_lstm = y_pred_lstm.reshape(-1,1)
     # y_pred_lstm = y_pred_lstm.flatten()
 
-    print("Loss before inverse",custom_cosine_similarity(y_test_t,y_pred_lstm))
+    #print("Loss before inverse",mean_squared_error_custom(y_test_t[-50:-1,:],y_pred_lstm[-50:-1,:]))
     MM_path = 'F:\MM\scalers\BNBusdt_MM'
     SS_path = 'F:\MM\scalers\BNBusdt_SS'
     mm_y = joblib.load(MM_path + ".y")
@@ -47,12 +48,12 @@ def predict(ticker, model_name='Default',update=False,load_weights='False'):
 
     y_pred_lstm = sc_y.inverse_transform(y_pred_lstm)
 
-    print('test after inversing:',y_test_t[-100:-1,:])
+    print('test after inversing:',y_test_t[-25:-1,:])
     # print('------------------------------------')
     #
-    print('Model',y_pred_lstm[-100:-1,:])
-    print("Loss after inverse", custom_cosine_similarity(y_test_t, y_pred_lstm))
+    print('Model',y_pred_lstm[-25:-1,:])
+    print("Loss after inverse",mean_squared_error_custom(y_test_t[-50:-1,:], y_pred_lstm[-50:-1,:]))
     #backtest(y_test_t, y_pred_lstm)
 
-predict(ticker,'0.96980858_0.97656322-best_model-01',False)
+predict(ticker,'356.14251709_610.23065186-best_model-01',False)
 

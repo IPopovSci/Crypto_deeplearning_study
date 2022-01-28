@@ -22,7 +22,7 @@ def data_prep(data_from,initial_training=True,batch=True,SS_path = [],MM_path = 
         history = aux_data(history, ['CL=F', 'GC=F', '^VIX', '^TNX'], start_date)  # Get any extra data
     elif data_from == 'CSV':
         history = scv_data(ticker)
-        #history = history[2325000:] #This is bad, but the dataset is too big, I'm too newb, and the beggining of the dataset has a lot of gaps anyways
+        #history = history[:150000] #This is bad, but the dataset is too big, I'm too newb, and the beggining of the dataset has a lot of gaps anyways
     elif data_from == 'cryptowatch':
         history = cryptowatch_data(ticker,'5m')
     print('Got the Data!')
