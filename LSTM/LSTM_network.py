@@ -1,6 +1,6 @@
 from tensorflow.keras.layers import LSTM, Dense, Input,TimeDistributed,GRU,Dropout,Bidirectional,LayerNormalization
 from Arguments import args
-from LSTM.callbacks import mean_squared_error_custom,custom_cosine_similarity
+from LSTM.callbacks import mean_squared_error_custom,custom_cosine_similarity,metric_signs
 import tensorflow as tf
 from keras_self_attention import SeqSelfAttention
 from tensorflow.keras import initializers
@@ -89,5 +89,5 @@ def create_lstm_model(x_t):
     #lstm_model.compile(loss=[mean_squared_error_custom], optimizer=optimizer)
     #lstm_model.compile(loss=[custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity], optimizer=optimizer)
     lstm_model.compile(
-        loss='CosineSimilarity', optimizer=optimizer)
+        loss='CosineSimilarity', optimizer=optimizer,metrics=metric_signs)
     return lstm_model

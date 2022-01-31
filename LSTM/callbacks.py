@@ -277,3 +277,17 @@ def custom_cosine_similarity(y_true,y_pred):
 
 #true:  -+-+---+-++++-+
 #pred:  +++-++++---+++
+batch_size = args['batch_size']
+def metric_signs(y_true,y_pred):
+    y_true = ops.convert_to_tensor_v2(y_true)
+    y_pred = ops.convert_to_tensor_v2(y_pred)
+    y_true = math_ops.cast(y_true, y_pred.dtype)
+
+    y_true_sign = math_ops.sign(y_true[:,3])
+    y_pred_sign = math_ops.sign(y_pred[:,3])
+
+    metric = math_ops.divide(math_ops.abs(math_ops.subtract(y_true,y_pred)),2)
+
+    return math_ops.subtract(batch_size,K.sum(metric))
+
+
