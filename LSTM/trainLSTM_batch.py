@@ -16,7 +16,7 @@ def train_model_batch(start,increment,model_name='Default'):
 
     early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=12)
 
-    reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5,
+    reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_metric_signs', factor=0.5,
                                                      patience=4, min_lr=0.000000000000000000000000000000000001,
                                                      verbose=1, mode='min')
     mcp = ModelCheckpoint(
@@ -35,7 +35,7 @@ def train_model_batch(start,increment,model_name='Default'):
                                       verbose=1, batch_size=BATCH_SIZE,
                                       shuffle=False, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
                                                                       trim_dataset(y_test_t, BATCH_SIZE)),
-                                      callbacks=[mcp])
+                                      callbacks=[mcp,reduce_lr])
         start = end
         end += increment
         lstm_model.reset_states()

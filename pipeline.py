@@ -5,7 +5,7 @@ from Data_Processing.Detrending import row_difference
 from Data_Processing.data_split import train_test_split_custom, x_y_split,x_y_split_small
 from Data_Processing.data_scaling import SS_transform,min_max_transform,SS_transform_small,min_max_transform_small
 from Data_Processing.PCA import pca_reduction,pca_reduction_small
-from Data_Processing.build_timeseries import build_timeseries
+from Data_Processing.build_timeseries import build_timeseries,build_univariate_close
 import numpy as np
 import sys
 

@@ -273,6 +273,7 @@ def custom_cosine_similarity(y_true,y_pred):
     #print(loss[-5:])
 
 
+
     return K.mean(math_ops.add(1,loss),axis=-1)
 
 #true:  -+-+---+-++++-+

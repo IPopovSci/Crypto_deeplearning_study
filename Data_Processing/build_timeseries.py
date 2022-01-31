@@ -18,7 +18,7 @@ def build_timeseries(x_t,y_t):
 
 
     x = np.zeros((dim_0, TIME_STEPS, dim_1))
-    y = np.zeros((dim_0,5))
+    y = np.zeros((dim_0,4))
 
     print("Length of inputs", dim_0)
 
@@ -26,12 +26,46 @@ def build_timeseries(x_t,y_t):
     for i in range(dim_0):
         x[i] = x_t[i:TIME_STEPS + i]
         #y[i] = y_t[TIME_STEPS + i]
-    for column in range(5):
+    for column in range(4):
         for row in range(dim_0):
-            y[row,column] = y_t[TIME_STEPS + row,column]
+            y[row,column] = y_t[row,column]
 
     x = trim_dataset(x,batch_size=args['batch_size'])
     y = trim_dataset(y, batch_size=args['batch_size'])
+
+
+
+
+    print("length of time-series - inputs", x.shape)
+    print("length of time-series - outputs", y.shape)
+
+    return x, y
+
+def build_univariate_close(x_t,y_t):
+    #Shifting the y data 1 day in advance
+    x_t = x_t[:-1]
+    y_t = y_t[1:]
+
+    TIME_STEPS = args["time_steps"]
+    # print(x_t.shape)
+    # print(y_t.shape) #So we have 5 outputs now, need a new loop
+
+    dim_0 = x_t.shape[0] - TIME_STEPS
+    dim_1 = x_t.shape[1]
+    print(dim_0,TIME_STEPS,dim_1)
+
+
+    x = np.zeros((dim_0, TIME_STEPS, dim_1))
+
+    print("Length of inputs", dim_0)
+
+    #this is sus, how does this work
+    for i in range(dim_0):
+        x[i] = x_t[i:TIME_STEPS + i]
+        #y[i] = y_t[TIME_STEPS + i]
+
+    x = trim_dataset(x,batch_size=args['batch_size'])
+    y = trim_dataset(y_t[:,3], batch_size=args['batch_size'])
 
 
 
