@@ -11,9 +11,9 @@ def train_test_split_custom(df):
     train_size = args['train_size']
     test_size = args['test_size']
 
-    df_train, df_test = train_test_split(df, train_size=train_size, test_size=test_size, shuffle=False)
+    df_train, df_test = train_test_split(df, train_size=train_size, test_size=test_size, shuffle=False,random_state=42)
 
-    df_validation, df_test = train_test_split(df_test, train_size=0.5, test_size=0.5)
+    df_validation, df_test = train_test_split(df_test, train_size=0.5, test_size=0.5,random_state=42,shuffle=False)
 
     return df_train, df_validation, df_test
 
@@ -32,7 +32,7 @@ def x_y_split(x_train, x_validation, x_test):
     x_test = x_test.to_numpy()
 
 
-
+    '''duplicating OHLCV for x data (Won't be shifted)'''
     x_train = np.insert(x_train, [5], x_train[:, 0:5], axis=1)
     x_validation = np.insert(x_validation, [5], x_validation[:, 0:5], axis=1)
     x_test = np.insert(x_test, [5], x_test[:, 0:5], axis=1)

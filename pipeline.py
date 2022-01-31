@@ -38,19 +38,19 @@ def data_prep(data_from,initial_training=True,batch=True,SS_path = [],MM_path = 
     print('AND I SPLIT IT IN HALF')
     '''Step 5: SS Transform'''
     x_train, x_validation, x_test, y_train, y_validation, y_test = x_y_split(x_train, x_validation, x_test)
-    #print('test right after split:', y_test[-10:-1, :])
+    print('test after inversing:', y_test[-25:, :])
     print('SS, but this aint 1942')
     '''Step 6: Split data into x and y'''
 
-    x_train, x_validation, x_test,y_train,y_validation,y_test, SS_scaler = SS_transform(x_train, x_validation, x_test, y_train,y_validation,y_test, initial_training, SS_path)
+    #x_train, x_validation, x_test,y_train,y_validation,y_test, SS_scaler = SS_transform(x_train, x_validation, x_test, y_train,y_validation,y_test, initial_training, SS_path)
     print('I SPLIT IT IN HALF, AGAIN!')
     '''Step 7: PCA'''
-    x_train, x_validation, x_test = pca_reduction(x_train, x_validation, x_test)
+    #x_train, x_validation, x_test = pca_reduction(x_train, x_validation, x_test)
     print('PCA done')
     '''Step 8: Min-max scaler (-1 to 1 for sigmoid)'''
-    x_train, x_validation, x_test, y_train, y_validation, y_test, mm_scaler_y = min_max_transform(x_train, x_validation,
-                                                                                                  x_test, y_train,
-                                                                                                  y_validation, y_test,initial_training,MM_path)
+    #x_train, x_validation, x_test, y_train, y_validation, y_test, mm_scaler_y = min_max_transform(x_train, x_validation,
+                                                                                                  # x_test, y_train,
+                                                                                                  # y_validation, y_test,initial_training,MM_path)
 
     print('Min-maxed to the tits')
     '''Step 9: Create time-series data'''
@@ -64,7 +64,7 @@ def data_prep(data_from,initial_training=True,batch=True,SS_path = [],MM_path = 
         x_validation, y_validation = build_timeseries(x_validation, y_validation)
         x_test, y_test = build_timeseries(x_test, y_test)
     print('timeseries = built')
-    return x_train, y_train, x_validation, y_validation, x_test, y_test, size,SS_scaler,mm_scaler_y
+    return x_train, y_train, x_validation, y_validation, x_test, y_test, size
 '''separate data prep, without timeseries building, for large datasets'''
 # def data_prep_batch_1(data_from):
 #     '''Step 1: Get Data'''

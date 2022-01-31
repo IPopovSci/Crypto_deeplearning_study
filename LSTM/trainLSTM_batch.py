@@ -12,7 +12,7 @@ BATCH_SIZE = args['batch_size']
 ticker = args['ticker']
 
 def train_model_batch(start,increment,model_name='Default'):
-    x_t, y_t, x_val, y_val, x_test_t, y_test_t,size,_,_ = data_prep('CSV',initial_training=True,batch=True,SS_path='F:\MM\scalers\BNBusdt_SS',MM_path='F:\MM\scalers\BNBusdt_MM')
+    x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = data_prep('CSV',initial_training=True,batch=True)
 
     early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=12)
 
@@ -28,6 +28,7 @@ def train_model_batch(start,increment,model_name='Default'):
     x_ts, y_ts = data_prep_batch_2(x_t, y_t, start, increment)
     lstm_model = create_model(x_ts) #We can eliminate dependancy on x_ts (And therefore previous line) if we get the number of features somewhere in the pipeline
     end = increment + start
+
     while end < size:
         x_train, y_train = data_prep_batch_2(x_t,y_t,start, end)
         history_lstm = lstm_model.fit(trim_dataset(x_train, BATCH_SIZE), trim_dataset(y_train, BATCH_SIZE), epochs=1,
@@ -37,4 +38,9 @@ def train_model_batch(start,increment,model_name='Default'):
                                       callbacks=[mcp])
         start = end
         end += increment
+        lstm_model.reset_states()
+        if end > size:
+            end = increment
+            start = 0
+
 train_model_batch(0,25000, ticker)

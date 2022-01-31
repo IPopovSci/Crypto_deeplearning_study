@@ -198,26 +198,50 @@ def mean_squared_error_custom(y_true, y_pred):
     y_pred = ops.convert_to_tensor_v2(y_pred)
     y_true = math_ops.cast(y_true, y_pred.dtype)
 
-    y_true_un = (((y_true - K.constant(mm_y.min_)) / K.constant(mm_y.scale_))* sc_y.scale_) + sc_y.mean_
+    # y_true_un = (((y_true - K.constant(mm_y.min_)) / K.constant(mm_y.scale_))* sc_y.scale_) + sc_y.mean_
+    #
+    #
+    # y_pred_un = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
+    y_true_un = y_true
+    y_pred_un = y_pred
+    #print(y_pred_un[-15:])
+    # print(y_true_un[-15:])
+    y_pred_sign = math_ops.sign(y_pred_un)
+    y_true_sign = math_ops.sign(y_true_un)
+    # print(y_pred_sign)
+    # print('------------------------------')
+    # print(y_true_sign)
+    abs_sign = math_ops.abs(math_ops.subtract(y_pred_sign,y_true_sign)) # 0 if same, 2 if different
 
 
-    y_pred_un = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
+    loss = tf.keras.losses.mean_absolute_error(y_true_un, y_pred_un)
+    fin_loss = math_ops.multiply(abs_sign,math_ops.abs(math_ops.subtract(y_true_un,y_pred_un))+100)*10 + math_ops.abs(math_ops.subtract(y_true_un,y_pred_un))
 
+
+    #fin_loss = math_ops.add(math_ops.multiply(math_ops.abs(math_ops.subtract(0, math_ops.multiply(y_pred_un,5))),abs_sign),(math_ops.abs(math_ops.subtract(y_pred_un, y_true_un))))
+    #This loss can be improved - divide y_pred_un by absolute value to preserve the sign, but have a value of 1. For second part, use 1 - y_true/y_pred_un
+    # So we need 2 functions, a and b, domain {0,1}, loss = a + b
+    # function a responsible for the sign change, 0 is same sign, 1 if different
+    # a = abs_sign - 1
+    # b = abs(y_true_un-y_pred_un)
+
+
+    return K.mean(fin_loss) #Substracting by how close it is off
+
+y_true_un = [[0., 1.], [1., 1.], [1., 1.],[-1,-0.8]]
+y_pred_un = [[1., 0.], [1., 1.], [-1., -1.],[-1,-1]]
+
+def loss_unit_test(y_true_un,y_pred_un):
     y_pred_sign = math_ops.sign(y_pred_un)
     y_true_sign = math_ops.sign(y_true_un)
     abs_sign = math_ops.abs(math_ops.subtract(y_pred_sign,y_true_sign)) # 0 if same, 2 if different
 
 
+    loss = tf.keras.losses.mean_absolute_error(y_true_un, y_pred_un)
+    fin_loss = math_ops.multiply(abs_sign,math_ops.abs(math_ops.subtract(y_true_un,y_pred_un))+100)*10 + math_ops.abs(math_ops.subtract(y_true_un,y_pred_un))
+    #print(fin_loss)
 
-
-    loss_sign = math_ops.add(math_ops.multiply(math_ops.abs(math_ops.subtract(0, math_ops.multiply(y_pred_un,5))),abs_sign),(math_ops.abs(math_ops.subtract(y_pred_un, y_true_un))))
-    #This loss can be improved - divide y_pred_un by absolute value to preserve the sign, but have a value of 1. For second part, use 1 - y_true/y_pred_un
-    # So we need 2 functions, a and b, domain {0,1}, loss = a + b
-    # function a responsible for the sign change, 0 is same sign, 1 if different
-    a = abs_sign - 1
-    b = abs(y_true_un-y_pred_un)
-    return K.mean(loss_sign) #Substracting by how close it is off
-
+loss_unit_test(y_true_un,y_pred_un)
 def custom_cosine_similarity(y_true,y_pred):
     y_true = ops.convert_to_tensor_v2(y_true)
     y_pred = ops.convert_to_tensor_v2(y_pred)
@@ -225,12 +249,31 @@ def custom_cosine_similarity(y_true,y_pred):
 
 
 
-    y_true_un = (((y_true - K.constant(mm_y.min_)) / K.constant(mm_y.scale_))* sc_y.scale_) + sc_y.mean_
+    # y_true_un = (((y_true - K.constant(mm_y.min_)) / K.constant(mm_y.scale_))* sc_y.scale_) + sc_y.mean_
+    #
+    #
+    # y_pred_un = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
+
+    y_true_un = y_true
+    y_pred_un = y_pred
 
 
-    y_pred_un = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
+
+    #print(y_true_un[-5:])
+
+    #print(y_pred_un[-5:])
 
 
-    loss = tf.keras.losses.cosine_similarity(y_true_un, y_pred_un, axis=1)
 
-    return K.mean(math_ops.add(1,loss))
+
+    loss = tf.keras.losses.cosine_similarity(y_true_un, y_pred_un, axis=-1)
+
+    #loss = (nn.l2_normalize_v2(y_true_un,axis=-1) * nn.l2_normalize_v2(y_pred_un,axis=-1))
+
+    #print(loss[-5:])
+
+
+    return K.mean(math_ops.add(1,loss),axis=-1)
+
+#true:  -+-+---+-++++-+
+#pred:  +++-++++---+++

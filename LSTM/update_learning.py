@@ -20,12 +20,12 @@ def continue_learning_batch(ticker, model,start,increment,final_pass):
 
         lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
             0.0001,
-            decay_steps=25,
-            decay_rate=0.9,
+            decay_steps=98,
+            decay_rate=0.98,
             staircase=True)
 
 
-        saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=lr_schedule),
+        saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=lr_schedule,amsgrad=True),
                       loss=mean_squared_error_custom)
 
         mcp = ModelCheckpoint(
@@ -35,33 +35,37 @@ def continue_learning_batch(ticker, model,start,increment,final_pass):
             save_best_only=False, save_weights_only=False, mode='min', period=1)
         y_pred_lstm = saved_model.predict(trim_dataset(x_test_t, BATCH_SIZE), batch_size=BATCH_SIZE)
 
-        if final_pass == True:
-            history_lstm = saved_model.fit(trim_dataset(x_val, BATCH_SIZE), trim_dataset(y_val, BATCH_SIZE),
+        # if final_pass == True:
+        #     history_lstm = saved_model.fit(trim_dataset(x_val, BATCH_SIZE), trim_dataset(y_val, BATCH_SIZE),
+        #                                   epochs=1,
+        #                                   verbose=1, batch_size=BATCH_SIZE,
+        #                                   shuffle=False, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
+        #                                                                   trim_dataset(y_test_t, BATCH_SIZE)),
+        #                                   callbacks=[mcp])
+        #     history_lstm = saved_model.fit(trim_dataset(x_test_t, BATCH_SIZE), trim_dataset(y_test_t, BATCH_SIZE),
+        #                                   epochs=1,
+        #                                   verbose=1, batch_size=BATCH_SIZE,
+        #                                   shuffle=False, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
+        #                                                                   trim_dataset(y_test_t, BATCH_SIZE)),
+        #                                   callbacks=[mcp])
+        # else:
+        end = increment + start
+        if end > size:
+            end = increment
+            start = 0
+        while end < size:
+            x_train, y_train = data_prep_batch_2(x_t, y_t, start, end)
+            history_lstm = saved_model.fit(trim_dataset(x_train, BATCH_SIZE), trim_dataset(y_train, BATCH_SIZE),
                                           epochs=1,
                                           verbose=1, batch_size=BATCH_SIZE,
-                                          shuffle=False, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
-                                                                          trim_dataset(y_test_t, BATCH_SIZE)),
+                                          shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
+                                                                          trim_dataset(y_val, BATCH_SIZE)),
                                           callbacks=[mcp])
-            history_lstm = saved_model.fit(trim_dataset(x_test_t, BATCH_SIZE), trim_dataset(y_test_t, BATCH_SIZE),
-                                          epochs=1,
-                                          verbose=1, batch_size=BATCH_SIZE,
-                                          shuffle=False, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
-                                                                          trim_dataset(y_test_t, BATCH_SIZE)),
-                                          callbacks=[mcp])
-        else:
-            end = increment + start
-            while end < size:
-                x_train, y_train = data_prep_batch_2(x_t, y_t, start, end)
-                history_lstm = saved_model.fit(trim_dataset(x_train, BATCH_SIZE), trim_dataset(y_train, BATCH_SIZE),
-                                              epochs=1,
-                                              verbose=1, batch_size=BATCH_SIZE,
-                                              shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
-                                                                              trim_dataset(y_val, BATCH_SIZE)),
-                                              callbacks=[mcp])
-                start = end
-                end += increment
+            start = end
+            end += increment
+
         #saved_model.reset_states()
-continue_learning_batch(ticker, '133920.23437500_25204.30664062-best_model-01',200000,50000,False)
+continue_learning_batch(ticker, '3798.10766602_5312.29882812-best_model-01',0,25000,False)
 
 #
 # def continue_learning(ticker, model):

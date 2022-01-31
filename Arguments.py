@@ -3,13 +3,13 @@ class Arguments:
         self.args = {
             'starting_date': "1991-01-02",
             'ticker': 'bnbusdt', #ethusd,bnbusdt
-            'train_size': 0.95,
-            'test_size': 0.05,
+            'train_size': 0.975,
+            'test_size': 0.025,
             'target_features':None,
             'data_types': ['training', 'validation', 'test'],
             'n_components': None,  # n_components is responsible for designating number of features the data will be reduced to
-            'time_steps': 175,
-            'batch_size': 25,
+            'time_steps': 50,
+            'batch_size': 250,
             'epochs': 256,
             'LR': 0.00000010000,
             'split_constants': {
