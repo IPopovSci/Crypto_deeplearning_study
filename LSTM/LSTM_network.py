@@ -78,7 +78,7 @@ def create_lstm_model(x_t):
     lstm_model = tf.keras.Model(inputs=input, outputs=output)
 
     lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-        0.0001,
+        0.001,
         decay_steps=50,
         decay_rate=0.975,
         staircase=True)
@@ -86,6 +86,8 @@ def create_lstm_model(x_t):
     #optimizer = tf.keras.optimizers.RMSprop(learning_rate=lr_schedule)
     optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule,amsgrad=True,epsilon=0.1)
     #optimizer = tf.keras.optimizers.Adagrad(lr=0.0001)
-    lstm_model.compile(loss=[mean_squared_error_custom], optimizer=optimizer)
+    #lstm_model.compile(loss=[mean_squared_error_custom], optimizer=optimizer)
     #lstm_model.compile(loss=[custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity], optimizer=optimizer)
+    lstm_model.compile(
+        loss='CosineSimilarity', optimizer=optimizer)
     return lstm_model

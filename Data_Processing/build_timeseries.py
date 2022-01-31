@@ -22,7 +22,7 @@ def build_timeseries(x_t,y_t):
 
     print("Length of inputs", dim_0)
 
-
+    #this is sus, how does this work
     for i in range(dim_0):
         x[i] = x_t[i:TIME_STEPS + i]
         #y[i] = y_t[TIME_STEPS + i]

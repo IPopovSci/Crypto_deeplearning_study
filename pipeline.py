@@ -14,9 +14,12 @@ BATCH_SIZE = args['batch_size']
 start_date = args['starting_date']
 np.set_printoptions(threshold=sys.maxsize)
 
+
+
 '''This is the pipeline function, which will call upon required functions to load and process the data'''
-def data_prep(data_from,initial_training=True,batch=True,SS_path = [],MM_path = []):
+def data_prep(data_from,initial_training=True,batch=True,SS_path = 'F:\MM\scalers\\bnbusdt',MM_path = 'F:\MM\scalers\\bnbusdt'):
     '''Step 1: Get Data'''
+    #Move step 1 into a separate function in get_data
     if data_from == 'Yahoo':
         history = ticker_data(ticker, start_date)
         history = aux_data(history, ['CL=F', 'GC=F', '^VIX', '^TNX'], start_date)  # Get any extra data
@@ -42,15 +45,15 @@ def data_prep(data_from,initial_training=True,batch=True,SS_path = [],MM_path = 
     print('SS, but this aint 1942')
     '''Step 6: Split data into x and y'''
 
-    #x_train, x_validation, x_test,y_train,y_validation,y_test, SS_scaler = SS_transform(x_train, x_validation, x_test, y_train,y_validation,y_test, initial_training, SS_path)
+    x_train, x_validation, x_test,_,_,_, SS_scaler = SS_transform(x_train, x_validation, x_test, y_train,y_validation,y_test, initial_training, SS_path)
     print('I SPLIT IT IN HALF, AGAIN!')
     '''Step 7: PCA'''
-    #x_train, x_validation, x_test = pca_reduction(x_train, x_validation, x_test)
+    x_train, x_validation, x_test = pca_reduction(x_train, x_validation, x_test)
     print('PCA done')
     '''Step 8: Min-max scaler (-1 to 1 for sigmoid)'''
-    #x_train, x_validation, x_test, y_train, y_validation, y_test, mm_scaler_y = min_max_transform(x_train, x_validation,
-                                                                                                  # x_test, y_train,
-                                                                                                  # y_validation, y_test,initial_training,MM_path)
+    x_train, x_validation, x_test, _, _, _, mm_scaler_y = min_max_transform(x_train, x_validation,
+                                                                                                  x_test, y_train,
+                                                                                                  y_validation, y_test,initial_training,MM_path)
 
     print('Min-maxed to the tits')
     '''Step 9: Create time-series data'''
