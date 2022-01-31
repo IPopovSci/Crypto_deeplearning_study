@@ -286,8 +286,8 @@ def metric_signs(y_true,y_pred):
     y_true_sign = math_ops.sign(y_true[:,3])
     y_pred_sign = math_ops.sign(y_pred[:,3])
 
-    metric = math_ops.divide(math_ops.abs(math_ops.subtract(y_true,y_pred)),2)
+    metric = math_ops.divide(math_ops.abs(math_ops.subtract(y_true_sign,y_pred_sign)),2)
 
-    return math_ops.subtract(batch_size,K.sum(metric))
+    return math_ops.multiply(math_ops.divide(math_ops.subtract(batch_size,K.sum(metric)),batch_size),100)
 
 
