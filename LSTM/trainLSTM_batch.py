@@ -17,8 +17,8 @@ def train_model_batch(start,increment,model_name='Default'):
     early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=12)
 
     reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_metric_signs', factor=0.5,
-                                                     patience=4, min_lr=0.000000000000000000000000000000000001,
-                                                     verbose=1, mode='min')
+                                                     patience=4, min_lr=0.00000001,
+                                                     verbose=1, mode='max')
     mcp = ModelCheckpoint(
         os.path.join(f'F:\MM\models\{ticker}\\',
                      "{val_loss:.8f}_{loss:.8f}-best_model-{epoch:02d}.h5"),

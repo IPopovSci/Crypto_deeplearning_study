@@ -84,10 +84,10 @@ def create_lstm_model(x_t):
         staircase=True)
 
     #optimizer = tf.keras.optimizers.RMSprop(learning_rate=lr_schedule)
-    optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule,amsgrad=True,epsilon=0.1)
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001,amsgrad=True,epsilon=0.1)
     #optimizer = tf.keras.optimizers.Adagrad(lr=0.0001)
     #lstm_model.compile(loss=[mean_squared_error_custom], optimizer=optimizer)
-    #lstm_model.compile(loss=[custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity], optimizer=optimizer)
-    lstm_model.compile(
-        loss='CosineSimilarity', optimizer=optimizer,metrics=metric_signs)
+    lstm_model.compile(loss=[custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity], optimizer=optimizer,metrics=metric_signs)
+    #lstm_model.compile(
+        #loss='CosineSimilarity', optimizer=optimizer,metrics=metric_signs)
     return lstm_model

@@ -241,7 +241,19 @@ def loss_unit_test(y_true_un,y_pred_un):
     fin_loss = math_ops.multiply(abs_sign,math_ops.abs(math_ops.subtract(y_true_un,y_pred_un))+100)*10 + math_ops.abs(math_ops.subtract(y_true_un,y_pred_un))
     #print(fin_loss)
 
-loss_unit_test(y_true_un,y_pred_un)
+
+batch_size = args['batch_size']
+def metric_signs(y_true,y_pred):
+    y_true = ops.convert_to_tensor_v2(y_true)
+    y_pred = ops.convert_to_tensor_v2(y_pred)
+    y_true = math_ops.cast(y_true, y_pred.dtype)
+
+    y_true_sign = math_ops.sign(y_true[:,3])
+    y_pred_sign = math_ops.sign(y_pred[:,3])
+
+    metric = math_ops.divide(math_ops.abs(math_ops.subtract(y_true_sign,y_pred_sign)),2)
+
+    return math_ops.multiply(math_ops.divide(math_ops.subtract(batch_size,K.sum(metric)),batch_size),100)
 def custom_cosine_similarity(y_true,y_pred):
     y_true = ops.convert_to_tensor_v2(y_true)
     y_pred = ops.convert_to_tensor_v2(y_pred)
@@ -271,24 +283,13 @@ def custom_cosine_similarity(y_true,y_pred):
     #loss = (nn.l2_normalize_v2(y_true_un,axis=-1) * nn.l2_normalize_v2(y_pred_un,axis=-1))
 
     #print(loss[-5:])
+    metric = math_ops.divide(metric_signs(y_true,y_pred),100)
 
 
-
-    return K.mean(math_ops.add(1,loss),axis=-1)
+    return math_ops.add(1,loss) - metric
 
 #true:  -+-+---+-++++-+
 #pred:  +++-++++---+++
-batch_size = args['batch_size']
-def metric_signs(y_true,y_pred):
-    y_true = ops.convert_to_tensor_v2(y_true)
-    y_pred = ops.convert_to_tensor_v2(y_pred)
-    y_true = math_ops.cast(y_true, y_pred.dtype)
 
-    y_true_sign = math_ops.sign(y_true[:,3])
-    y_pred_sign = math_ops.sign(y_pred[:,3])
-
-    metric = math_ops.divide(math_ops.abs(math_ops.subtract(y_true_sign,y_pred_sign)),2)
-
-    return math_ops.multiply(math_ops.divide(math_ops.subtract(batch_size,K.sum(metric)),batch_size),100)
 
 
