@@ -2,7 +2,7 @@ from pipeline import data_prep,data_prep_transfer,data_prep_batch_2
 from Arguments import args
 from Data_Processing.data_trim import trim_dataset
 from tensorflow.keras.callbacks import ModelCheckpoint
-from LSTM.callbacks import custom_loss,ratio_loss,my_metric_fn,mean_squared_error_custom
+from LSTM.callbacks import custom_loss,ratio_loss,my_metric_fn,mean_squared_error_custom,custom_cosine_similarity,metric_signs
 from tensorflow.keras.models import load_model
 from keras_self_attention import SeqSelfAttention
 import numpy as np
@@ -13,24 +13,28 @@ import tensorflow as tf
 BATCH_SIZE = args['batch_size']
 ticker = 'bnbusdt'
 def continue_learning_batch(ticker, model,start,increment,final_pass):
-        x_t, y_t, x_val, y_val, x_test_t, y_test_t,size,_,_ = data_prep('CSV',initial_training=False,batch=True,SS_path='F:\MM\scalers\BNBusdt_SS',MM_path='F:\MM\scalers\BNBusdt_MM')
+        x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = data_prep('CSV',initial_training=True,batch=True,SS_path='F:\MM\scalers\BNBusdt_SS',MM_path='F:\MM\scalers\BNBusdt_MM')
 
         saved_model = load_model(f'F:\MM\models\{ticker}\{model}.h5',
-                                 custom_objects={'SeqSelfAttention': SeqSelfAttention,'mean_squared_error_custom':mean_squared_error_custom})
+                                 custom_objects={'SeqSelfAttention': SeqSelfAttention,'mean_squared_error_custom':mean_squared_error_custom,'custom_cosine_similarity':custom_cosine_similarity,'metric_signs':metric_signs})
 
         lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-            0.0001,
-            decay_steps=98,
-            decay_rate=0.98,
+            0.000001,
+            decay_steps=100,
+            decay_rate=0.975,
             staircase=True)
 
+        reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_metric_signs', factor=0.5,
+                                                         patience=3, min_lr=0.00000001,
+                                                         verbose=1, mode='max')
 
-        saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=lr_schedule,amsgrad=True),
-                      loss=mean_squared_error_custom)
+
+        saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=lr_schedule,amsgrad=True,epsilon=0.1),
+                      loss=custom_cosine_similarity,metrics=metric_signs)
 
         mcp = ModelCheckpoint(
-            os.path.join(f'F:\MM\models\\bnbusdt\\',
-                         "{val_loss:.8f}_{loss:.8f}-best_model-{epoch:02d}.h5"),
+            os.path.join(f'F:\MM\models\\{ticker}\\',
+                         "{val_loss:.8f}_{val_metric_signs:.8f}-best_model-{epoch:02d}.h5"),
             monitor='val_loss', verbose=3,
             save_best_only=False, save_weights_only=False, mode='min', period=1)
         y_pred_lstm = saved_model.predict(trim_dataset(x_test_t, BATCH_SIZE), batch_size=BATCH_SIZE)
@@ -60,12 +64,15 @@ def continue_learning_batch(ticker, model,start,increment,final_pass):
                                           verbose=1, batch_size=BATCH_SIZE,
                                           shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
                                                                           trim_dataset(y_val, BATCH_SIZE)),
-                                          callbacks=[mcp])
+                                          callbacks=[mcp,reduce_lr])
             start = end
             end += increment
+            if end > size:
+                end = increment
+                start = 0
 
         #saved_model.reset_states()
-continue_learning_batch(ticker, '3798.10766602_5312.29882812-best_model-01',0,25000,False)
+continue_learning_batch(ticker, '0.10453555_60.84426117-best_model-01',0,25000,False)
 
 #
 # def continue_learning(ticker, model):
