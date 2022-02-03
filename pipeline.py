@@ -17,7 +17,7 @@ np.set_printoptions(threshold=sys.maxsize)
 
 
 '''This is the pipeline function, which will call upon required functions to load and process the data'''
-def data_prep(data_from,initial_training=True,batch=True,SS_path = 'F:\MM\scalers\\bnbusdt',MM_path = 'F:\MM\scalers\\bnbusdt'):
+def data_prep(data_from,initial_training=True,batch=True,SS_path = 'F:\MM\scalers\\bnbusdt_ss',MM_path = 'F:\MM\scalers\\bnbusdt_mm'):
     '''Step 1: Get Data'''
     #Move step 1 into a separate function in get_data
     if data_from == 'Yahoo':
@@ -153,7 +153,7 @@ def data_prep_transfer(data_from):
     x_train = pca_reduction_small(x_train)
     print('PCA done')
     '''Step 8: Min-max scaler (-1 to 1 for sigmoid)'''
-    x_train, y_train, mm_scaler_y = min_max_transform_small(x_train,
+    x_train, _, mm_scaler_y = min_max_transform_small(x_train,
                                                                                                   y_train)
     print('Min-maxed to the tits')
     '''Step 9: Create time-series data'''

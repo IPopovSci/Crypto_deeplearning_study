@@ -1,18 +1,12 @@
-import pandas as pd
-from Data_Processing.get_data import scv_data
-from Arguments import args
-import tensorflow as tf
+
+#import tensorflow as tf
 import tensorflow.keras.backend as K
-from tensorflow.keras.callbacks import ModelCheckpoint
-import os
-import numpy as np
-from Arguments import args
-tf.config.experimental_run_functions_eagerly(True)
-from tensorflow.python.framework import ops
-from tensorflow.python.ops import array_ops
-from tensorflow.python.ops import math_ops
-from tensorflow.python.ops import nn
+
+
+#tf.config.experimental_run_functions_eagerly(True)
+
 import joblib
+
 
 def one_to_five(data):
     ohlc = {
@@ -26,6 +20,7 @@ def one_to_five(data):
     df.dropna(inplace=True)
 
     print(df)
+
 
 # ticker = args['ticker']
 # history = scv_data(ticker)
@@ -62,46 +57,39 @@ import pandas as pd
 import glob
 import os
 
-def join_files():
-    joined_files = os.path.join("F:\MM\Data\BNBUSDT", "bnbusdt*.csv")
+
+def join_files(path_load, path_save):
+    joined_files = os.path.join(f"{path_load}", "bnb*.csv")
 
     joined_list = glob.glob(joined_files)
 
-    for file in joined_list:
+    for file in joined_list: #this whole loop can/should be avoided
         df = pd.read_csv(file)
 
-        print(df)
-        print(file)
+        #df['time'] = pd.to_datetime(df['time'], unit='s').dt.strftime('%Y-%m-%dT%H:%M')
+        #df['time'] = df['time'].apply(lambda x: pd.to_datetime(x).strftime('%Y-%m-%dT%H:%M'))
 
-        df.set_index('time_period_start',inplace=True)
-        print(df)
-        print(file)
+        df['time'] = pd.to_datetime(df['time'], infer_datetime_format=True,format='%Y-%m-%dT%H:%M',utc=True)
 
-    f = pd.concat(map(pd.read_csv, joined_list), ignore_index=False,axis=0,join='outer')
-    f.drop_duplicates(ignore_index=False,inplace=True)
+        df.set_index('time', inplace=True)
 
-    f.sort_values(by='time_period_start', ascending=1,inplace=True)
-    #df.drop(columns='Unnamed: 0',inplace=True)
-    f.set_index('time_period_start', inplace=True)
-    f.to_csv('F:\MM\Data\BNBUSDT\\bnbusdt_merge.csv',index=True)
-
-#def multiply_volume_by_price():
-
-'''Rewriting inverse transform in tensorflow notation to use in loss function'''
-
-import inspect
+        df.to_csv(file)
 
 
-MM_path = 'F:\MM\scalers\BNBusdt_MM'
-SS_path = 'F:\MM\scalers\BNBusdt_SS'
 
-mm_y = joblib.load(MM_path + ".y")
-sc_y = joblib.load(SS_path + ".y")
-attributes = inspect.getmembers(mm_y, lambda a:not(inspect.isroutine(a)))
-attributes = ([a for a in attributes if not(a[0].startswith('__') and a[0].endswith('__'))]) #
-# print(attributes)
-# print(attributes[5])
-# print(attributes[8])
+    f = pd.concat(map(pd.read_csv, joined_list), ignore_index=False, axis=0, join='outer')
+    f.drop_duplicates(ignore_index=False, inplace=True)
+
+    f.sort_values(by='time', ascending=1, inplace=True)
+    # df.drop(columns='Unnamed: 0',inplace=True)
+    f.set_index('time', inplace=True)
+    f.to_csv(f'{path_save}\\bnbusdt_pancake.csv', index=True)
+
+
+# join_files()
+
+# def multiply_volume_by_price():
+
 
 def tf_mm_inverse_transform(X):
     MM_path = 'F:\MM\scalers\BNBusdt_MM'
@@ -109,7 +97,7 @@ def tf_mm_inverse_transform(X):
 
     mm_y = joblib.load(MM_path + ".y")
     sc_y = joblib.load(SS_path + ".y")
-    #X = ops.convert_to_tensor_v2(X,dtype=tf.float32)
+    # X = ops.convert_to_tensor_v2(X,dtype=tf.float32)
 
     X = (X - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)
 

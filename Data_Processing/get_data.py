@@ -4,6 +4,7 @@ import os
 from Arguments import args
 # from pycoingecko import CoinGeckoAPI
 from datetime import datetime, timedelta
+from utility import join_files
 
 '''This module is for grabbing stock information from Yahoo Finance or other sources
 Ticker_data grabs specific ticker, vix_data will grab only vix data and rename its columns so its easier to differentiate down the line'''
@@ -41,9 +42,8 @@ def aux_data(df_main, aux_ticker_list, start_date):
         aux_hist = aux_data_object.history(start=start_date)  # Grab history of the object with the indicated start date
 
         aux_hist = aux_hist[target_col]  # Grab target columns (Ignoring dividends and split columns)
-
         aux_hist.rename(columns={'Open': f'{ticker} Open', 'High': f'{ticker} High', 'Low': f'{ticker} Low',
-                                 'Close': f'{ticker} Close'}, inplace=True)
+                                'Close': f'{ticker} Close'}, inplace=True)
 
         aux_total_df = pd.concat([aux_total_df, aux_hist], axis=1)
 
@@ -53,13 +53,18 @@ def aux_data(df_main, aux_ticker_list, start_date):
 '''This function is from loading in prepared CSV data'''
 
 
-def scv_data(pair):
+def scv_data(path = 'C:\\Users\\Ivan\\PycharmProjects\\MlFinancialAnal\\data\datasets',filename = 'bnbusdt_merge_1min'):
     col = ['time', 'open', 'high', 'low', 'close', 'volume']
-    df = pd.read_csv(f'C:\\Users\\Ivan\\PycharmProjects\\MlFinancialAnal\\data\datasets\{pair}\{pair}.csv')
+    #df = pd.read_csv(f'C:\\Users\\Ivan\\PycharmProjects\\MlFinancialAnal\\data\datasets\\{pair}\\{pair}.csv')
+    df = pd.read_csv(f'{path}\\{filename}.csv')
     df = df[col]
-    df.rename(columns={'open': 'Open', 'high': 'High', 'low': 'Low', 'close': 'Close', 'volume': 'Volume'},
-              inplace=True)  # Data from kaggle doesn't have capitalization, this is a fix
+    try:
+        df.rename(columns={'open': 'Open', 'high': 'High', 'low': 'Low', 'close': 'Close', 'volume': 'Volume'},
+                inplace=True)
+    except:
+        print('No columns to rename')
 #    df['time'] = pd.to_datetime(df['time'], unit='ms')  # Unix to datetime conversion
+
     df.set_index('time', inplace=True)
     #print(df.head())
 
@@ -82,23 +87,28 @@ One thousand data points only'''
 import cryptowatch as cw
 
 
-def cryptowatch_data(pair, periods):
+def cryptowatch_data(path,pair, periods,filename):
     cw.api_key = 'LZKL7ULRG322Z0793KU3'
 
     hist = cw.markets.get(f"BINANCE:{pair}", ohlc=True, periods=[f'{periods}'])
 
     hist_list = getattr(hist, f'of_{periods}')  # Calling a method on a class to get the desired interval
-
+    #print(hist_list)
     col = ['time', 'Open', 'High', 'Low', 'Close', 'volume_a',
-           'Volume']  # Volume is the volume in USDT in this case, volume_a is the volume in first currency
+           'Volume']  # Volume is the volume in USDT in this case, volume_a is the volume in first currency (Currently using volume_a)
     df = pd.DataFrame(hist_list, columns=col)
-    df.drop(['volume_a'], axis=1, inplace=True)  # getting rid of first currency volume
+    df.drop(['Volume'], axis=1, inplace=True)  # getting rid of first currency volume
 
-    df['time'] = pd.to_datetime(df['time'], unit='s')  # Unix to datetime conversion
+    df.rename(columns={'volume_a': 'Volume'},
+              inplace=True)
+
+    df['time'] = pd.to_datetime(df['time'], unit='s').dt.strftime('%Y-%m-%dT%H:%M:%SZ')  # Unix to datetime conversion
     df.set_index('time', inplace=True)
+    df.to_csv(f'{path}\\{filename}_cryptowatch.csv')
 
-    print(df)
     return df
+
+#cryptowatch_data('bnbusdt','5m')
 
 '''Coinapi history grab - only 100 requests/day but 10000 points
 Use for transfer learning step 1, then apply real world with cryptowatch api
@@ -109,9 +119,9 @@ import datetime, sys
 
 
 
-def coinapi_data(historical):
+def coinapi_data(path,filename,historical):
     api = CoinAPIv1('8BF8FA2A-C4B9-4651-8FE3-48B75B8CEE87') #7E9EEDF3-DDEA-4176-8046-7BD4BFFE1670 #86B0BD38-FA87-4FA1-A4F1-A93819B09DF9 #EAB93C31-D483-44EC-BF6B-A095635C96EF #59821645-ABBF-43EF-884A-D613F3542507
-    starting_date = datetime.date(2020, 1, 4).isoformat() #Need to dynamically get 500000 minutes ago, this will do for now
+    starting_date = datetime.date(2022,1, 16).isoformat() #Need to dynamically get 500000 minutes ago, this will do for now
 #5C58BD30-97D0-4F9A-BB6C-A2AC22F63E86 #8BF8FA2A-C4B9-4651-8FE3-48B75B8CEE87
     #symbols = api.metadata_list_symbols({'filter_symbol_id':'binance_spot_bnb'}) # FCOIN_SPOT_BNB_USDT
     if historical == True:
@@ -119,16 +129,30 @@ def coinapi_data(historical):
     else:
         ohlcv_historical = api.ohlcv_latest_data('BINANCE_SPOT_BNB_USDT', {'period_id': '5min','limit':'100000'})
 
-    col = ['time_period_start','price_open','price_high','price_low','price_close', 'volume_traded']
-    df = pd.DataFrame(ohlcv_historical, columns=col)
-    df.to_csv(f'F:\MM\Data\BNBUSDT\\bnbusdt_2020.csv')  # saves to csv
-    print(ohlcv_historical)
-#coinapi_data(historical=True)
+    col = ['time_period_end','price_open','price_high','price_low','price_close', 'volume_traded']
 
-#COINDCX_SPOT_BNB_LINK - FATBTC_SPOT_LINK_USDT,EXRATES_SPOT_LINK_USDT,FATBTC_SPOT_LINK_USDT
-# COINDCX_SPOT_BNB_ROSE -COINDCX_SPOT_BUSD_ROSE
-#COINDCX_SPOT_BNB_LUNA - COINDCX_SPOT_ETH_LUNA,COINDCX_SPOT_BUSD_LUNA
-#COINDCX_SPOT_BNB_BETA - COINDCX_SPOT_USDT_BETA
-#COINDCX_SPOT_BNB_KP3R -  COINDCX_SPOT_BUSD_KP3R
-#COINDCX_SPOT_BNB_DAR - COINDCX_SPOT_USDT_DAR
-#
+    df = pd.DataFrame(ohlcv_historical, columns=col)
+
+    df.rename(columns={'time_period_end':'time','price_open': 'Open', 'price_high': 'High', 'price_low': 'Low', 'price_close': 'Close', 'volume_traded': 'Volume'},
+              inplace=True)
+
+    df.set_index('time', inplace=True)
+
+    df.to_csv(f'{path}\\{filename}_coinapi.csv')  # saves to csv
+
+#coinapi_data('F:\MM\production\pancake_predictions\data','bnb_5m_pancake',historical=False)
+
+def pancake_data(path,filename,big_update=False):
+    if big_update == True:
+        try:
+            coinapi_data(path,filename,False)
+        except:
+            print('coinapi API key is out of requests')
+    cryptowatch_data(path + '\load','bnbusdt', '5m',filename)
+    join_files(path_load=path +'\load',path_save = path + '\save')
+
+pancake_data('F:\MM\production\pancake_predictions\data','bnb_5m_pancake',False)
+
+
+
+
