@@ -53,7 +53,7 @@ def aux_data(df_main, aux_ticker_list, start_date):
 '''This function is from loading in prepared CSV data'''
 
 
-def scv_data(path = 'C:\\Users\\Ivan\\PycharmProjects\\MlFinancialAnal\\data\datasets',filename = 'bnbusdt_merge_1min'):
+def scv_data(path,filename):
     col = ['time', 'open', 'high', 'low', 'close', 'volume']
     #df = pd.read_csv(f'C:\\Users\\Ivan\\PycharmProjects\\MlFinancialAnal\\data\datasets\\{pair}\\{pair}.csv')
     df = pd.read_csv(f'{path}\\{filename}.csv')
@@ -149,9 +149,10 @@ def pancake_data(path,filename,big_update=False):
         except:
             print('coinapi API key is out of requests')
     cryptowatch_data(path + '\load','bnbusdt', '5m',filename)
-    join_files(path_load=path +'\load',path_save = path + '\save')
+    df = join_files(path_load=path +'\load',path_save = path + '\save')
+    return df
 
-pancake_data('F:\MM\production\pancake_predictions\data','bnb_5m_pancake',False)
+#pancake_data('F:\MM\production\pancake_predictions\data','bnb_5m_pancake',False)
 
 
 

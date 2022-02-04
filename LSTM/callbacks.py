@@ -180,13 +180,13 @@ def my_metric_fn(y_true, y_pred):
 
 
 
-
-MM_path = 'F:\MM\scalers\BNBusdt_MM'
-SS_path = 'F:\MM\scalers\BNBusdt_SS'
-
-mm_y = joblib.load(MM_path + ".y")
-sc_y = joblib.load(SS_path + ".y")
-
+#
+# MM_path = 'F:\MM\scalers\BNBusdt_MM'
+# SS_path = 'F:\MM\scalers\BNBusdt_SS'
+#
+# mm_y = joblib.load(MM_path + ".y")
+# sc_y = joblib.load(SS_path + ".y")
+#
 
 
 

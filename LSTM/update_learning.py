@@ -13,15 +13,15 @@ import tensorflow as tf
 BATCH_SIZE = args['batch_size']
 ticker = 'bnbusdt'
 def continue_learning_batch(ticker, model,start,increment,final_pass):
-        x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = data_prep('CSV',initial_training=False,batch=True,SS_path='F:\MM\scalers\BNBusdt_SS',MM_path='F:\MM\scalers\BNBusdt_MM')
+        x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = data_prep('pancake',initial_training=False,batch=True,SS_path = 'F:\MM\scalers\\bnbusdt_ss_pancake5min',MM_path = 'F:\MM\scalers\\bnbusdt_mm_pancake5min',big_update=False)
 
-        saved_model = load_model(f'F:\MM\models\{ticker}\\1min\{model}.h5',
+        saved_model = load_model(f'F:\MM\models\\{ticker}\\5min\{model}.h5',
                                  custom_objects={'SeqSelfAttention': SeqSelfAttention,'mean_squared_error_custom':mean_squared_error_custom,'custom_cosine_similarity':custom_cosine_similarity,'metric_signs':metric_signs})
 
         lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-            0.00001,
+            0.001,
             decay_steps=50,
-            decay_rate=0.99,
+            decay_rate=0.95,
             staircase=True)
 
         reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_metric_signs', factor=0.5,
@@ -29,15 +29,15 @@ def continue_learning_batch(ticker, model,start,increment,final_pass):
                                                          verbose=1, mode='max')
 
 
-        saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=lr_schedule,amsgrad=True,epsilon=0.1),
+        saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001,amsgrad=True),
                       loss=custom_cosine_similarity,metrics=metric_signs)
 
         mcp = ModelCheckpoint(
-            os.path.join(f'F:\MM\models\\{ticker}\\1min\\',
+            os.path.join(f'F:\MM\models\{ticker}\\5min\\',
                          "{val_loss:.8f}_{val_metric_signs:.8f}-best_model-{epoch:02d}.h5"),
             monitor='val_loss', verbose=3,
             save_best_only=False, save_weights_only=False, mode='min', period=1)
-        y_pred_lstm = saved_model.predict(trim_dataset(x_test_t, BATCH_SIZE), batch_size=BATCH_SIZE)
+
 
 
 
@@ -54,27 +54,30 @@ def continue_learning_batch(ticker, model,start,increment,final_pass):
                                                shuffle=False, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
                                                                                trim_dataset(y_test_t, BATCH_SIZE)),
                                                callbacks=[mcp])
+                saved_model.reset_states()
                 history_lstm = saved_model.fit(trim_dataset(x_test_t, BATCH_SIZE), trim_dataset(y_test_t, BATCH_SIZE),
                                                epochs=1,
                                                verbose=1, batch_size=BATCH_SIZE,
                                                shuffle=False, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
                                                                                trim_dataset(y_test_t, BATCH_SIZE)),
                                                callbacks=[mcp])
+                saved_model.reset_states()
             else:
                 history_lstm = saved_model.fit(trim_dataset(x_train, BATCH_SIZE), trim_dataset(y_train, BATCH_SIZE),
                                               epochs=1,
                                               verbose=1, batch_size=BATCH_SIZE,
-                                              shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
-                                                                              trim_dataset(y_val, BATCH_SIZE)),
+                                              shuffle=False, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
+                                                                              trim_dataset(y_test_t, BATCH_SIZE)),
                                               callbacks=[mcp,reduce_lr])
+            saved_model.reset_states()
             start = end
             end += increment
             if end > size:
                 end = increment
                 start = 0
 
-        #saved_model.reset_states()
-continue_learning_batch(ticker, '0.32694387_55.34999847-best_model-01',0,25000,False)
+
+continue_learning_batch(ticker, '-0.62001109_88.75000000-best_model-01',0,25000,False)
 
 #
 # def continue_learning(ticker, model):

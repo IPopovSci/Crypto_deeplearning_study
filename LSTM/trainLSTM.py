@@ -11,13 +11,13 @@ from LSTM.LSTM_network import create_lstm_model as create_model
 '''Module for training new models'''
 ticker = args['ticker']
 
-x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep('CSV')
+x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep('pancake',initial_training=True,batch=False,SS_path = 'F:\MM\scalers\\bnbusdt_ss',MM_path = 'F:\MM\scalers\\bnbusdt_mm',big_update=False)
 BATCH_SIZE = args['batch_size']
 
 '''Singular Model training function'''
 
 def train_model(x_t, y_t, x_val, y_val, x_test_t, y_test_t, model_name='Default'):
-    x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep('CSV')
+    x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep('pancake')
     early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=12)
 
     reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5,
@@ -39,5 +39,5 @@ def train_model(x_t, y_t, x_val, y_val, x_test_t, y_test_t, model_name='Default'
                                   callbacks=[mcp, reduce_lr])
 
 
-train_model(x_t, y_t, x_val, y_val, x_test_t, y_test_t, 'ethusd')
+train_model(x_t, y_t, x_val, y_val, x_test_t, y_test_t, 'bnbusdt')
 

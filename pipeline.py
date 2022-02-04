@@ -1,5 +1,5 @@
 from Arguments import args
-from Data_Processing.get_data import ticker_data, aux_data, scv_data, cryptowatch_data,coinapi_data
+from Data_Processing.get_data import ticker_data, aux_data, scv_data, cryptowatch_data,coinapi_data,pancake_data
 from Data_Processing.ta_feature_add import add_ta
 from Data_Processing.Detrending import row_difference
 from Data_Processing.data_split import train_test_split_custom, x_y_split,x_y_split_small
@@ -17,7 +17,7 @@ np.set_printoptions(threshold=sys.maxsize)
 
 
 '''This is the pipeline function, which will call upon required functions to load and process the data'''
-def data_prep(data_from,initial_training=True,batch=True,SS_path = 'F:\MM\scalers\\bnbusdt_ss',MM_path = 'F:\MM\scalers\\bnbusdt_mm'):
+def data_prep(data_from,initial_training=True,batch=True,SS_path = 'F:\MM\scalers\\bnbusdt_ss',MM_path = 'F:\MM\scalers\\bnbusdt_mm',**kwargs):
     '''Step 1: Get Data'''
     #Move step 1 into a separate function in get_data
     if data_from == 'Yahoo':
@@ -28,6 +28,8 @@ def data_prep(data_from,initial_training=True,batch=True,SS_path = 'F:\MM\scaler
         #history = history[:150000] #This is bad, but the dataset is too big, I'm too newb, and the beggining of the dataset has a lot of gaps anyways
     elif data_from == 'cryptowatch':
         history = cryptowatch_data(ticker,'5m')
+    elif data_from == 'pancake':
+        history = pancake_data('F:\MM\production\pancake_predictions\data','bnb_5m_pancake',kwargs['big_update'])
     print('Got the Data!')
     '''Step 2: Apply TA Analysis'''
     ta_data = add_ta(history, ticker)  # The columns names can be acessed from arguments 'train_cols'

@@ -78,12 +78,17 @@ def join_files(path_load, path_save):
 
 
     f = pd.concat(map(pd.read_csv, joined_list), ignore_index=False, axis=0, join='outer')
-    f.drop_duplicates(ignore_index=False, inplace=True)
+
 
     f.sort_values(by='time', ascending=1, inplace=True)
+    f.drop_duplicates(ignore_index=False, inplace=True, subset=['time'])
+
     # df.drop(columns='Unnamed: 0',inplace=True)
     f.set_index('time', inplace=True)
+
     f.to_csv(f'{path_save}\\bnbusdt_pancake.csv', index=True)
+
+    return f
 
 
 # join_files()
