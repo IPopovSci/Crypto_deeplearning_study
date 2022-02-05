@@ -248,14 +248,14 @@ def metric_signs(y_true,y_pred):
     y_true = ops.convert_to_tensor_v2(y_true)
     y_pred = ops.convert_to_tensor_v2(y_pred)
     y_true = math_ops.cast(y_true, y_pred.dtype)
+    #
+    # y_true_un = (((y_true - K.constant(mm_y.min_)) / K.constant(mm_y.scale_))* sc_y.scale_) + sc_y.mean_
+    #
+    #
+    # y_pred_un = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
 
-    y_true_un = (((y_true - K.constant(mm_y.min_)) / K.constant(mm_y.scale_))* sc_y.scale_) + sc_y.mean_
-
-
-    y_pred_un = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
-
-    y_true_sign = math_ops.sign(y_true_un)
-    y_pred_sign = math_ops.sign(y_pred_un)
+    y_true_sign = math_ops.sign(y_true)
+    y_pred_sign = math_ops.sign(y_pred)
 
     metric = math_ops.divide(math_ops.abs(math_ops.subtract(y_true_sign,y_pred_sign)),2)
 
@@ -268,14 +268,14 @@ def custom_cosine_similarity(y_true,y_pred):
     y_true = math_ops.cast(y_true, y_pred.dtype)
 
 
+    #
+    # y_true_un = (((y_true - K.constant(mm_y.min_)) / K.constant(mm_y.scale_))* sc_y.scale_) + sc_y.mean_
+    #
+    #
+    # y_pred_un = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
 
-    y_true_un = (((y_true - K.constant(mm_y.min_)) / K.constant(mm_y.scale_))* sc_y.scale_) + sc_y.mean_
-
-
-    y_pred_un = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
-
-    # y_true_un = y_true
-    # y_pred_un = y_pred
+    y_true_un = y_true
+    y_pred_un = y_pred
 
 
 
@@ -295,6 +295,42 @@ def custom_cosine_similarity(y_true,y_pred):
 
 
     return math_ops.add(1,loss)
+
+def custom_mean_absolute_error(y_true,y_pred):
+
+
+    y_true = ops.convert_to_tensor_v2(y_true)
+    y_pred = ops.convert_to_tensor_v2(y_pred)
+    y_true = math_ops.cast(y_true, y_pred.dtype)
+
+
+    #
+    # y_true_un = (((y_true - K.constant(mm_y.min_)) / K.constant(mm_y.scale_))* sc_y.scale_) + sc_y.mean_
+    #
+    #
+    # y_pred_un = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
+
+    y_true_un = y_true
+    y_pred_un = y_pred
+
+
+
+    #print(y_true_un[-5:])
+
+    #print(y_pred_un[-5:])
+
+
+
+
+    loss = tf.keras.losses.mean_absolute_error(y_true_un, y_pred_un)
+
+    #loss = (nn.l2_normalize_v2(y_true_un,axis=-1) * nn.l2_normalize_v2(y_pred_un,axis=-1))
+
+    #print(loss[-5:])
+    metric = math_ops.divide(metric_signs(y_true,y_pred),1)
+
+
+    return K.mean(math_ops.subtract(loss,metric))
 
 #true:  -+-+---+-++++-+
 #pred:  +++-++++---+++

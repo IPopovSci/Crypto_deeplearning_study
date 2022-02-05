@@ -2,7 +2,7 @@ from pipeline import data_prep,data_prep_transfer,data_prep_batch_2
 from Arguments import args
 from Data_Processing.data_trim import trim_dataset
 from tensorflow.keras.callbacks import ModelCheckpoint
-from LSTM.callbacks import custom_loss,ratio_loss,my_metric_fn,mean_squared_error_custom,custom_cosine_similarity,metric_signs
+from LSTM.callbacks import custom_loss,ratio_loss,my_metric_fn,mean_squared_error_custom,custom_cosine_similarity,metric_signs,custom_mean_absolute_error
 from tensorflow.keras.models import load_model
 from keras_self_attention import SeqSelfAttention
 import numpy as np
@@ -16,7 +16,7 @@ def continue_learning_batch(ticker, model,start,increment,final_pass):
         x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = data_prep('pancake',initial_training=False,batch=True,SS_path = 'F:\MM\scalers\\bnbusdt_ss_pancake1min',MM_path = 'F:\MM\scalers\\bnbusdt_mm_pancake1min',big_update=False)
 
         saved_model = load_model(f'F:\MM\models\\{ticker}\\1min\{model}.h5',
-                                 custom_objects={'SeqSelfAttention': SeqSelfAttention,'mean_squared_error_custom':mean_squared_error_custom,'custom_cosine_similarity':custom_cosine_similarity,'metric_signs':metric_signs})
+                                 custom_objects={'custom_mean_absolute_error':custom_mean_absolute_error,'SeqSelfAttention': SeqSelfAttention,'mean_squared_error_custom':mean_squared_error_custom,'custom_cosine_similarity':custom_cosine_similarity,'metric_signs':metric_signs})
 
         lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
             0.001,
@@ -29,8 +29,8 @@ def continue_learning_batch(ticker, model,start,increment,final_pass):
                                                          verbose=1, mode='max')
 
 
-        saved_model.compile(optimizer=tf.keras.optimizers.SGD(learning_rate=0.0000005,nesterov=True,momentum=True),
-                      loss=custom_cosine_similarity,metrics=metric_signs)
+        saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.000075,amsgrad=True),
+                      loss=custom_mean_absolute_error,metrics=metric_signs)
 
         mcp = ModelCheckpoint(
             os.path.join(f'F:\MM\models\{ticker}\\1min\\',
@@ -77,7 +77,7 @@ def continue_learning_batch(ticker, model,start,increment,final_pass):
                 start = 0
 
 
-continue_learning_batch(ticker, '0.48511028_50.49632263-best_model-01',0,50000,False)
+continue_learning_batch(ticker, '-49.67571640_49.93578339-best_model-01',0,50000,False)
 
 #
 # def continue_learning(ticker, model):

@@ -31,12 +31,14 @@ def train_model_batch(start,increment,model_name='Default'):
 
     while end < size:
         x_train, y_train = data_prep_batch_2(x_t,y_t,start, end)
+        # x_val,y_val = data_prep_batch_2(x_t,y_t,end,end+increment) #validation is 1 step ahead of the train
 
         history_lstm = lstm_model.fit(trim_dataset(x_train, BATCH_SIZE), trim_dataset(y_train, BATCH_SIZE), epochs=1,
                                       verbose=1, batch_size=BATCH_SIZE,
                                       shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
                                                                       trim_dataset(y_val, BATCH_SIZE)),
                                       callbacks=[mcp,reduce_lr])
+        #print(lstm_model.get_weights())
         start = end
         end += increment
         lstm_model.reset_states()
@@ -44,4 +46,4 @@ def train_model_batch(start,increment,model_name='Default'):
             end = increment
             start = 0
 
-train_model_batch(0,50000, ticker)
+train_model_batch(0,25000, ticker)
