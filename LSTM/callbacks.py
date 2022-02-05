@@ -180,13 +180,8 @@ def my_metric_fn(y_true, y_pred):
 
 
 
-#
-# MM_path = 'F:\MM\scalers\BNBusdt_MM'
-# SS_path = 'F:\MM\scalers\BNBusdt_SS'
-#
-# mm_y = joblib.load(MM_path + ".y")
-# sc_y = joblib.load(SS_path + ".y")
-#
+
+
 
 
 
@@ -243,31 +238,44 @@ def loss_unit_test(y_true_un,y_pred_un):
 
 
 batch_size = args['batch_size']
+MM_path = 'F:\MM\scalers\\bnbusdt_mm_pancake1min'
+SS_path = 'F:\MM\scalers\\bnbusdt_ss_pancake1min'
+
+mm_y = joblib.load(MM_path + ".y")
+sc_y = joblib.load(SS_path + ".y")
 def metric_signs(y_true,y_pred):
+
     y_true = ops.convert_to_tensor_v2(y_true)
     y_pred = ops.convert_to_tensor_v2(y_pred)
     y_true = math_ops.cast(y_true, y_pred.dtype)
 
-    y_true_sign = math_ops.sign(y_true)
-    y_pred_sign = math_ops.sign(y_pred)
+    y_true_un = (((y_true - K.constant(mm_y.min_)) / K.constant(mm_y.scale_))* sc_y.scale_) + sc_y.mean_
+
+
+    y_pred_un = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
+
+    y_true_sign = math_ops.sign(y_true_un)
+    y_pred_sign = math_ops.sign(y_pred_un)
 
     metric = math_ops.divide(math_ops.abs(math_ops.subtract(y_true_sign,y_pred_sign)),2)
 
     return math_ops.multiply(math_ops.divide(math_ops.subtract(batch_size,K.sum(metric)),batch_size),100)
 def custom_cosine_similarity(y_true,y_pred):
+
+
     y_true = ops.convert_to_tensor_v2(y_true)
     y_pred = ops.convert_to_tensor_v2(y_pred)
     y_true = math_ops.cast(y_true, y_pred.dtype)
 
 
 
-    # y_true_un = (((y_true - K.constant(mm_y.min_)) / K.constant(mm_y.scale_))* sc_y.scale_) + sc_y.mean_
-    #
-    #
-    # y_pred_un = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
+    y_true_un = (((y_true - K.constant(mm_y.min_)) / K.constant(mm_y.scale_))* sc_y.scale_) + sc_y.mean_
 
-    y_true_un = y_true
-    y_pred_un = y_pred
+
+    y_pred_un = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
+
+    # y_true_un = y_true
+    # y_pred_un = y_pred
 
 
 
@@ -286,7 +294,7 @@ def custom_cosine_similarity(y_true,y_pred):
     metric = math_ops.divide(metric_signs(y_true,y_pred),100)
 
 
-    return math_ops.add(1,loss) - metric
+    return math_ops.add(1,loss)
 
 #true:  -+-+---+-++++-+
 #pred:  +++-++++---+++

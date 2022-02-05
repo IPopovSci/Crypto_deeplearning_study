@@ -43,13 +43,13 @@ def x_y_split(x_train, x_validation, x_test):
         x_test)  # Get rid of any potential NaN values
 
     y_train = x_train[:,
-              3]  # Separate the target variables (5 because we have 5 target variables, which are the first 5 columns of original dataset)
+              :5]  # Separate the target variables (5 because we have 5 target variables, which are the first 5 columns of original dataset)
     x_train = x_train[:, 5:]  # Get the x data
 
-    y_test = x_test[:, 3]
+    y_test = x_test[:, :5]
     x_test = x_test[:, 5:]
 
-    y_validation = x_validation[:, 3]
+    y_validation = x_validation[:, :5]
     x_validation = x_validation[:, 5:]
 
     return x_train, x_validation, x_test, y_train, y_validation, y_test

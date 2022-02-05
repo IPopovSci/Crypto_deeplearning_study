@@ -6,7 +6,7 @@ from Data_Processing.data_trim import trim_dataset
 def build_timeseries(x_t,y_t):
     #Shifting the y data 1 day in advance
     x_t = x_t[:-1]
-    y_t = y_t[1:]
+    y_t = y_t[1:,3]
 
     TIME_STEPS = args["time_steps"]
     # print(x_t.shape)

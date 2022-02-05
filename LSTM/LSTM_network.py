@@ -19,17 +19,22 @@ def create_lstm_model(x_t):
     dropout = 0.01
     #dropout_0 = Dropout(0.3)(input)
 # #This is First side-chain: input>LSTM(stateful)>LSTM(stateful)>TD Dense layer. The output is a 3d vector
-    norm_inp = LayerNormalization()(input)
+    #norm_inp = LayerNormalization()(input)
+    activation = 'elu'
 
-    LSTM_1 = LSTM(int(60),kernel_regularizer=regularizer,activity_regularizer=regularizer,bias_regularizer=regularizer, return_sequences=True, stateful=True,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init,dropout=0,recurrent_dropout=0)(norm_inp)
+    activation_layer = input
 
-    norm = LayerNormalization()(LSTM_1)
+
+
+    LSTM_1 = LSTM(int(6),kernel_regularizer=regularizer,activity_regularizer=regularizer,bias_regularizer=regularizer, return_sequences=True, stateful=True,activation=activation,kernel_initializer=kernel_init,bias_initializer=kernel_init,dropout=0,recurrent_dropout=0)(activation_layer)
+
+    #norm = LayerNormalization()(LSTM_1)
 # # #
     #LSTM_2 = Bidirectional(LSTM(int(61), return_sequences=True, stateful=False,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init,dropout=0.6,recurrent_dropout=0.6))(norm)
 
     #norm_2 = LayerNormalization()(LSTM_1)
 
-    Dense_1 = TimeDistributed(Dense(50,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init))(norm)
+    Dense_1 = TimeDistributed(Dense(5,activation=activation,kernel_initializer=kernel_init,bias_initializer=kernel_init))(LSTM_1)
 # #This is the attention side-chain: LSTM(Stateless)>LSTM>Attention. The output is a 3d vector
 #     LSTM_3 = LSTM(int(50), return_sequences=True, stateful=False,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init,dropout=0.1,recurrent_dropout=0.1)(input)
 #
@@ -38,11 +43,11 @@ def create_lstm_model(x_t):
 #
 #     attention_1 = SeqSelfAttention(attention_activation='softsign',attention_type='additive',kernel_initializer=kernel_init,bias_initializer=kernel_init)(LSTM_3)
 # # This is the attention side-chain: LSTM(Stateless)>LSTM>Attention. The output is a 3d vector
-    LSTM_5 = LSTM(int(60), return_sequences=True, stateful=True, activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init,dropout=0,recurrent_dropout=0)(norm_inp)
+    LSTM_5 = LSTM(int(6), return_sequences=True, stateful=False, activation=activation,kernel_initializer=kernel_init,bias_initializer=kernel_init,dropout=0,recurrent_dropout=0)(activation_layer)
 
     # LSTM_6 = LSTM(int(75), return_sequences=True, stateful=False, activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(LSTM_5)
-    norm = LayerNormalization()(LSTM_5)
-    attention_2 = SeqSelfAttention(attention_activation='softsign',attention_type='multiplicative',kernel_initializer=kernel_init,bias_initializer=kernel_init)(norm)
+    #norm = LayerNormalization()(LSTM_5)
+    attention_2 = SeqSelfAttention(units=5,attention_activation=activation,attention_type='multiplicative',kernel_initializer=kernel_init,bias_initializer=kernel_init)(LSTM_5)
 # #Concat the sidechains and provide output (5 values, 2d vector)
 #
     concat = tf.keras.layers.concatenate([Dense_1,attention_2])
@@ -53,14 +58,18 @@ def create_lstm_model(x_t):
 #
 #     LSTM_fin_2 = Bidirectional(LSTM(170,return_sequences=True,stateful=True,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init,dropout=0.7,recurrent_dropout=0.7))(dropout)
 #
-    LSTM_fin_3 = LSTM(50,kernel_regularizer=regularizer,activity_regularizer=regularizer,bias_regularizer=regularizer, return_sequences=False, stateful=True, activation='softsign', kernel_initializer=kernel_init,
-                    bias_initializer=kernel_init,dropout=0,recurrent_dropout=0)(concat)
+    #norm = LayerNormalization()(concat)
+
+    LSTM_fin_3 = Bidirectional(LSTM(8,kernel_regularizer=regularizer,activity_regularizer=regularizer,bias_regularizer=regularizer, return_sequences=False, stateful=True, activation=activation, kernel_initializer=kernel_init,
+                    bias_initializer=kernel_init,dropout=0,recurrent_dropout=0))(concat)
 
     # LSTM_fin = LSTM(200, return_sequences=False, stateful=False, activation='softsign', kernel_initializer=kernel_init,
     #                 bias_initializer=kernel_init,dropout=0.3,recurrent_dropout=0.3)(LSTM_fin_3)
 
+    #norm = LayerNormalization()(LSTM_fin_3)
+
 #
-    Dense_fin = Dense(40,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(LSTM_fin_3)
+    Dense_fin = Dense(4,activation=activation,kernel_initializer=kernel_init,bias_initializer=kernel_init)(LSTM_fin_3)
 
 
 
@@ -69,25 +78,27 @@ def create_lstm_model(x_t):
 #         Dense_fin)
 # #
 
-    norm = LayerNormalization()(Dense_fin)
+    #norm = LayerNormalization()(Dense_fin)
 
     #dropout = Dropout(rate=0.2)(norm)
 
 
-    output = tf.keras.layers.Dense(1,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(Dense_fin)
+    output = tf.keras.layers.Dense(1,activation='sigmoid',kernel_initializer=kernel_init,bias_initializer=kernel_init)(Dense_fin)
+
+    #output_activation = tf.keras.layers.Activation('sigmoid')(output)
 
 
     lstm_model = tf.keras.Model(inputs=input, outputs=output)
 
     lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-        0.001,
-        decay_steps=49,
-        decay_rate=0.96,
+        0.0001,
+        decay_steps=2500,
+        decay_rate=0.98,
         staircase=True)
 
     #optimizer = tf.keras.optimizers.RMSprop(learning_rate=lr_schedule)
-    optimizer = tf.keras.optimizers.Adam(learning_rate=0.0005,amsgrad=True)
-    #optimizer = tf.keras.optimizers.SGD(lr=0.0001,momentum=True,nesterov=True)
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001,amsgrad=True)
+    #optimizer = tf.keras.optimizers.SGD(lr=0.5,momentum=True,nesterov=True)
     #lstm_model.compile(loss=[mean_squared_error_custom], optimizer=optimizer)
     lstm_model.compile(loss=[custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity], optimizer=optimizer,metrics=metric_signs)
     #lstm_model.compile(

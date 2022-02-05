@@ -29,7 +29,7 @@ def continue_learning_batch(ticker, model,start,increment,final_pass):
                                                          verbose=1, mode='max')
 
 
-        saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001,amsgrad=True),
+        saved_model.compile(optimizer=tf.keras.optimizers.SGD(learning_rate=0.0000005,nesterov=True,momentum=True),
                       loss=custom_cosine_similarity,metrics=metric_signs)
 
         mcp = ModelCheckpoint(
@@ -77,7 +77,7 @@ def continue_learning_batch(ticker, model,start,increment,final_pass):
                 start = 0
 
 
-continue_learning_batch(ticker, '0.47505409_50.89352036-best_model-01',0,50000,False)
+continue_learning_batch(ticker, '0.48511028_50.49632263-best_model-01',0,50000,False)
 
 #
 # def continue_learning(ticker, model):

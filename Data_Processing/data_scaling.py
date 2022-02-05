@@ -22,10 +22,13 @@ def SS_transform(x_train,x_validation,x_test,y_train,y_validation,y_test,initial
         x_test_ss = sc_x.transform(x_test)
 
         y_train_ss = sc_y.transform(y_train)
+        #y_train_ss = []
 
         y_validation_ss = sc_y.transform(y_validation)
+        #y_validation_ss = []
 
         y_test_ss = sc_y.transform(y_test)
+        #y_test_ss = []
 
     elif initial_training == True:
         sc_x = StandardScaler()
@@ -37,7 +40,11 @@ def SS_transform(x_train,x_validation,x_test,y_train,y_validation,y_test,initial
 
         x_test_ss = sc_x.transform(x_test)
 
+        print('ss for x done')
+
         y_train_ss = sc_y.fit_transform(y_train)
+
+        print('ss for y train done')
 
         y_validation_ss = sc_y.transform(y_validation)
 
@@ -82,7 +89,7 @@ def min_max_transform(x_train,x_validation,x_test,y_train, y_validation, y_test,
     elif initial_training == True:
         mm_x = MinMaxScaler(feature_range=(0,1))
 
-        mm_y = MinMaxScaler(feature_range=(-1, 1))
+        mm_y = MinMaxScaler(feature_range=(0, 1))
 
         x_train = mm_x.fit_transform(x_train)
 
