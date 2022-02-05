@@ -13,9 +13,9 @@ import tensorflow as tf
 BATCH_SIZE = args['batch_size']
 ticker = 'bnbusdt'
 def continue_learning_batch(ticker, model,start,increment,final_pass):
-        x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = data_prep('pancake',initial_training=False,batch=True,SS_path = 'F:\MM\scalers\\bnbusdt_ss_pancake5min',MM_path = 'F:\MM\scalers\\bnbusdt_mm_pancake5min',big_update=False)
+        x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = data_prep('pancake',initial_training=False,batch=True,SS_path = 'F:\MM\scalers\\bnbusdt_ss_pancake1min',MM_path = 'F:\MM\scalers\\bnbusdt_mm_pancake1min',big_update=False)
 
-        saved_model = load_model(f'F:\MM\models\\{ticker}\\5min\{model}.h5',
+        saved_model = load_model(f'F:\MM\models\\{ticker}\\1min\{model}.h5',
                                  custom_objects={'SeqSelfAttention': SeqSelfAttention,'mean_squared_error_custom':mean_squared_error_custom,'custom_cosine_similarity':custom_cosine_similarity,'metric_signs':metric_signs})
 
         lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
@@ -33,7 +33,7 @@ def continue_learning_batch(ticker, model,start,increment,final_pass):
                       loss=custom_cosine_similarity,metrics=metric_signs)
 
         mcp = ModelCheckpoint(
-            os.path.join(f'F:\MM\models\{ticker}\\5min\\',
+            os.path.join(f'F:\MM\models\{ticker}\\1min\\',
                          "{val_loss:.8f}_{val_metric_signs:.8f}-best_model-{epoch:02d}.h5"),
             monitor='val_loss', verbose=3,
             save_best_only=False, save_weights_only=False, mode='min', period=1)
@@ -77,7 +77,7 @@ def continue_learning_batch(ticker, model,start,increment,final_pass):
                 start = 0
 
 
-continue_learning_batch(ticker, '-0.62001109_88.75000000-best_model-01',0,25000,False)
+continue_learning_batch(ticker, '0.47505409_50.89352036-best_model-01',0,50000,False)
 
 #
 # def continue_learning(ticker, model):

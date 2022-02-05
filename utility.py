@@ -68,6 +68,21 @@ def join_files(path_load, path_save):
 
         #df['time'] = pd.to_datetime(df['time'], unit='s').dt.strftime('%Y-%m-%dT%H:%M')
         #df['time'] = df['time'].apply(lambda x: pd.to_datetime(x).strftime('%Y-%m-%dT%H:%M'))
+        try:
+            df.rename(
+                columns={'time_period_end': 'time', 'price_open': 'Open', 'price_high': 'High', 'price_low': 'Low',
+                         'price_close': 'Close', 'volume_traded': 'Volume'},
+                inplace=True)
+            df.rename(
+                columns={'time_period_start': 'time', 'price_open': 'Open', 'price_high': 'High', 'price_low': 'Low',
+                         'price_close': 'Close', 'volume_traded': 'Volume'},
+                inplace=True)
+        except:
+            print("no need to rename")
+
+        col = ['time', 'Open', 'High', 'Low', 'Close',
+               'Volume']
+        df = df[col]
 
         df['time'] = pd.to_datetime(df['time'], infer_datetime_format=True,format='%Y-%m-%dT%H:%M',utc=True)
 

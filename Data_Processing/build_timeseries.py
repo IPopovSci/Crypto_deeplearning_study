@@ -18,17 +18,18 @@ def build_timeseries(x_t,y_t):
 
 
     x = np.zeros((dim_0, TIME_STEPS, dim_1))
-    y = np.zeros((dim_0,4))
+    y = np.zeros((dim_0,1))
 
     print("Length of inputs", dim_0)
 
     #this is sus, how does this work
     for i in range(dim_0):
         x[i] = x_t[i:TIME_STEPS + i]
-        #y[i] = y_t[TIME_STEPS + i]
-    for column in range(4):
-        for row in range(dim_0):
-            y[row,column] = y_t[row,column]
+        y[i] = y_t[TIME_STEPS + i]
+    # for column in range(4):
+    #     for row in range(dim_0):
+    #         y[row,column] = y_t[row,column]
+    #y = y_t[-dim_0:,:4]
 
     x = trim_dataset(x,batch_size=args['batch_size'])
     y = trim_dataset(y, batch_size=args['batch_size'])

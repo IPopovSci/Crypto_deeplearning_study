@@ -33,9 +33,10 @@ def predict(model_name='Default',update=False):
 
     #y_pred_lstm = saved_model.predict(trim_dataset(x_test_t[:-200], BATCH_SIZE), batch_size=BATCH_SIZE)
 
-    y_pred_lstm = saved_model.predict(trim_dataset(x_test_t[-200:], BATCH_SIZE), batch_size=BATCH_SIZE)
+    y_pred_lstm = saved_model.predict(trim_dataset(x_test_t[-150:], BATCH_SIZE), batch_size=BATCH_SIZE)
 
-    print(correct_signs(y_test_t[-12:],y_pred_lstm[-12:]))
+    print(correct_signs(y_test_t[-10:],y_pred_lstm[-10:]))
+    print(y_test_t[-10:])
     print(y_pred_lstm[-1])
 
 

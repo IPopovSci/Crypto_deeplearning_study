@@ -12,7 +12,7 @@ BATCH_SIZE = args['batch_size']
 ticker = args['ticker']
 
 def train_model_batch(start,increment,model_name='Default'):
-    x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = data_prep('pancake',initial_training=True,batch=True,SS_path = 'F:\MM\scalers\\bnbusdt_ss_pancake5min',MM_path = 'F:\MM\scalers\\bnbusdt_mm_pancake5min',big_update=False)
+    x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = data_prep('pancake',initial_training=True,batch=True,SS_path = 'F:\MM\scalers\\bnbusdt_ss_pancake1min',MM_path = 'F:\MM\scalers\\bnbusdt_mm_pancake1min',big_update=False)
 
     early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=12)
 
@@ -20,7 +20,7 @@ def train_model_batch(start,increment,model_name='Default'):
                                                      patience=4, min_lr=0.00000001,cooldown=2,
                                                      verbose=1, mode='max')
     mcp = ModelCheckpoint(
-        os.path.join(f'F:\MM\models\{ticker}\\5min\\',
+        os.path.join(f'F:\MM\models\{ticker}\\1min\\',
                      "{val_loss:.8f}_{val_metric_signs:.8f}-best_model-{epoch:02d}.h5"),
         monitor='val_loss', verbose=3,
         save_best_only=False, save_weights_only=False, mode='min', period=1)
@@ -46,4 +46,4 @@ def train_model_batch(start,increment,model_name='Default'):
             end = increment
             start = 0
 
-train_model_batch(0,25000, ticker)
+train_model_batch(0,50000, ticker)

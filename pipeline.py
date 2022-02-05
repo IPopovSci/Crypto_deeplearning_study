@@ -39,11 +39,14 @@ def data_prep(data_from,initial_training=True,batch=True,SS_path = 'F:\MM\scaler
     print('detrending = donzo')
     '''Step 4: Split data into training/testing'''
     x_train, x_validation, x_test = train_test_split_custom(one_day_detrend)
+    #print(x_test[-10:])
 
     print('AND I SPLIT IT IN HALF')
     '''Step 5: SS Transform'''
     x_train, x_validation, x_test, y_train, y_validation, y_test = x_y_split(x_train, x_validation, x_test)
-    print('test after inversing:', y_test[-25:, :])
+    #print(y_test[-10:])
+
+    #print('test after inversing:', y_test[-25:, :])
     print('SS, but this aint 1942')
     '''Step 6: Split data into x and y'''
 
@@ -56,6 +59,7 @@ def data_prep(data_from,initial_training=True,batch=True,SS_path = 'F:\MM\scaler
     x_train, x_validation, x_test, _, _, _, mm_scaler_y = min_max_transform(x_train, x_validation,
                                                                                                   x_test, y_train,
                                                                                                   y_validation, y_test,initial_training,MM_path)
+    #print(y_test[-10:])
 
     print('Min-maxed to the tits')
     '''Step 9: Create time-series data'''
@@ -68,6 +72,7 @@ def data_prep(data_from,initial_training=True,batch=True,SS_path = 'F:\MM\scaler
     else:
         x_validation, y_validation = build_timeseries(x_validation, y_validation)
         x_test, y_test = build_timeseries(x_test, y_test)
+        print(y_test[-10:])
     print('timeseries = built')
     return x_train, y_train, x_validation, y_validation, x_test, y_test, size
 '''separate data prep, without timeseries building, for large datasets'''

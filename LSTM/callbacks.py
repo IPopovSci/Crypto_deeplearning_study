@@ -248,8 +248,8 @@ def metric_signs(y_true,y_pred):
     y_pred = ops.convert_to_tensor_v2(y_pred)
     y_true = math_ops.cast(y_true, y_pred.dtype)
 
-    y_true_sign = math_ops.sign(y_true[:,3])
-    y_pred_sign = math_ops.sign(y_pred[:,3])
+    y_true_sign = math_ops.sign(y_true)
+    y_pred_sign = math_ops.sign(y_pred)
 
     metric = math_ops.divide(math_ops.abs(math_ops.subtract(y_true_sign,y_pred_sign)),2)
 
