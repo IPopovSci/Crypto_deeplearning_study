@@ -223,10 +223,12 @@ def mean_squared_error_custom(y_true, y_pred):
 
     return K.mean(fin_loss) #Substracting by how close it is off
 
-y_true_un = [[0., 1.], [1., 1.], [1., 1.],[-1,-0.8]]
-y_pred_un = [[1., 0.], [1., 1.], [-1., -1.],[-1,-1]]
+y_true_un = [[0., 1.], [1., 1.], [1., 1.], [-1, -0.8]]
+y_pred_un = [[1., 0.], [1., 1.], [-1., -1.], [-1, -1]]
 
 def loss_unit_test(y_true_un,y_pred_un):
+
+
     y_pred_sign = math_ops.sign(y_pred_un)
     y_true_sign = math_ops.sign(y_true_un)
     abs_sign = math_ops.abs(math_ops.subtract(y_pred_sign,y_true_sign)) # 0 if same, 2 if different
@@ -253,13 +255,26 @@ def metric_signs(y_true,y_pred):
     #
     #
     # y_pred_un = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
+    # y_pred = y_pred[:,-1]
+    # y_pred = tf.reshape(y_pred,[-1,1])
+    # print('METRIC SHAPES')
+    # print(y_true)
+    # print(y_pred)
+    # print('END METRIC SHAPES')
+    #------------------------------
+    # y_true_sign = math_ops.sign(y_true)
+    # y_pred_sign = math_ops.sign(y_pred)
+    #
+    # metric = math_ops.divide(math_ops.abs(math_ops.subtract(y_true_sign,y_pred_sign)),2)
+    #---------------------
 
-    y_true_sign = math_ops.sign(y_true)
-    y_pred_sign = math_ops.sign(y_pred)
-
-    metric = math_ops.divide(math_ops.abs(math_ops.subtract(y_true_sign,y_pred_sign)),2)
+    metric = K.switch(K.less(y_true * y_pred, 0),
+        y_true/y_true,
+        0 * y_true
+        )
 
     return math_ops.multiply(math_ops.divide(math_ops.subtract(batch_size,K.sum(metric)),batch_size),100)
+    #return K.sum
 def custom_cosine_similarity(y_true,y_pred):
 
 
@@ -275,7 +290,10 @@ def custom_cosine_similarity(y_true,y_pred):
     # y_pred_un = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
 
     y_true_un = y_true
-    y_pred_un = y_pred
+    y_pred_un = y_pred[:,-1]
+    y_pred_un = tf.reshape(y_pred_un, [-1, 1])
+
+
 
 
 
@@ -302,6 +320,7 @@ def custom_mean_absolute_error(y_true,y_pred):
     y_true = ops.convert_to_tensor_v2(y_true)
     y_pred = ops.convert_to_tensor_v2(y_pred)
     y_true = math_ops.cast(y_true, y_pred.dtype)
+    metric = math_ops.divide(metric_signs(y_true, y_pred), 100)
 
 
     #
@@ -311,13 +330,14 @@ def custom_mean_absolute_error(y_true,y_pred):
     # y_pred_un = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
 
     y_true_un = y_true
-    y_pred_un = y_pred
+    y_pred_un = y_pred[:,-1]
+    y_pred_un = tf.reshape(y_pred_un, [-1, 1])
 
 
 
-    #print(y_true_un[-5:])
-
-    #print(y_pred_un[-5:])
+    # print(y_true_un[-1])
+    # #
+    # print(y_pred_un[:,-1])
 
 
 
@@ -327,13 +347,23 @@ def custom_mean_absolute_error(y_true,y_pred):
     #loss = (nn.l2_normalize_v2(y_true_un,axis=-1) * nn.l2_normalize_v2(y_pred_un,axis=-1))
 
     #print(loss[-5:])
-    metric = math_ops.divide(metric_signs(y_true,y_pred),1)
-
-
-    return K.mean(math_ops.subtract(loss,metric))
-
-#true:  -+-+---+-++++-+
-#pred:  +++-++++---+++
 
 
 
+    return K.mean(metric)
+
+def stock_loss(y_true, y_pred):
+    # y_pred = y_pred[:,-1]
+    # y_pred = tf.reshape(y_pred, [-1, 1])
+
+    # y_true = (((y_true - K.constant(mm_y.min_)) / K.constant(mm_y.scale_))* sc_y.scale_) + sc_y.mean_
+    #
+    #
+    # y_pred = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
+
+    alpha = 10
+    loss = K.switch(K.less(y_true * y_pred, 0),
+        alpha*(y_pred+(1.*K.sign(y_pred)))**2 - K.sign(y_true)*y_pred + K.abs(y_true),
+        K.abs(y_true - y_pred)
+        )
+    return K.mean(loss, axis=-1)

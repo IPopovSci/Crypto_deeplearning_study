@@ -38,7 +38,7 @@ def train_model_batch(start,increment,model_name='Default'):
                                       shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
                                                                       trim_dataset(y_val, BATCH_SIZE)),
                                       callbacks=[mcp,reduce_lr])
-        #print(lstm_model.get_weights())
+
         start = end
         end += increment
         lstm_model.reset_states()
@@ -46,4 +46,4 @@ def train_model_batch(start,increment,model_name='Default'):
             end = increment
             start = 0
 
-train_model_batch(0,25000, ticker)
+train_model_batch(0,50000, ticker)

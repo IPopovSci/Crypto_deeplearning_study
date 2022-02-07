@@ -7,7 +7,7 @@ import numpy as np
 
 
 def pca_reduction(x_train, x_validation, x_test):
-    pca = PCA(n_components='mle', svd_solver='full', whiten=True)  # Auto-solve for number of components
+    pca = PCA(n_components=61, svd_solver='full', whiten=False)  # Auto-solve for number of components
 
     print('Dimensions before PCA:', x_train.shape)
 
