@@ -50,13 +50,13 @@ def data_prep(data_from,initial_training=True,batch=True,SS_path = 'F:\MM\scaler
     print('SS, but this aint 1942')
     '''Step 6: Split data into x and y'''
 
-    x_train, x_validation, x_test,_,_,_, SS_scaler = SS_transform(x_train, x_validation, x_test, y_train,y_validation,y_test, initial_training, SS_path)
+    x_train, x_validation, x_test,y_train,y_validation,y_test, SS_scaler = SS_transform(x_train, x_validation, x_test, y_train,y_validation,y_test, initial_training, SS_path)
     print('I SPLIT IT IN HALF, AGAIN!')
     '''Step 7: PCA'''
     x_train, x_validation, x_test = pca_reduction(x_train, x_validation, x_test)
     print('PCA done')
     '''Step 8: Min-max scaler (-1 to 1 for sigmoid)'''
-    x_train, x_validation, x_test, _, _, _, mm_scaler_y = min_max_transform(x_train, x_validation,
+    x_train, x_validation, x_test, y_train, y_validation, y_test, mm_scaler_y = min_max_transform(x_train, x_validation,
                                                                                                   x_test, y_train,
                                                                                                   y_validation, y_test,initial_training,MM_path)
     #print(y_test[-10:])

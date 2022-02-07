@@ -148,7 +148,7 @@ def pancake_data(path,filename,big_update=False):
             coinapi_data(path,filename,False)
         except:
             print('coinapi API key is out of requests')
-    cryptowatch_data(path + '\load','bnbusdt', '1m',filename)
+    cryptowatch_data(path + '\load','bnbusdt', '5m',filename)
     df = join_files(path_load=path +'\load',path_save = path + '\save')
     return df
 

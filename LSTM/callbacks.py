@@ -251,10 +251,10 @@ def metric_signs(y_true,y_pred):
     y_pred = ops.convert_to_tensor_v2(y_pred)
     y_true = math_ops.cast(y_true, y_pred.dtype)
     #
-    # y_true_un = (((y_true - K.constant(mm_y.min_)) / K.constant(mm_y.scale_))* sc_y.scale_) + sc_y.mean_
-    #
-    #
-    # y_pred_un = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
+    y_true = (((y_true - K.constant(mm_y.min_)) / K.constant(mm_y.scale_))* sc_y.scale_) + sc_y.mean_
+
+
+    y_pred = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
     # y_pred = y_pred[:,-1]
     # y_pred = tf.reshape(y_pred,[-1,1])
     # print('METRIC SHAPES')
@@ -268,7 +268,7 @@ def metric_signs(y_true,y_pred):
     # metric = math_ops.divide(math_ops.abs(math_ops.subtract(y_true_sign,y_pred_sign)),2)
     #---------------------
 
-    metric = K.switch(K.less(y_true * y_pred, 0),
+    metric = K.switch(K.less_equal(y_true * y_pred, 0),
         y_true/y_true,
         0 * y_true
         )
@@ -360,10 +360,21 @@ def stock_loss(y_true, y_pred):
     #
     #
     # y_pred = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
+    # print(y_true)
+    # print(y_pred)
+    alpha = 2
+    # loss = K.switch(K.less_equal(y_true * y_pred, 0),
+    #     alpha*(-K.sign(y_true)*y_pred + K.abs(y_true) - (K.sign(y_true)*K.sign(y_pred)*2))**2,
+    #     K.abs(y_true - y_pred)
+    #     )
+    alpha_add = K.sign(y_pred)*alpha
 
-    alpha = 10
-    loss = K.switch(K.less(y_true * y_pred, 0),
-        alpha*(y_pred+(1.*K.sign(y_pred)))**2 - K.sign(y_true)*y_pred + K.abs(y_true),
+    alpha = 100.
+    loss = K.switch(K.less(y_true * y_pred, 0), \
+        alpha*y_pred**2 - K.sign(y_true)*y_pred + K.abs(y_true), \
         K.abs(y_true - y_pred)
         )
+
+    #print(y_pred)
+    # = K.switch(K.equal(y_pred,0),alpha,loss)
     return K.mean(loss, axis=-1)

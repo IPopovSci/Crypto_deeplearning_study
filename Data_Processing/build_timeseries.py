@@ -5,8 +5,8 @@ from Data_Processing.data_trim import trim_dataset
 '''This takes training or test data and returns x,y scaled using window approach (Unless TIME_STEPS = 1)'''
 def build_timeseries(x_t,y_t):
     #Shifting the y data 1 day in advance
-    x_t = x_t[:-1]
-    y_t = y_t[1:,3]
+    x_t = x_t[:-1] #when we load the data, we need to not shift, since we only need X
+    y_t = y_t[1:]
 
     TIME_STEPS = args["time_steps"]
     # print(x_t.shape)

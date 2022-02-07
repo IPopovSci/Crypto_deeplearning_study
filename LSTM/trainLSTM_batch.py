@@ -46,4 +46,4 @@ def train_model_batch(start,increment,model_name='Default'):
             end = increment
             start = 0
 
-train_model_batch(0,50000, ticker)
+train_model_batch(0,100000, ticker)
