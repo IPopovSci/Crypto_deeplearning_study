@@ -27,7 +27,7 @@ def create_lstm_model(x_t):
 
     norm = BatchNormalization()(LSTM_1)
 
-    leak = PReLU()(norm)
+    # leak = PReLU()(norm)
 
 
 # # #
@@ -37,11 +37,11 @@ def create_lstm_model(x_t):
 
     # Dense_1 = TimeDistributed(Dense(45,activation=activation,kernel_initializer=kernel_init,bias_initializer=kernel_init))(LSTM_1)
 # #This is the attention side-chain: LSTM(Stateless)>LSTM>Attention. The output is a 3d vector
-    LSTM_3 = LSTM(int(80), return_sequences=False, stateful=False,activation=activation,kernel_initializer=kernel_init,bias_initializer=kernel_init,dropout=0.3,recurrent_dropout=0.3)(leak)
+    LSTM_3 = LSTM(int(80), return_sequences=False, stateful=False,activation=activation,kernel_initializer=kernel_init,bias_initializer=kernel_init,dropout=0.3,recurrent_dropout=0.3)(norm)
 
     norm = BatchNormalization()(LSTM_3)
 
-    leak = PReLU()(norm)
+    # leak = PReLU()(norm)
 #
 #
 # #     #LSTM_4 = LSTM(int(75), return_sequences=True, stateful=False,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init,dropout=0.2,recurrent_dropout=0.2)(LSTM_3)
@@ -64,7 +64,7 @@ def create_lstm_model(x_t):
 #
 #     norm = LayerNormalization()(concat)
 # #
-    dropout = Dropout(rate=0.3)(leak)
+    dropout = Dropout(rate=0.3)(norm)
 # #
 #     LSTM_fin = LSTM(80,return_sequences=False,stateful=True,activation=activation,kernel_initializer=kernel_init,bias_initializer=kernel_init)(norm) #softsign activation for this layer works?
 # #
@@ -85,13 +85,13 @@ def create_lstm_model(x_t):
 
     norm = BatchNormalization()(Dense_fin)
 
-    leak = PReLU()(norm)
+    # leak = PReLU()(norm)
 #
 # # #
 #
 #     norm = LayerNormalization()(Dense_fin)
 #
-    dropout = Dropout(rate=0.2)(leak)
+    dropout = Dropout(rate=0.2)(norm)
 #
 
     output = tf.keras.layers.Dense(1,activation='linear',kernel_initializer=kernel_init,bias_initializer=kernel_init)(dropout)
