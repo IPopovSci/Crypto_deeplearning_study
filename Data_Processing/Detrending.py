@@ -35,13 +35,15 @@ def row_difference(df):
     # print(df_data)
     # print(df_ta)
     df_diff_data = df_data.pct_change()
-    df_diff = pd.concat([df_diff_data,df_ta],axis=1)
+    df_diff = pd.concat([df_diff_data,df_data,df_ta],axis=1)
 
 
 
     df_diff = df_diff.iloc[1:, :] #this drops the first row
-
-    # print(df_diff.head())
+    '''Debug options'''
+    # pd.set_option('max_columns', None)
+    #
+    # print(df_diff.head(n=20))
 
     return df_diff
 
