@@ -32,10 +32,10 @@ def data_prep(data_from,initial_training=True,batch=True,SS_path = 'F:\MM\scaler
         history = pancake_data('F:\MM\production\pancake_predictions\data','bnb_5m_pancake',kwargs['big_update'])
     print('Got the Data!')
     '''Step 2: Apply TA Analysis'''
-    ta_data = add_ta(history, ticker)  # The columns names can be acessed from arguments 'train_cols'
+    history = add_ta(history, ticker)  # The columns names can be acessed from arguments 'train_cols'
     print('ta = applied')
     '''Step 3: Detrend the data'''
-    one_day_detrend = row_difference(ta_data)
+    one_day_detrend = row_difference(history)
     print('detrending = donzo')
     '''Step 4: Split data into training/testing'''
     x_train, x_validation, x_test = train_test_split_custom(one_day_detrend)
