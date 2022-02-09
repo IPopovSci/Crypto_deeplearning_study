@@ -354,18 +354,20 @@ def custom_mean_absolute_error(y_true,y_pred):
 
 def stock_loss(y_true, y_pred):
 
-    alpha = 1000.
+    alpha = 100.
 
 
     #loss = math_ops.abs(math_ops.subtract(y_true,y_pred))
     mse = math_ops.square(math_ops.subtract(y_true,y_pred))
     metric = math_ops.divide(metric_signs(y_true,y_pred),100)
 
+    # print(y_true[-10:])
     # print(y_pred[-10:])
 
-    loss = K.switch(K.less(y_true * y_pred, 0),
+
+    loss = K.switch(K.less_equal(y_true * y_pred, 0),
         mse + alpha*y_pred**2,
-        mse
+        mse - alpha*y_pred**2
         )
 
     return K.mean(loss, axis=-1)

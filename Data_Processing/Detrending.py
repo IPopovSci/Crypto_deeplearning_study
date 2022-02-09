@@ -31,19 +31,25 @@ as easier to work with for neural networks'''
 
 def row_difference(df):
     df_data = df.iloc[:,:5]
+
     df_ta = df.iloc[:,5:]
-    # print(df_data)
-    # print(df_ta)
+    '''Implementing categorization on data'''
+
+
+
     df_diff_data = df_data.pct_change()
-    df_diff = pd.concat([df_diff_data,df_data,df_ta],axis=1)
+
+    df_sign = np.sign(df_diff_data)
+
+    df_diff = pd.concat([df_diff_data,df_sign,df_data,df_ta],axis=1)
 
 
 
     df_diff = df_diff.iloc[1:, :] #this drops the first row
     '''Debug options'''
-    # pd.set_option('max_columns', None)
-    #
-    # print(df_diff.head(n=20))
+    pd.set_option('max_columns', None)
+
+    print(df_sign.head(n=10))
 
     return df_diff
 

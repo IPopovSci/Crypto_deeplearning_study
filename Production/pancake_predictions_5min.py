@@ -37,22 +37,23 @@ def predict(model_name='Default',update=False):
 
     y_pred_lstm = saved_model.predict(trim_dataset(x_test_t[-600:], BATCH_SIZE), batch_size=BATCH_SIZE)
 
+
     MM_path = 'F:\MM\scalers\\bnbusdt_mm_pancake1min'
     SS_path = 'F:\MM\scalers\\bnbusdt_ss_pancake1min'
 
     mm_y = joblib.load(MM_path + ".y")
     sc_y = joblib.load(SS_path + ".y")
 
-    y_test_t = (((y_test_t - K.constant(mm_y.min_)) / K.constant(mm_y.scale_))* sc_y.scale_) + sc_y.mean_
+    # y_test_t = (((y_test_t - K.constant(mm_y.min_)) / K.constant(mm_y.scale_))* sc_y.scale_) + sc_y.mean_
+    #
+    #
+    # y_pred_lstm = (((y_pred_lstm - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
 
 
-    y_pred_lstm = (((y_pred_lstm - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
+
+    print(correct_signs(y_test_t[-500:],y_pred_lstm[-500:]))
+    print(y_test_t[-15:])
+    print(y_pred_lstm[-15:])
 
 
-
-    print(correct_signs(y_test_t[-600:],y_pred_lstm[-600:]))
-    print(y_test_t[-150:])
-    print(y_pred_lstm[-150:])
-
-
-predict('569.07647705_54.41176605-best_model-01',False)
+predict('0.14348221_50.10190201-best_model-01',False)
