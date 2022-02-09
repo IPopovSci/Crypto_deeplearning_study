@@ -39,7 +39,7 @@ def row_difference(df):
 
     df_diff_data = df_data.pct_change()
 
-    df_sign = np.sign(df_diff_data)
+    df_sign = np.sign(df_diff_data) #This is categorical data, -1 for negative values, 0 for 0, 1 for positive values
 
     df_diff = pd.concat([df_diff_data,df_sign,df_data,df_ta],axis=1)
 
@@ -49,7 +49,7 @@ def row_difference(df):
     '''Debug options'''
     pd.set_option('max_columns', None)
 
-    print(df_sign.head(n=10))
+    # print(df_sign.head(n=10))
 
     return df_diff
 

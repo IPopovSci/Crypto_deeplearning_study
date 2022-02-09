@@ -366,8 +366,8 @@ def stock_loss(y_true, y_pred):
 
 
     loss = K.switch(K.less_equal(y_true * y_pred, 0),
-        mse + alpha*y_pred**2,
-        mse - alpha*y_pred**2
+        mse + alpha*mse,
+        mse - alpha*mse
         )
 
     return K.mean(loss, axis=-1)

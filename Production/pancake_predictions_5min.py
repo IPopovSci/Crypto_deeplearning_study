@@ -18,6 +18,8 @@ def predict(model_name='Default',update=False):
 
     saved_model = load_model(os.path.join(f'F:\MM\production\pancake_predictions\models\\1min\\', f'{model_name}.h5'),
                              custom_objects={'stock_loss':stock_loss,'custom_mean_absolute_error':custom_mean_absolute_error,'metric_signs':metric_signs,'SeqSelfAttention': SeqSelfAttention,'custom_cosine_similarity':custom_cosine_similarity,'mean_squared_error_custom':mean_squared_error_custom})
+    # saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.000005),
+    #                     loss= custom_mean_absolute_error,metrics=metric_signs) #for regression
     saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.000005),
                         loss= custom_mean_absolute_error,metrics=metric_signs)
 
@@ -51,9 +53,9 @@ def predict(model_name='Default',update=False):
 
 
 
-    print(correct_signs(y_test_t[-500:],y_pred_lstm[-500:]))
-    print(y_test_t[-15:])
-    print(y_pred_lstm[-15:])
+    # print(correct_signs(y_test_t[-500:],y_pred_lstm[-500:]))
+    # print(y_test_t[-15:])
+    # print(y_pred_lstm[-15:])
 
 
 predict('0.14348221_50.10190201-best_model-01',False)

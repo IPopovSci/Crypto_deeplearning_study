@@ -19,21 +19,26 @@ def build_timeseries(x_t,y_t):
     dim_1 = x_t.shape[1]
     print(dim_0,TIME_STEPS,dim_1)
 
-
     x = np.zeros((dim_0, TIME_STEPS, dim_1))
-    y = np.zeros((dim_0,3))
+    y = np.zeros((dim_0,1))
 
-    print("Length of inputs", dim_0)
-    '''if categorical'''
-
-    y_t = to_categorical(y_t,num_classes=3)
-    print(y_t.shape)
-    print(y_t[-10:,:])
 
     for i in range(dim_0):
         x[i] = x_t[i:TIME_STEPS + i]
-        for column in range(3):
-            y[i,column] = y_t[TIME_STEPS + i,column]
+        y[i] = y_t[TIME_STEPS + i]
+
+
+    print("Length of inputs", dim_0)
+    '''if categorical'''
+    # x = np.zeros((dim_0, TIME_STEPS, dim_1))
+    # y = np.zeros((dim_0,3))
+    # y_t = to_categorical(y_t,num_classes=3)
+
+
+    # for i in range(dim_0):
+    #     x[i] = x_t[i:TIME_STEPS + i]
+    #     for column in range(3):
+    #         y[i,column] = y_t[TIME_STEPS + i,column]
 
     #y = y_t[-dim_0:,:4]
 
