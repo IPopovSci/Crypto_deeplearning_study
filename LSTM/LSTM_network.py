@@ -1,4 +1,4 @@
-from tensorflow.keras.layers import LSTM, Dense, Input,TimeDistributed,GRU,Dropout,Bidirectional,LayerNormalization
+from tensorflow.keras.layers import LSTM, Dense, Input,TimeDistributed,GRU,Dropout,Bidirectional,LayerNormalization,BatchNormalization,LeakyReLU
 from Arguments import args
 from LSTM.callbacks import mean_squared_error_custom,custom_cosine_similarity,metric_signs,custom_mean_absolute_error,stock_loss
 import tensorflow as tf
@@ -16,17 +16,20 @@ def create_lstm_model(x_t):
     input = Input(batch_shape=(BATCH_SIZE, TIME_STEPS, x_t.shape[2]))
     regularizer = None #tf.keras.regularizers.l1_l2(1e-3)
     kernel_init = initializers.glorot_uniform()
-    dropout = 0.01
-    #dropout_0 = Dropout(0.3)(input)
+
 # #This is First side-chain: input>LSTM(stateful)>LSTM(stateful)>TD Dense layer. The output is a 3d vector
     norm_inp = input
     activation = 'sigmoid'
 
 
 
-    LSTM_1 = LSTM(int(50),kernel_regularizer=regularizer,activity_regularizer=regularizer,bias_regularizer=regularizer, return_sequences=True, stateful=True,activation=activation,kernel_initializer=kernel_init,bias_initializer=kernel_init,dropout=0,recurrent_dropout=0)(norm_inp)
+    LSTM_1 = LSTM(int(100),kernel_regularizer=regularizer,activity_regularizer=regularizer,bias_regularizer=regularizer, return_sequences=True, stateful=True,activation=activation,kernel_initializer=kernel_init,bias_initializer=kernel_init,dropout=0.3,recurrent_dropout=0.3)(norm_inp)
 
-    #norm = LayerNormalization()(LSTM_1)
+    norm = BatchNormalization()(LSTM_1)
+
+    leak = LeakyReLU()(norm)
+
+
 # # #
     #LSTM_2 = Bidirectional(LSTM(int(61), return_sequences=True, stateful=False,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init,dropout=0.6,recurrent_dropout=0.6))(norm)
 
@@ -34,7 +37,11 @@ def create_lstm_model(x_t):
 
     # Dense_1 = TimeDistributed(Dense(45,activation=activation,kernel_initializer=kernel_init,bias_initializer=kernel_init))(LSTM_1)
 # #This is the attention side-chain: LSTM(Stateless)>LSTM>Attention. The output is a 3d vector
-    LSTM_3 = LSTM(int(35), return_sequences=False, stateful=False,activation=activation,kernel_initializer=kernel_init,bias_initializer=kernel_init,dropout=0.1,recurrent_dropout=0.1)(LSTM_1)
+    LSTM_3 = LSTM(int(80), return_sequences=False, stateful=False,activation=activation,kernel_initializer=kernel_init,bias_initializer=kernel_init,dropout=0.3,recurrent_dropout=0.3)(leak)
+
+    norm = BatchNormalization()(LSTM_3)
+
+    leak = LeakyReLU()(norm)
 #
 #
 # #     #LSTM_4 = LSTM(int(75), return_sequences=True, stateful=False,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init,dropout=0.2,recurrent_dropout=0.2)(LSTM_3)
@@ -74,7 +81,11 @@ def create_lstm_model(x_t):
 #     norm = LayerNormalization()(LSTM_fin)
 #
 # #
-    Dense_fin = Dense(20,activation=activation,kernel_initializer=kernel_init,bias_initializer=kernel_init)(LSTM_3)
+    Dense_fin = Dense(60,activation=activation,kernel_initializer=kernel_init,bias_initializer=kernel_init)(leak)
+
+    norm = BatchNormalization()(Dense_fin)
+
+    leak = LeakyReLU()(norm)
 #
 # # #
 #
@@ -83,7 +94,7 @@ def create_lstm_model(x_t):
 #     #dropout = Dropout(rate=0.2)(norm)
 #
 
-    output = tf.keras.layers.Dense(1,activation=activation,kernel_initializer=kernel_init,bias_initializer=kernel_init)(Dense_fin)
+    output = tf.keras.layers.Dense(1,activation=activation,kernel_initializer=kernel_init,bias_initializer=kernel_init)(leak)
 
     #output_activation = tf.keras.layers.Activation('sigmoid')(output)
 
@@ -97,7 +108,7 @@ def create_lstm_model(x_t):
         staircase=True)
 
     #optimizer = tf.keras.optimizers.RMSprop(learning_rate=lr_schedule)
-    optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001)
     #optimizer = tf.keras.optimizers.SGD(lr=0.00001,momentum=True,nesterov=True)
     #lstm_model.compile(loss=[mean_squared_error_custom], optimizer=optimizer)
     #lstm_model.compile(loss=[custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity], optimizer=optimizer,metrics=metric_signs)

@@ -354,16 +354,16 @@ def custom_mean_absolute_error(y_true,y_pred):
 
 def stock_loss(y_true, y_pred):
 
-    alpha = 100.
+    alpha = 1000.
 
 
     #loss = math_ops.abs(math_ops.subtract(y_true,y_pred))
-    mse = tf.keras.losses.MeanSquaredError()
+    mse = math_ops.square(math_ops.subtract(y_true,y_pred))
     metric = math_ops.divide(metric_signs(y_true,y_pred),100)
 
     loss = K.switch(K.less(y_true * y_pred, 0),
-        tf.keras.losses.MeanSquaredError(y_true,y_pred) + alpha*y_pred**2,
-        tf.keras.losses.MeanSquaredError(y_true,y_pred)
+        mse + alpha*y_pred**2,
+        mse
         )
 
-    return K.mean((loss)/(metric+0.0001), axis=-1)
+    return K.mean(loss, axis=-1)
