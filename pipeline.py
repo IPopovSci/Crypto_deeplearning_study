@@ -43,14 +43,14 @@ def data_prep(data_from,initial_training=True,batch=True,SS_path = 'F:\MM\scaler
 
     print('AND I SPLIT IT IN HALF')
     '''Step 5: SS Transform'''
-    x_train, x_validation, x_test, y_train, y_validation, y_test = x_y_split(x_train, x_validation, x_test)
+    x_train, x_validation, x_test, _, _, _ = x_y_split(x_train, x_validation, x_test)
     #print(y_test[-10:])
 
     #print('test after inversing:', y_test[-25:, :])
     print('SS, but this aint 1942')
     '''Step 6: Split data into x and y'''
 
-    x_train, x_validation, x_test,y_train,y_validation,y_test, SS_scaler = SS_transform(x_train, x_validation, x_test, y_train,y_validation,y_test, initial_training, SS_path)
+    x_train, x_validation, x_test,_,_,_, SS_scaler = SS_transform(x_train, x_validation, x_test, y_train,y_validation,y_test, initial_training, SS_path)
     print('I SPLIT IT IN HALF, AGAIN!')
     '''Step 7: PCA'''
     x_train, x_validation, x_test = pca_reduction(x_train, x_validation, x_test)
