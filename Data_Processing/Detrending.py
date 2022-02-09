@@ -30,9 +30,19 @@ as easier to work with for neural networks'''
 
 
 def row_difference(df):
-    df_diff = df.diff()
-    df_diff = df_diff.iloc[1:, :]
-    print(df_diff['Close'][-25:])
+    df_data = df.iloc[:,:5]
+    df_ta = df.iloc[:,5:]
+    # print(df_data)
+    # print(df_ta)
+    df_diff_data = df_data.pct_change()
+    df_diff = pd.concat([df_diff_data,df_ta],axis=1)
+
+
+
+    df_diff = df_diff.iloc[1:, :] #this drops the first row
+
+    # print(df_diff.head())
+
     return df_diff
 
 
