@@ -262,16 +262,16 @@ def metric_signs(y_true,y_pred):
     # print(y_pred)
     # print('END METRIC SHAPES')
     #------------------------------
-    # y_true_sign = math_ops.sign(y_true)
-    # y_pred_sign = math_ops.sign(y_pred)
-    #
-    # metric = math_ops.divide(math_ops.abs(math_ops.subtract(y_true_sign,y_pred_sign)),2)
+    y_true_sign = math_ops.sign(y_true)
+    y_pred_sign = math_ops.sign(y_pred)
+
+    metric = math_ops.divide(math_ops.abs(math_ops.subtract(y_true_sign,y_pred_sign)),2)
     #---------------------
 
-    metric = K.switch(K.less_equal(y_true * y_pred, 0),
-        y_true/y_true,
-        0 * y_true
-        )
+    # metric = K.switch(K.less_equal(y_true * y_pred, 0),
+    #     y_true/y_true,
+    #     0 * y_true
+    #     )
 
     return math_ops.multiply(math_ops.divide(math_ops.subtract(batch_size,K.sum(metric)),batch_size),100)
     #return K.sum
