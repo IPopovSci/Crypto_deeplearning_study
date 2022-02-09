@@ -1,6 +1,9 @@
 import numpy as np
 from Arguments import args
 from Data_Processing.data_trim import trim_dataset
+import tensorflow as tf
+from tensorflow.keras.utils import to_categorical
+
 
 '''This takes training or test data and returns x,y scaled using window approach (Unless TIME_STEPS = 1)'''
 def build_timeseries(x_t,y_t):
@@ -18,17 +21,20 @@ def build_timeseries(x_t,y_t):
 
 
     x = np.zeros((dim_0, TIME_STEPS, dim_1))
-    y = np.zeros((dim_0,1))
+    y = np.zeros((dim_0,3))
 
     print("Length of inputs", dim_0)
+    '''if categorical'''
 
-    #this is sus, how does this work
+    y_t = to_categorical(y_t,num_classes=3)
+    print(y_t.shape)
+    print(y_t[-10:,:])
+
     for i in range(dim_0):
         x[i] = x_t[i:TIME_STEPS + i]
-        y[i] = y_t[TIME_STEPS + i]
-    # for column in range(4):
-    #     for row in range(dim_0):
-    #         y[row,column] = y_t[row,column]
+        for column in range(3):
+            y[i,column] = y_t[TIME_STEPS + i,column]
+
     #y = y_t[-dim_0:,:4]
 
     x = trim_dataset(x,batch_size=args['batch_size'])
