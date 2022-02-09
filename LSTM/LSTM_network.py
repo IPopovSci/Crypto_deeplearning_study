@@ -1,4 +1,4 @@
-from tensorflow.keras.layers import LSTM, Dense, Input,TimeDistributed,GRU,Dropout,Bidirectional,LayerNormalization,BatchNormalization,LeakyReLU
+from tensorflow.keras.layers import LSTM, Dense, Input,TimeDistributed,GRU,Dropout,Bidirectional,LayerNormalization,BatchNormalization,LeakyReLU,PReLU
 from Arguments import args
 from LSTM.callbacks import mean_squared_error_custom,custom_cosine_similarity,metric_signs,custom_mean_absolute_error,stock_loss
 import tensorflow as tf
@@ -19,7 +19,7 @@ def create_lstm_model(x_t):
 
 # #This is First side-chain: input>LSTM(stateful)>LSTM(stateful)>TD Dense layer. The output is a 3d vector
     norm_inp = input
-    activation = 'sigmoid'
+    activation = 'tanh'
 
 
 
@@ -27,7 +27,7 @@ def create_lstm_model(x_t):
 
     norm = BatchNormalization()(LSTM_1)
 
-    leak = LeakyReLU()(norm)
+    leak = PReLU()(norm)
 
 
 # # #
@@ -41,7 +41,7 @@ def create_lstm_model(x_t):
 
     norm = BatchNormalization()(LSTM_3)
 
-    leak = LeakyReLU()(norm)
+    leak = PReLU()(norm)
 #
 #
 # #     #LSTM_4 = LSTM(int(75), return_sequences=True, stateful=False,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init,dropout=0.2,recurrent_dropout=0.2)(LSTM_3)
@@ -64,7 +64,7 @@ def create_lstm_model(x_t):
 #
 #     norm = LayerNormalization()(concat)
 # #
-#     #dropout = Dropout(rate=0.1)(concat)
+    dropout = Dropout(rate=0.3)(leak)
 # #
 #     LSTM_fin = LSTM(80,return_sequences=False,stateful=True,activation=activation,kernel_initializer=kernel_init,bias_initializer=kernel_init)(norm) #softsign activation for this layer works?
 # #
@@ -81,20 +81,20 @@ def create_lstm_model(x_t):
 #     norm = LayerNormalization()(LSTM_fin)
 #
 # #
-    Dense_fin = Dense(60,activation=activation,kernel_initializer=kernel_init,bias_initializer=kernel_init)(leak)
+    Dense_fin = Dense(60,activation=activation,kernel_initializer=kernel_init,bias_initializer=kernel_init)(dropout)
 
     norm = BatchNormalization()(Dense_fin)
 
-    leak = LeakyReLU()(norm)
+    leak = PReLU()(norm)
 #
 # # #
 #
 #     norm = LayerNormalization()(Dense_fin)
 #
-#     #dropout = Dropout(rate=0.2)(norm)
+    dropout = Dropout(rate=0.2)(leak)
 #
 
-    output = tf.keras.layers.Dense(1,activation=activation,kernel_initializer=kernel_init,bias_initializer=kernel_init)(leak)
+    output = tf.keras.layers.Dense(1,activation='linear',kernel_initializer=kernel_init,bias_initializer=kernel_init)(dropout)
 
     #output_activation = tf.keras.layers.Activation('sigmoid')(output)
 
