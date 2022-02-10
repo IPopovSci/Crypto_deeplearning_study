@@ -21,7 +21,7 @@ def predict(model_name='Default',update=False):
     # saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.000005),
     #                     loss= custom_mean_absolute_error,metrics=metric_signs) #for regression
     saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.000005),
-                        loss= custom_mean_absolute_error,metrics=metric_signs)
+                        loss= stock_loss,metrics=metric_signs)
 
     mcp = ModelCheckpoint(
         os.path.join(f'F:\MM\production\pancake_predictions\models\\1min\\',
@@ -53,9 +53,9 @@ def predict(model_name='Default',update=False):
 
 
 
-    # print(correct_signs(y_test_t[-500:],y_pred_lstm[-500:]))
-    # print(y_test_t[-15:])
-    # print(y_pred_lstm[-15:])
+    print(correct_signs(y_test_t[-500:],y_pred_lstm[-500:]))
+    print(y_test_t[-15:])
+    print(y_pred_lstm[:])
 
 
-predict('0.14348221_50.10190201-best_model-01',False)
+predict('0.01525510_51.51654434-best_model-01',False)

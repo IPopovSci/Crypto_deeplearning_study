@@ -32,9 +32,15 @@ as easier to work with for neural networks'''
 def row_difference(df):
     df_data = df.iloc[:,:5]
 
-    df_ta = df.iloc[:,5:]
-    '''Implementing categorization on data'''
 
+
+
+
+    df_ta = df.iloc[:,5:]
+
+    #df_ta = np.log1p(df_ta) #take log of ta? Does that makes sense? To avoid any stat imbalance
+    '''Implementing categorization on data'''
+    df_data = np.log1p(df_data)  # take a log, to smooth out any shmuckery
 
 
     df_diff_data = df_data.pct_change()
@@ -49,7 +55,7 @@ def row_difference(df):
     '''Debug options'''
     pd.set_option('max_columns', None)
 
-    # print(df_sign.head(n=10))
+    print(df_diff.head(n=10))
 
     return df_diff
 
