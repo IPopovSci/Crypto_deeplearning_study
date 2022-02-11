@@ -33,29 +33,38 @@ def predict(model_name='Default',update=False):
         history_lstm = saved_model.fit(trim_dataset(x_test_t[-900:-200], BATCH_SIZE), trim_dataset(y_test_t[-900:-200], BATCH_SIZE),
                                        epochs=1, verbose=1, batch_size=BATCH_SIZE,
                                        shuffle=False,callbacks=[mcp])
+    i = 0
+    preds_count = []
+    while i != 50:
         saved_model.reset_states()
 
-    y_pred_lstm = saved_model.predict(trim_dataset(x_test_t[-800:-600], BATCH_SIZE), batch_size=BATCH_SIZE)
 
-    y_pred_lstm = saved_model.predict(trim_dataset(x_test_t[-600:], BATCH_SIZE), batch_size=BATCH_SIZE)
+        y_pred_lstm = saved_model.predict(trim_dataset(x_test_t[-1550+i:-178+i], BATCH_SIZE), batch_size=BATCH_SIZE)
 
-
-    MM_path = 'F:\MM\scalers\\bnbusdt_mm_pancake1min'
-    SS_path = 'F:\MM\scalers\\bnbusdt_ss_pancake1min'
-
-    mm_y = joblib.load(MM_path + ".y")
-    sc_y = joblib.load(SS_path + ".y")
-
-    # y_test_t = (((y_test_t - K.constant(mm_y.min_)) / K.constant(mm_y.scale_))* sc_y.scale_) + sc_y.mean_
-    #
-    #
-    # y_pred_lstm = (((y_pred_lstm - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
+        y_pred_lstm = saved_model.predict(trim_dataset(x_test_t[-178+i:], BATCH_SIZE), batch_size=BATCH_SIZE)
 
 
 
-    print(correct_signs(y_test_t[-500:],y_pred_lstm[-500:]))
-    print(y_test_t[-15:])
-    print(y_pred_lstm[:])
 
 
-predict('0.01525510_51.51654434-best_model-01',False)
+
+        print(correct_signs(y_test_t[-100:],y_pred_lstm[-100:]))
+        i += 1
+        preds_count.append(correct_signs(y_test_t[-100:],y_pred_lstm[-100:]))
+    print(sum(preds_count))
+    # print(y_test_t[-15:])
+    # print(y_pred_lstm[-15:])
+
+
+predict('nan_51.91865921-best_model-01',False)
+
+# MM_path = 'F:\MM\scalers\\bnbusdt_mm_pancake1min'
+# SS_path = 'F:\MM\scalers\\bnbusdt_ss_pancake1min'
+#
+# mm_y = joblib.load(MM_path + ".y")
+# sc_y = joblib.load(SS_path + ".y")
+
+# y_test_t = (((y_test_t - K.constant(mm_y.min_)) / K.constant(mm_y.scale_))* sc_y.scale_) + sc_y.mean_
+#
+#
+# y_pred_lstm = (((y_pred_lstm - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_

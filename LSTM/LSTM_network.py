@@ -14,22 +14,22 @@ def create_lstm_model(x_t):
     n_components = args['n_components']
 
     input = Input(batch_shape=(BATCH_SIZE, TIME_STEPS, x_t.shape[2]))
-    regularizer = tf.keras.regularizers.l2(0.01)
+    regularizer = None#tf.keras.regularizers.l2(l2=0.000001)
     kernel_init = initializers.glorot_uniform()
-    dropout = 0.5
+    dropout = 0.4
 
 # #This is First side-chain: input>LSTM(stateful)>LSTM(stateful)>TD Dense layer. The output is a 3d vector
 
     activation = None
     noise = GaussianNoise(0.01)(input)
 
-    gru = LSTM(50,return_sequences=True,stateful=True,dropout=0.3,recurrent_dropout=0.3,activation = activation)(noise)
+    gru = LSTM(50,return_sequences=True,stateful=True,dropout=dropout,recurrent_dropout=dropout,activation = activation,kernel_regularizer=regularizer,activity_regularizer=regularizer,bias_regularizer=regularizer)(noise)
 
     norm_1 = LayerNormalization()(gru)
 
     leaky_1 = tf.keras.activations.swish(norm_1)
 
-    gru = GRU(50, return_sequences=True, stateful=False, reset_after=False, dropout=0.3, recurrent_dropout=0.3,activation = activation)(noise)
+    gru = GRU(50, return_sequences=True, stateful=False, reset_after=False, dropout=dropout, recurrent_dropout=dropout,activation = activation,kernel_regularizer=regularizer,activity_regularizer=regularizer,bias_regularizer=regularizer)(noise)
 
     norm_2 = LayerNormalization()(gru)
 
@@ -45,32 +45,32 @@ def create_lstm_model(x_t):
 
     leaky = tf.keras.activations.swish(norm)
 
-    gru = LSTM(50, return_sequences=False, stateful=True, dropout=0.3, recurrent_dropout=0.3,activation = activation)(leaky)
+    gru = LSTM(50, return_sequences=False, stateful=True, dropout=dropout, recurrent_dropout=dropout,activation = activation,kernel_regularizer=regularizer,activity_regularizer=regularizer,bias_regularizer=regularizer)(leaky)
 
     norm = LayerNormalization()(gru)
 
     leaky = tf.keras.activations.swish(norm)
 
-    dense = Dense(25,activation=activation)(leaky) #do we need tanh activation here? Ensemble with none mb
+    dense = Dense(25,activation=activation,kernel_regularizer=regularizer,activity_regularizer=regularizer,bias_regularizer=regularizer)(leaky) #do we need tanh activation here? Ensemble with none mb
 
     norm = LayerNormalization()(dense)
 
     leaky = tf.keras.activations.swish(norm)
 
 
-    output = tf.keras.layers.Dense(1,activation='linear',kernel_initializer=kernel_init,bias_initializer=kernel_init)(leaky)
+    output = tf.keras.layers.Dense(1,activation='linear',kernel_initializer=kernel_init,bias_initializer=kernel_init,kernel_regularizer=regularizer,activity_regularizer=regularizer,bias_regularizer=regularizer)(leaky)
 
 
     lstm_model = tf.keras.Model(inputs=input, outputs=output)
 
     lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-        0.0001,
-        decay_steps=194,
+        0.00001,
+        decay_steps=387,
         decay_rate=0.99,
         staircase=True)
 
     #optimizer = tf.keras.optimizers.RMSprop(learning_rate=lr_schedule)
-    optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule,amsgrad=True)
+    optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule,amsgrad=True,clipnorm=0.99)
     #optimizer = tf.keras.optimizers.SGD(lr=0.0000005,momentum=True,nesterov=True)
     #lstm_model.compile(loss=[mean_squared_error_custom], optimizer=optimizer)
     #lstm_model.compile(loss=[custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity], optimizer=optimizer,metrics=metric_signs)
