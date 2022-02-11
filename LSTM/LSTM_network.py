@@ -1,6 +1,6 @@
 from tensorflow.keras.layers import LSTM, Concatenate,Dense, Input,TimeDistributed,GRU,Dropout,Bidirectional,SimpleRNN,LayerNormalization,BatchNormalization,LeakyReLU,PReLU,GaussianNoise,Convolution1D,MaxPooling1D
 from Arguments import args
-from LSTM.callbacks import mean_squared_error_custom,custom_cosine_similarity,metric_signs,custom_mean_absolute_error,stock_loss
+from LSTM.callbacks import mean_squared_error_custom,custom_cosine_similarity,metric_signs,custom_mean_absolute_error,stock_loss,stock_loss_metric
 import tensorflow as tf
 from keras_self_attention import SeqSelfAttention
 from tensorflow.keras import initializers
@@ -16,7 +16,7 @@ def create_lstm_model(x_t):
     input = Input(batch_shape=(BATCH_SIZE, TIME_STEPS, x_t.shape[2]))
     regularizer = None#tf.keras.regularizers.l2(l2=0.000001)
     kernel_init = initializers.glorot_uniform()
-    dropout = 0.4
+    dropout = 0.2
 
 # #This is First side-chain: input>LSTM(stateful)>LSTM(stateful)>TD Dense layer. The output is a 3d vector
 
@@ -29,6 +29,8 @@ def create_lstm_model(x_t):
 
     leaky_1 = tf.keras.activations.swish(norm_1)
 
+    tddense = TimeDistributed(Dense(32))(leaky_1)
+
     gru = GRU(50, return_sequences=True, stateful=False, reset_after=False, dropout=dropout, recurrent_dropout=dropout,activation = activation,kernel_regularizer=regularizer,activity_regularizer=regularizer,bias_regularizer=regularizer)(noise)
 
     norm_2 = LayerNormalization()(gru)
@@ -37,21 +39,27 @@ def create_lstm_model(x_t):
 
     attention = SeqSelfAttention()(leaky_2)
 
-    tddense = TimeDistributed(Dense(32))(leaky_1)
 
-    concat = Concatenate()([attention,tddense])
+
+    norm_2 = LayerNormalization()(attention)
+
+    leaky_2 = tf.keras.activations.swish(norm_2)
+
+    tddense_2 = TimeDistributed(Dense(32))(leaky_2)
+
+    concat = Concatenate()([tddense,tddense_2])
 
     norm = LayerNormalization()(concat)
 
     leaky = tf.keras.activations.swish(norm)
 
-    gru = LSTM(50, return_sequences=False, stateful=True, dropout=dropout, recurrent_dropout=dropout,activation = activation,kernel_regularizer=regularizer,activity_regularizer=regularizer,bias_regularizer=regularizer)(leaky)
+    gru = LSTM(32, return_sequences=False, stateful=True, dropout=dropout, recurrent_dropout=dropout,activation = activation,kernel_regularizer=regularizer,activity_regularizer=regularizer,bias_regularizer=regularizer)(leaky)
 
     norm = LayerNormalization()(gru)
 
     leaky = tf.keras.activations.swish(norm)
 
-    dense = Dense(25,activation=activation,kernel_regularizer=regularizer,activity_regularizer=regularizer,bias_regularizer=regularizer)(leaky) #do we need tanh activation here? Ensemble with none mb
+    dense = Dense(12,activation=activation,kernel_regularizer=regularizer,activity_regularizer=regularizer,bias_regularizer=regularizer)(leaky) #do we need tanh activation here? Ensemble with none mb
 
     norm = LayerNormalization()(dense)
 
@@ -75,7 +83,7 @@ def create_lstm_model(x_t):
     #lstm_model.compile(loss=[mean_squared_error_custom], optimizer=optimizer)
     #lstm_model.compile(loss=[custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity], optimizer=optimizer,metrics=metric_signs)
     lstm_model.compile(
-        loss=stock_loss, optimizer=optimizer, metrics=metric_signs)
+        loss='cosine_similarity', optimizer=optimizer, metrics=metric_signs)
     #lstm_model.compile(
         #loss='CosineSimilarity', optimizer=optimizer,metrics=metric_signs)
     return lstm_model

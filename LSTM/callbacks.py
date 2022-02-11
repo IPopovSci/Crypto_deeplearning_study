@@ -289,9 +289,9 @@ def custom_cosine_similarity(y_true,y_pred):
     #
     # y_pred_un = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
 
-    y_true_un = y_true
-    y_pred_un = y_pred[:,-1]
-    y_pred_un = tf.reshape(y_pred_un, [-1, 1])
+    # y_true_un = y_true
+    # y_pred_un = y_pred[:,-1]
+    # y_pred_un = tf.reshape(y_pred_un, [-1, 1]) #This is the code for 3d output
 
 
 
@@ -371,3 +371,38 @@ def stock_loss(y_true, y_pred):
         )
 
     return K.mean(loss, axis=-1)
+
+def stock_loss_metric(y_true, y_pred):
+
+    alpha = 100.
+
+
+    #loss = math_ops.abs(math_ops.subtract(y_true,y_pred))
+    mse = math_ops.square(math_ops.subtract(y_true,y_pred))
+    metric = math_ops.divide(metric_signs(y_true,y_pred),100) #This is a batch sum
+    random = tf.random.normal(
+    [1], mean=0.0, stddev=0.0001, dtype=tf.dtypes.float32, seed=None, name=None
+)
+
+    # print(y_true[-10:])
+    # print(y_pred[-10:])
+
+    '''------------'''
+    # loss = K.switch(K.less_equal(y_true * y_pred, 0),
+    #     mse*(2-(metric+random))+ alpha*y_pred**2,
+    #     mse*(1-(metric+random))
+    #     )
+    #return K.mean(loss)
+    '''------------'''
+
+    # y_true_sign = math_ops.sign(y_true)
+    # y_pred_sign = math_ops.sign(y_pred)
+
+    #metric = math_ops.divide(math_ops.abs(math_ops.subtract(y_true_sign, y_pred_sign)), 2)
+    # print(metric)
+    loss = K.switch(K.less_equal(y_true * y_pred, 0),
+        (mse+alpha*metric),
+        -mse - metric
+        )
+    #print(loss)
+    return K.sum(loss)

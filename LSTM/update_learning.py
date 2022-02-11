@@ -2,9 +2,10 @@ from pipeline import data_prep,data_prep_transfer,data_prep_batch_2
 from Arguments import args
 from Data_Processing.data_trim import trim_dataset
 from tensorflow.keras.callbacks import ModelCheckpoint
-from LSTM.callbacks import custom_loss,ratio_loss,my_metric_fn,mean_squared_error_custom,custom_cosine_similarity,metric_signs,custom_mean_absolute_error,stock_loss
+from LSTM.callbacks import custom_loss,ratio_loss,my_metric_fn,mean_squared_error_custom,custom_cosine_similarity,metric_signs,custom_mean_absolute_error,stock_loss,stock_loss_metric
 from tensorflow.keras.models import load_model
 from keras_self_attention import SeqSelfAttention
+from sklearn.model_selection import train_test_split
 import numpy as np
 import os
 import tensorflow as tf
@@ -16,12 +17,12 @@ def continue_learning_batch(ticker, model,start,increment,final_pass):
         x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = data_prep('pancake',initial_training=False,batch=True,SS_path = 'F:\MM\scalers\\bnbusdt_ss_pancake1min',MM_path = 'F:\MM\scalers\\bnbusdt_mm_pancake1min',big_update=False)
 
         saved_model = load_model(f'F:\MM\models\\{ticker}\\1min\{model}.h5',
-                                 custom_objects={'stock_loss':stock_loss,'custom_mean_absolute_error':custom_mean_absolute_error,'SeqSelfAttention': SeqSelfAttention,'mean_squared_error_custom':mean_squared_error_custom,'custom_cosine_similarity':custom_cosine_similarity,'metric_signs':metric_signs})
+                                 custom_objects={'stock_loss_metric':stock_loss_metric,'stock_loss':stock_loss,'custom_mean_absolute_error':custom_mean_absolute_error,'SeqSelfAttention': SeqSelfAttention,'mean_squared_error_custom':mean_squared_error_custom,'custom_cosine_similarity':custom_cosine_similarity,'metric_signs':metric_signs})
 
         lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-            0.001,
-            decay_steps=50,
-            decay_rate=0.95,
+            0.5,
+            decay_steps=387,
+            decay_rate=0.9,
             staircase=True)
 
         reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_metric_signs', factor=0.5,
@@ -29,8 +30,8 @@ def continue_learning_batch(ticker, model,start,increment,final_pass):
                                                          verbose=1, mode='max')
 
 
-        saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00001,amsgrad=True),
-                      loss=stock_loss,metrics=metric_signs)
+        saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=lr_schedule,amsgrad=True,clipnorm=0.99),
+                      loss=stock_loss_metric,metrics=metric_signs)
 
         mcp = ModelCheckpoint(
             os.path.join(f'F:\MM\models\{ticker}\\1min\\',
@@ -77,7 +78,7 @@ def continue_learning_batch(ticker, model,start,increment,final_pass):
                 start = 0
 
 
-continue_learning_batch(ticker, '2.69683504_49.97702026-best_model-01',0,200000,False)
+continue_learning_batch(ticker, '131.08818054_50.04595566-best_model-01',0,50000,False)
 
 #
 # def continue_learning(ticker, model):
