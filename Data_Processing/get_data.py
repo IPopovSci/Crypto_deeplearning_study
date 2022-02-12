@@ -54,7 +54,7 @@ def aux_data(df_main, aux_ticker_list, start_date):
 
 
 def scv_data(path,filename):
-    col = ['time', 'open', 'high', 'low', 'close', 'volume']
+    col = ['time', 'Open', 'High', 'Low', 'Close', 'Volume']
     #df = pd.read_csv(f'C:\\Users\\Ivan\\PycharmProjects\\MlFinancialAnal\\data\datasets\\{pair}\\{pair}.csv')
     df = pd.read_csv(f'{path}\\{filename}.csv')
     df = df[col]

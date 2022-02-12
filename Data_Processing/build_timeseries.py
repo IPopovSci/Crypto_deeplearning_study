@@ -8,14 +8,14 @@ from tensorflow.keras.utils import to_categorical
 '''This takes training or test data and returns x,y scaled using window approach (Unless TIME_STEPS = 1)'''
 def build_timeseries(x_t,y_t):
     #Shifting the y data 1 day in advance
-    x_t = x_t[:-1] #when we load the data, we need to not shift, since we only need X
-    y_t = y_t[1:]
-
+    # x_t = x_t[:-1] #when we load the data, we need to not shift, since we only need X
+    # y_t = y_t[1:]
+    predict = 1
     TIME_STEPS = args["time_steps"]
     # print(x_t.shape)
     # print(y_t.shape) #So we have 5 outputs now, need a new loop
 
-    dim_0 = x_t.shape[0] - TIME_STEPS
+    dim_0 = x_t.shape[0] - TIME_STEPS - predict
     dim_1 = x_t.shape[1]
     print(dim_0,TIME_STEPS,dim_1)
 
@@ -25,7 +25,7 @@ def build_timeseries(x_t,y_t):
 
     for i in range(dim_0):
         x[i] = x_t[i:TIME_STEPS + i]
-        y[i] = y_t[TIME_STEPS + i]
+        y[i] = y_t[TIME_STEPS + i + predict]
 
 
     print("Length of inputs", dim_0)
