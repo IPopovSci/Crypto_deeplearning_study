@@ -11,8 +11,10 @@ BATCH_SIZE = args['batch_size']
 
 ticker = args['ticker']
 
+'''This way of batching simply doesn't work right it seems'''
+
 def train_model_batch(start,increment,model_name='Default'):
-    x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = data_prep('pancake',initial_training=True,batch=True,SS_path = 'F:\MM\scalers\\bnbusdt_ss_pancake1min',MM_path = 'F:\MM\scalers\\bnbusdt_mm_pancake1min',big_update=False)
+    x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = data_prep('testing',ta=True,initial_training=True,batch=True,SS_path = 'F:\MM\scalers\\bnbusdt_ss_pancake1min',MM_path = 'F:\MM\scalers\\bnbusdt_mm_pancake1min',big_update=False)
 
     early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=12)
 
@@ -33,7 +35,7 @@ def train_model_batch(start,increment,model_name='Default'):
         x_train, y_train = data_prep_batch_2(x_t,y_t,start, end)
         # x_val,y_val = data_prep_batch_2(x_t,y_t,end,end+increment) #validation is 1 step ahead of the train
 
-        history_lstm = lstm_model.fit(trim_dataset(x_train, BATCH_SIZE), trim_dataset(y_train, BATCH_SIZE), epochs=1,
+        history_lstm = lstm_model.fit(trim_dataset(x_train, BATCH_SIZE), trim_dataset(y_train, BATCH_SIZE), epochs=100,
                                       verbose=1, batch_size=BATCH_SIZE,
                                       shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
                                                                       trim_dataset(y_val, BATCH_SIZE)),
@@ -41,9 +43,9 @@ def train_model_batch(start,increment,model_name='Default'):
 
         start = end
         end += increment
-        lstm_model.reset_states()
+        #lstm_model.reset_states()
         if end > size:
             end = increment
             start = 0
 
-train_model_batch(0,50000, ticker)
+train_model_batch(0,10000, ticker)

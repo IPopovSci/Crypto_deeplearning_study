@@ -24,7 +24,7 @@ Since we have 5 targets, first 5 columns of original database represent those ta
 
 
 
-def x_y_split(x_train, x_validation, x_test):
+def x_y_split(x_train, x_validation, x_test,target_y_position = 3):
 
     '''converting pandas> numpy'''
     x_train = x_train.to_numpy()
@@ -43,13 +43,13 @@ def x_y_split(x_train, x_validation, x_test):
         x_test)  # Get rid of any potential NaN values
 
     y_train = x_train[:,
-              3]  # Separate the target variables (5 because we have 5 target variables, which are the first 5 columns of original dataset)
+              0]  # Separate the target variables (5 because we have 5 target variables, which are the first 5 columns of original dataset)
     x_train = x_train[:,:]  # Get the x data
 
-    y_test = x_test[:, 3]
+    y_test = x_test[:, 0]
     x_test = x_test[:,:]
 
-    y_validation = x_validation[:, 3]
+    y_validation = x_validation[:, 0]
     x_validation = x_validation[:, :]
     y_train_t,y_validation_t,y_test_t = y_train.reshape(-1,1),y_validation.reshape(-1,1),y_test.reshape(-1,1)
     print(y_train_t.shape,y_validation_t.shape,y_test_t.shape)

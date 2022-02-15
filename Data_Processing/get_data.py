@@ -5,6 +5,7 @@ from Arguments import args
 # from pycoingecko import CoinGeckoAPI
 from datetime import datetime, timedelta
 from utility import join_files
+from test_and_debug.test_arrays import dummy_timeseries
 
 '''This module is for grabbing stock information from Yahoo Finance or other sources
 Ticker_data grabs specific ticker, vix_data will grab only vix data and rename its columns so its easier to differentiate down the line'''
@@ -152,8 +153,13 @@ def pancake_data(path,filename,big_update=False):
     df = join_files(path_load=path +'\load',path_save = path + '\save')
     return df
 
-#pancake_data('F:\MM\production\pancake_predictions\data','bnb_5m_pancake',False)
+def testing_data(n):
+    x = dummy_timeseries(n)
 
+    x = x.T
 
+    print(x.shape)
 
+    x = pd.DataFrame(x)
+    return x
 

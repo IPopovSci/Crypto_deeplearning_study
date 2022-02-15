@@ -29,7 +29,7 @@ This will make the data stationary (Use the above test to check), as well
 as easier to work with for neural networks'''
 
 
-def row_difference(df):
+def row_difference(df,ta):
     df_data = df.iloc[:,:5]
 
 
@@ -40,14 +40,16 @@ def row_difference(df):
 
     #df_ta = np.log1p(df_ta) #take log of ta? Does that makes sense? To avoid any stat imbalance
     '''Implementing categorization on data'''
-    df_data = np.log1p(df_data)  # take a log, to smooth out any shmuckery
+    df_data_lg = np.log1p(df_data)  # take a log, to smooth out any shmuckery
 
 
-    df_diff_data = df_data.pct_change()
+    df_diff_data = df_data_lg.pct_change()
 
     #df_sign = np.sign(df_diff_data) #This is categorical data, -1 for negative values, 0 for 0, 1 for positive values
-
-    df_diff = pd.concat([df_diff_data,df_data,df_ta],axis=1)
+    if ta == True:
+        df_diff = pd.concat([df_diff_data,df_data,df_data_lg,df_ta],axis=1)
+    else:
+        df_diff = pd.concat([df_diff_data,df_data_lg], axis=1)
 
 
 
@@ -55,7 +57,7 @@ def row_difference(df):
     '''Debug options'''
     pd.set_option('max_columns', None)
 
-    print(df_diff.head(n=10))
+    print(df_diff.head(n=30))
 
     return df_diff
 

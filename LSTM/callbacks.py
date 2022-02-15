@@ -11,7 +11,7 @@ from tensorflow.python.ops import math_ops
 from tensorflow.python.ops import nn
 import joblib
 from utility import tf_mm_inverse_transform
-
+from tensorflow import keras
 
 #TODO: Custom loss that simulates buying - add when moving in the same direction, substract when different
 def custom_loss(y_true, y_pred):
@@ -406,3 +406,9 @@ def stock_loss_metric(y_true, y_pred):
         )
     #print(loss)
     return K.sum(loss)
+
+class ResetStatesOnEpochEnd(keras.callbacks.Callback):
+    def on_epoch_begin(self, epoch, logs=None):
+        self.model.reset_states()
+        print((self.model.output))
+        print('states are reset!')
