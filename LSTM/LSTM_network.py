@@ -14,30 +14,52 @@ def create_lstm_model(x_t):
     n_components = args['n_components']
 
     input = Input(batch_shape=(BATCH_SIZE, TIME_STEPS, x_t.shape[2]))
-    regularizer = None#tf.keras.regularizers.l2(l2=0.000001)
-    kernel_init = initializers.glorot_uniform()
+    regularizer = tf.keras.regularizers.l1_l2(l1=0.001,l2=0.001)
+    kernel_init = tf.keras.initializers.LecunNormal()
     dropout = 0.2
 
 # #This is First side-chain: input>LSTM(stateful)>LSTM(stateful)>TD Dense layer. The output is a 3d vector
 
-    activation = None
+    activation = 'selu'
     noise = GaussianNoise(0.001)(input)
 
-    gru = LSTM(10,return_sequences=False,stateful=True)(input)
+    gru = LSTM(125,return_sequences=True,stateful=True,kernel_initializer=kernel_init,activation=activation,kernel_regularizer=regularizer)(input)
 
-    norm_1 = LayerNormalization()(gru)
+    # norm_1 = LayerNormalization()(gru)
+    #
+    # leaky_1 = tf.keras.activations.selu(norm_1)
 
-    leaky_1 = tf.keras.activations.swish(norm_1)
+    gru_1 = LSTM(100,return_sequences=True,stateful=False,kernel_initializer=kernel_init,activation=activation,kernel_regularizer=regularizer)(gru)
+
+    # # norm_1 = LayerNormalization()(gru)
+    # #
+    # # leaky_1 = tf.keras.activations.selu(norm_1)
+
+    gru = LSTM(125,return_sequences=True,stateful=False,kernel_initializer=kernel_init,activation=activation,kernel_regularizer=regularizer)(input)
+
+    att = SeqSelfAttention(units=100,kernel_regularizer=regularizer)(gru)
+    #
+    concat = Concatenate()([gru_1,att])
+
+    dense = TimeDistributed(Dense(150,kernel_initializer=kernel_init,activation=activation,kernel_regularizer=regularizer))(concat)
+    # #
+    gru = LSTM(100, return_sequences=False, stateful=False, kernel_initializer=kernel_init, activation=activation,kernel_regularizer=regularizer)(dense)
 
 
-    dense = Dense(5)(leaky_1) #do we need tanh activation here? Ensemble with none mb
+    dense = Dense(45,kernel_initializer=kernel_init,activation=activation,kernel_regularizer=regularizer)(gru) #do we need tanh activation here? Ensemble with none mb
 
-    norm = LayerNormalization()(dense)
+    # norm = LayerNormalization()(dense)
+    #
+    # leaky = tf.keras.activations.selu(norm)
 
-    leaky = tf.keras.activations.swish(norm)
+    dense = Dense(20,kernel_initializer=kernel_init,activation=activation,kernel_regularizer=regularizer)(dense) #do we need tanh activation here? Ensemble with none mb
+
+    # norm = LayerNormalization()(dense)
+    #
+    # leaky = tf.keras.activations.selu(norm)
 
 
-    output = tf.keras.layers.Dense(1,activation='linear')(leaky)
+    output = tf.keras.layers.Dense(1,activation='linear',kernel_regularizer=regularizer)(dense)
 
 
     lstm_model = tf.keras.Model(inputs=input, outputs=output)
@@ -48,13 +70,13 @@ def create_lstm_model(x_t):
         decay_rate=0.99,
         staircase=True)
 
-    #optimizer = tf.keras.optimizers.RMSprop(learning_rate=lr_schedule)
-    optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001)
+    #optimizer = tf.keras.optimizers.Adagrad(learning_rate=0.001)
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.00001,amsgrad=True,clipvalue=0.5,clipnorm=0.5)
     #optimizer = tf.keras.optimizers.SGD(lr=0.005,momentum=True,nesterov=True)
     #lstm_model.compile(loss=[mean_squared_error_custom], optimizer=optimizer)
     #lstm_model.compile(loss=[custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity], optimizer=optimizer,metrics=metric_signs)
     lstm_model.compile(
-        loss='cosine_similarity', optimizer=optimizer, metrics=metric_signs)
+        loss=custom_cosine_similarity, optimizer=optimizer, metrics=metric_signs)
     #lstm_model.compile(
         #loss='CosineSimilarity', optimizer=optimizer,metrics=metric_signs)
     return lstm_model

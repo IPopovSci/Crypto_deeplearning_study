@@ -40,16 +40,18 @@ def row_difference(df,ta):
 
     #df_ta = np.log1p(df_ta) #take log of ta? Does that makes sense? To avoid any stat imbalance
     '''Implementing categorization on data'''
-    df_data_lg = np.log1p(df_data)  # take a log, to smooth out any shmuckery
+    #df_data_lg = np.log1p(df_data)  # take a log, to smooth out any shmuckery
+
+    #df_ta = np.log1p(df_ta)
 
 
-    df_diff_data = df_data_lg.pct_change()
+    df_diff_data = df_data.pct_change()
 
     #df_sign = np.sign(df_diff_data) #This is categorical data, -1 for negative values, 0 for 0, 1 for positive values
     if ta == True:
-        df_diff = pd.concat([df_diff_data,df_data,df_data_lg,df_ta],axis=1)
+        df_diff = pd.concat([df_data,df_ta],axis=1)
     else:
-        df_diff = pd.concat([df_diff_data,df_data_lg], axis=1)
+        df_diff = pd.concat([df_diff_data,df_data], axis=1)
 
 
 

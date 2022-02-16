@@ -120,13 +120,17 @@ import datetime, sys
 
 
 
-def coinapi_data(path,filename,historical):
+def coinapi_data(path,filename,mode):
     api = CoinAPIv1('7E9EEDF3-DDEA-4176-8046-7BD4BFFE1670') #7E9EEDF3-DDEA-4176-8046-7BD4BFFE1670 #86B0BD38-FA87-4FA1-A4F1-A93819B09DF9 #EAB93C31-D483-44EC-BF6B-A095635C96EF #59821645-ABBF-43EF-884A-D613F3542507
     starting_date = datetime.date(2022,1, 16).isoformat() #Need to dynamically get 500000 minutes ago, this will do for now
 #5C58BD30-97D0-4F9A-BB6C-A2AC22F63E86 #8BF8FA2A-C4B9-4651-8FE3-48B75B8CEE87
     #symbols = api.metadata_list_symbols({'filter_symbol_id':'binance_spot_bnb'}) # FCOIN_SPOT_BNB_USDT
-    if historical == True:
+    if mode == 'historical':
         ohlcv_historical = api.ohlcv_historical_data('BINANCE_SPOT_BNB_USDT', {'period_id': '1MIN', 'time_start': starting_date,'limit':'100000'})
+    if mode == 'book':
+        ohlcv_historical = api.orderbooks_historical_data('BINANCE_SPOT_BNB_USDT',
+                                                     {'period_id': '5MIN', 'time_start': starting_date,
+                                                      'limit': '100000'})
     else:
         ohlcv_historical = api.ohlcv_latest_data('BINANCE_SPOT_BNB_USDT', {'period_id': '1min','limit':'100000'})
 
@@ -139,9 +143,9 @@ def coinapi_data(path,filename,historical):
 
     df.set_index('time', inplace=True)
 
-    df.to_csv(f'{path}\\{filename}_coinapi.csv')  # saves to csv
+    df.to_csv(f'{path}\\{filename}_coinapi_book.csv')  # saves to csv
 
-#coinapi_data('F:\MM\production\pancake_predictions\data','bnb_5m_pancake',historical=False)
+#coinapi_data('F:\MM\production\pancake_predictions\data','bnb_5m_pancake',mode='book')
 
 def pancake_data(path,filename,big_update=False):
     if big_update == True:

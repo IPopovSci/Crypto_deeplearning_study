@@ -32,40 +32,40 @@ def data_prep(data_from,ta=True,initial_training=True,batch=True,SS_path = 'F:\M
         history = pancake_data('F:\MM\production\pancake_predictions\data','bnb_5m_pancake',kwargs['big_update'])
     elif data_from == 'testing':
         history = testing_data(100000)
-    #history = history[410000:]
-    print('Got the Data!')
+    history = history[250000:]
+    # print('Got the Data!')
     '''Step 2: Apply TA Analysis'''
     if ta == True:
         history = add_ta(history, ticker)  # The columns names can be acessed from arguments 'train_cols'
-    print('ta = applied')
+    # print('ta = applied')
     '''Step 3: Detrend the data'''
     one_day_detrend = row_difference(history,ta)
-    print('detrending = donzo')
+    # print('detrending = donzo')
     '''Step 4: Split data into training/testing'''
     x_train, x_validation, x_test = train_test_split_custom(one_day_detrend)
     #print(x_test[-10:])
 
-    print('AND I SPLIT IT IN HALF')
+    # print('AND I SPLIT IT IN HALF')
     '''Step 5: SS Transform'''
     x_train, x_validation, x_test, y_train, y_validation, y_test = x_y_split(x_train, x_validation, x_test)
     #print(y_test[-10:])
 
     #print('test after inversing:', y_test[-25:, :])
-    print('SS, but this aint 1942')
+    # print('SS, but this aint 1942')
     '''Step 6: Split data into x and y'''
 
-    x_train, x_validation, x_test,_,_,_, SS_scaler = SS_transform(x_train, x_validation, x_test, y_train,y_validation,y_test, initial_training, SS_path)
-    print('I SPLIT IT IN HALF, AGAIN!')
+    x_train, x_validation, x_test,y_train,y_validation,y_test, SS_scaler = SS_transform(x_train, x_validation, x_test, y_train,y_validation,y_test, initial_training, SS_path)
+    # print('I SPLIT IT IN HALF, AGAIN!')
     '''Step 7: PCA'''
     x_train, x_validation, x_test = pca_reduction(x_train, x_validation, x_test)
-    print('PCA done')
+    # print('PCA done')
     '''Step 8: Min-max scaler (-1 to 1 for sigmoid)'''
-    x_train, x_validation, x_test, _, _, _, mm_scaler_y = min_max_transform(x_train, x_validation,
+    x_train, x_validation, x_test, y_train, y_validation, y_test, mm_scaler_y = min_max_transform(x_train, x_validation,
                                                                                                   x_test, y_train,
                                                                                                   y_validation, y_test,initial_training,MM_path)
     #print(y_test[-10:])
-
-    print('Min-maxed to the tits')
+    #
+    # print('Min-maxed to the tits')
     '''Step 9: Create time-series data'''
     size = len(x_train) - 1
     if batch == False:
@@ -76,8 +76,8 @@ def data_prep(data_from,ta=True,initial_training=True,batch=True,SS_path = 'F:\M
     else:
         x_validation, y_validation = build_timeseries(x_validation, y_validation)
         x_test, y_test = build_timeseries(x_test, y_test)
-        print(y_test[-10:])
-    print('timeseries = built')
+        # print(y_test[-10:])
+    # print('timeseries = built')
     return x_train, y_train, x_validation, y_validation, x_test, y_test, size
 '''separate data prep, without timeseries building, for large datasets'''
 # def data_prep_batch_1(data_from):

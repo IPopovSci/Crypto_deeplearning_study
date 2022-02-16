@@ -13,6 +13,11 @@ import joblib
 from utility import tf_mm_inverse_transform
 from tensorflow import keras
 
+
+def tf_diff_axis_1(a):
+    return a[1:] - a[:-1]
+
+
 #TODO: Custom loss that simulates buying - add when moving in the same direction, substract when different
 def custom_loss(y_true, y_pred):
     # extract the "next day's price" of tensor
@@ -261,9 +266,19 @@ def metric_signs(y_true,y_pred):
     # print(y_true)
     # print(y_pred)
     # print('END METRIC SHAPES')
+
+    y_true_un = (((y_true - K.constant(mm_y.min_)) / K.constant(mm_y.scale_))* sc_y.scale_) + sc_y.mean_
+
+
+    y_pred_un = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
+
+
+    y_true_diff = tf_diff_axis_1(y_true_un)
+
+    y_pred_diff = tf_diff_axis_1(y_pred_un)
     #------------------------------
-    y_true_sign = math_ops.sign(y_true)
-    y_pred_sign = math_ops.sign(y_pred)
+    y_true_sign = math_ops.sign(y_true_diff)
+    y_pred_sign = math_ops.sign(y_pred_diff)
 
     metric = math_ops.divide(math_ops.abs(math_ops.subtract(y_true_sign,y_pred_sign)),2)
     #---------------------
@@ -284,10 +299,23 @@ def custom_cosine_similarity(y_true,y_pred):
 
 
     #
-    # y_true_un = (((y_true - K.constant(mm_y.min_)) / K.constant(mm_y.scale_))* sc_y.scale_) + sc_y.mean_
+    y_true_un = (((y_true - K.constant(mm_y.min_)) / K.constant(mm_y.scale_))* sc_y.scale_) + sc_y.mean_
+
+
+    y_pred_un = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
+
+
+    y_true_diff = tf_diff_axis_1(y_true_un)
+
+    y_pred_diff = tf_diff_axis_1(y_pred_un)
+
+    # print(K.eval(y_true_diff))
+    # print(K.eval(y_pred_diff))
+
+
+    # y_test_diff = tf.experimental.numpy.diff(y_true_un,axis=1)
     #
-    #
-    # y_pred_un = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
+    # y_pred_diff = tf.experimental.numpy.diff(y_pred_un,axis=1)
 
     # y_true_un = y_true
     # y_pred_un = y_pred[:,-1]
@@ -296,15 +324,15 @@ def custom_cosine_similarity(y_true,y_pred):
 
 
 
-
-    #print(y_true_un[-5:])
-
-    #print(y_pred_un[-5:])
-
-
+    #
+    # print(y_test_diff[-5:])
+    #
+    # print(y_pred_diff[-5:])
 
 
-    loss = tf.keras.losses.cosine_similarity(y_true_un, y_pred_un, axis=-1)
+
+
+    loss = tf.keras.losses.cosine_similarity(y_true_diff, y_pred_diff, axis=-1)
 
     #loss = (nn.l2_normalize_v2(y_true_un,axis=-1) * nn.l2_normalize_v2(y_pred_un,axis=-1))
 
@@ -324,14 +352,14 @@ def custom_mean_absolute_error(y_true,y_pred):
 
 
     #
-    # y_true_un = (((y_true - K.constant(mm_y.min_)) / K.constant(mm_y.scale_))* sc_y.scale_) + sc_y.mean_
-    #
-    #
-    # y_pred_un = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
+    y_true_un = (((y_true - K.constant(mm_y.min_)) / K.constant(mm_y.scale_))* sc_y.scale_) + sc_y.mean_
 
-    y_true_un = y_true
-    y_pred_un = y_pred[:,-1]
-    y_pred_un = tf.reshape(y_pred_un, [-1, 1])
+
+    y_pred_un = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * sc_y.scale_) + sc_y.mean_
+
+    # y_true_un = y_true
+    # y_pred_un = y_pred[:,-1]
+    # y_pred_un = tf.reshape(y_pred_un, [-1, 1])
 
 
 
@@ -344,13 +372,8 @@ def custom_mean_absolute_error(y_true,y_pred):
 
     loss = tf.keras.losses.mean_absolute_error(y_true_un, y_pred_un)
 
-    #loss = (nn.l2_normalize_v2(y_true_un,axis=-1) * nn.l2_normalize_v2(y_pred_un,axis=-1))
 
-    #print(loss[-5:])
-
-
-
-    return K.mean(metric)
+    return K.mean(loss)
 
 def stock_loss(y_true, y_pred):
 
