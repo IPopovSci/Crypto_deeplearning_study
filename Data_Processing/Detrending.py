@@ -59,7 +59,7 @@ def row_difference(df,ta):
     '''Debug options'''
     pd.set_option('max_columns', None)
 
-    print(df_diff.head(n=30))
+    #print(df_diff.head(n=30))
 
     return df_diff
 

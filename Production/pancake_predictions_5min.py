@@ -15,8 +15,12 @@ import tensorflow.keras.backend as K
 
 BATCH_SIZE = args['batch_size']
 ticker = 'bnbusdt'
-def predict(model_name='Default',update=False):
-    x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = data_prep('pancake',ta=True,initial_training=False,batch=True,SS_path = 'F:\MM\scalers\\bnbusdt_ss_pancake1min',MM_path = 'F:\MM\scalers\\bnbusdt_mm_pancake1min',big_update=False)
+x_t, y_t, x_val, y_val, x_test_t, y_test_t, size = data_prep('pancake', ta=True, initial_training=False, batch=True,
+                                                             SS_path='F:\MM\scalers\\bnbusdt_ss_pancake1min',
+                                                             MM_path='F:\MM\scalers\\bnbusdt_mm_pancake1min',
+                                                             big_update=False)
+def predict(y_test_t,model_name='Default',update=False):
+
 
     saved_model = load_model(os.path.join(f'F:\MM\production\pancake_predictions\models\\1min\\', f'{model_name}.h5'),
                              custom_objects={'MultiHead':MultiHead,'stock_loss_metric':stock_loss_metric,'stock_loss':stock_loss,'custom_mean_absolute_error':custom_mean_absolute_error,'metric_signs':metric_signs,'SeqSelfAttention': SeqSelfAttention,'custom_cosine_similarity':custom_cosine_similarity,'mean_squared_error_custom':mean_squared_error_custom})
@@ -37,7 +41,7 @@ def predict(model_name='Default',update=False):
                                        shuffle=False,callbacks=[mcp])
     saved_model.reset_states()
 
-    y_pred_lstm = saved_model.predict(trim_dataset(x_test_t[-1280:-129], BATCH_SIZE), batch_size=BATCH_SIZE)
+    y_pred_lstm = saved_model.predict(trim_dataset(x_test_t[-1280:-126], BATCH_SIZE), batch_size=BATCH_SIZE)
 
     y_pred_lstm = saved_model.predict(trim_dataset(x_test_t[-128:], BATCH_SIZE), batch_size=BATCH_SIZE)
 
@@ -58,12 +62,16 @@ def predict(model_name='Default',update=False):
     y_pred_diff = np.diff(y_pred_lstm,axis=0)
 
 
-    print(correct_signs(y_test_diff[-100:],y_pred_diff[-100:]))
-    print(y_test_diff[-15:])
-    print(y_pred_diff[-15:])
+    print(correct_signs(y_test_diff[-127:],y_pred_diff[-127:]))
+    print(y_test_diff[-1:])
+    print(y_pred_diff[-1:])
 
 
-predict('1.15276921_51.59040070-best_model-69',False)
+predict(y_test_t,'1.16306531_51.82756805-best_model-60',False)
+predict(y_test_t,'2.02343607_51.81361771-best_model-20',False)
+predict(y_test_t,'1.15276921_51.59040070-best_model-69',False)
+predict(y_test_t,'1.68059230_51.54506302-best_model-21',False)
+
 
 # MM_path = 'F:\MM\scalers\\bnbusdt_mm_pancake1min'
 # SS_path = 'F:\MM\scalers\\bnbusdt_ss_pancake1min'

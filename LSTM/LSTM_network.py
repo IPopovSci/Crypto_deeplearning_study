@@ -1,4 +1,4 @@
-from tensorflow.keras.layers import LSTM, Concatenate,Dense, Input,TimeDistributed,GRU,Dropout,Bidirectional,SimpleRNN,LayerNormalization,BatchNormalization,LeakyReLU,PReLU,GaussianNoise,Convolution1D,MaxPooling1D
+from tensorflow.keras.layers import LSTM,AlphaDropout, Concatenate,Dense, Input,TimeDistributed,GRU,Dropout,Bidirectional,SimpleRNN,LayerNormalization,BatchNormalization,LeakyReLU,PReLU,GaussianNoise,Convolution1D,MaxPooling1D
 from Arguments import args
 from LSTM.callbacks import mean_squared_error_custom,custom_cosine_similarity,metric_signs,custom_mean_absolute_error,stock_loss,stock_loss_metric
 import tensorflow as tf
@@ -23,13 +23,14 @@ def create_lstm_model(x_t):
     activation = 'selu'
     noise = GaussianNoise(0.001)(input)
 
-    gru = LSTM(125,return_sequences=True,stateful=True,kernel_initializer=kernel_init,activation=activation,kernel_regularizer=regularizer)(input)
+    gru = LSTM(150,return_sequences=True,stateful=True,kernel_initializer=kernel_init,activation=activation,kernel_regularizer=regularizer)(input)
 
-    # norm_1 = LayerNormalization()(gru)
-    #
-    # leaky_1 = tf.keras.activations.selu(norm_1)
+    dropout = AlphaDropout(0.2)(gru)
 
-    gru_1 = LSTM(100,return_sequences=True,stateful=False,kernel_initializer=kernel_init,activation=activation,kernel_regularizer=regularizer)(gru)
+
+    gru_1 = LSTM(125,return_sequences=True,stateful=True,kernel_initializer=kernel_init,activation=activation,kernel_regularizer=regularizer)(dropout)
+
+    dropout_1 = AlphaDropout(0.2)(gru_1)
 
     # # norm_1 = LayerNormalization()(gru)
     # #
@@ -37,22 +38,30 @@ def create_lstm_model(x_t):
 
     gru = LSTM(125,return_sequences=True,stateful=False,kernel_initializer=kernel_init,activation=activation,kernel_regularizer=regularizer)(input)
 
-    att = SeqSelfAttention(units=100,kernel_regularizer=regularizer)(gru)
+    dropout = AlphaDropout(0.3)(gru)
+
+    att = SeqSelfAttention(units=125,kernel_regularizer=regularizer)(dropout)
     #
-    concat = Concatenate()([gru_1,att])
+    concat = Concatenate()([dropout_1,att])
 
-    dense = TimeDistributed(Dense(150,kernel_initializer=kernel_init,activation=activation,kernel_regularizer=regularizer))(concat)
+    dropout = AlphaDropout(0.2)(concat)
+
+    dense = TimeDistributed(Dense(175,kernel_initializer=kernel_init,activation=activation,kernel_regularizer=regularizer))(dropout)
+
+    dropout = AlphaDropout(0.2)(dense)
     # #
-    gru = LSTM(100, return_sequences=False, stateful=False, kernel_initializer=kernel_init, activation=activation,kernel_regularizer=regularizer)(dense)
+    gru = LSTM(150, return_sequences=False, stateful=True, kernel_initializer=kernel_init, activation=activation,kernel_regularizer=regularizer)(dropout)
+
+    dropout = AlphaDropout(0.2)(gru)
 
 
-    dense = Dense(45,kernel_initializer=kernel_init,activation=activation,kernel_regularizer=regularizer)(gru) #do we need tanh activation here? Ensemble with none mb
+    dense = Dense(75,kernel_initializer=kernel_init,activation=activation,kernel_regularizer=regularizer)(dropout) #do we need tanh activation here? Ensemble with none mb
 
     # norm = LayerNormalization()(dense)
     #
     # leaky = tf.keras.activations.selu(norm)
 
-    dense = Dense(20,kernel_initializer=kernel_init,activation=activation,kernel_regularizer=regularizer)(dense) #do we need tanh activation here? Ensemble with none mb
+    dense = Dense(50,kernel_initializer=kernel_init,activation=activation,kernel_regularizer=regularizer)(dense) #do we need tanh activation here? Ensemble with none mb
 
     # norm = LayerNormalization()(dense)
     #

@@ -19,11 +19,11 @@ BATCH_SIZE = args['batch_size']
 
 def train_model():
     x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = data_prep('pancake',ta=True,initial_training=True,batch=False,SS_path = 'F:\MM\scalers\\bnbusdt_ss_pancake1min',MM_path = 'F:\MM\scalers\\bnbusdt_mm_pancake1min',big_update=False)
-    early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=12)
+    early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_metric_signs', patience=17)
 
-    reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.75,
+    reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_metric_signs', factor=0.5,
                                                      patience=4, min_lr=0.000000000001,
-                                                     verbose=1, mode='min')
+                                                     verbose=1, mode='max')
     reset_states = ResetStatesOnEpochEnd()
     mcp = ModelCheckpoint(
         os.path.join(f'F:\MM\models\\bnbusdt\\1min\\',
@@ -40,7 +40,7 @@ def train_model():
                                   verbose=1, batch_size=BATCH_SIZE,
                                   shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
                                                                   trim_dataset(y_val, BATCH_SIZE)),
-                                  callbacks=[mcp, reduce_lr,reset_states])
+                                  callbacks=[mcp, reduce_lr,reset_states,early_stop])
 
 
 train_model()

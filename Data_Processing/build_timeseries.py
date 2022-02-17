@@ -17,7 +17,7 @@ def build_timeseries(x_t,y_t):
 
     dim_0 = x_t.shape[0] - TIME_STEPS - predict
     dim_1 = x_t.shape[1]
-    print(dim_0,TIME_STEPS,dim_1)
+    #print(dim_0,TIME_STEPS,dim_1)
 
     x = np.zeros((dim_0, TIME_STEPS, dim_1))
     y = np.zeros((dim_0,1))
@@ -28,7 +28,7 @@ def build_timeseries(x_t,y_t):
         y[i] = y_t[TIME_STEPS + i + predict]
 
 
-    print("Length of inputs", dim_0)
+    #print("Length of inputs", dim_0)
     '''if categorical'''
     # x = np.zeros((dim_0, TIME_STEPS, dim_1))
     # y = np.zeros((dim_0,3))
@@ -48,8 +48,8 @@ def build_timeseries(x_t,y_t):
 
 
 
-    print("length of time-series - inputs", x.shape)
-    print("length of time-series - outputs", y.shape)
+    #print("length of time-series - inputs", x.shape)
+    #print("length of time-series - outputs", y.shape)
 
     return x, y
 
