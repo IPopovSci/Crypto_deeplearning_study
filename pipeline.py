@@ -32,7 +32,7 @@ def data_prep(data_from,ta=True,initial_training=True,batch=True,SS_path = 'F:\M
         history = pancake_data('F:\MM\production\pancake_predictions\data','bnb_5m_pancake',kwargs['big_update'])
     elif data_from == 'testing':
         history = testing_data(100000)
-    history = history[250000:]
+    history = history[300000:]
     # print('Got the Data!')
     '''Step 2: Apply TA Analysis'''
     if ta == True:

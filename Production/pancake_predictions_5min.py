@@ -1,7 +1,7 @@
 from pipeline import data_prep
 from Arguments import args
 from Data_Processing.data_trim import trim_dataset
-from LSTM.callbacks import mean_squared_error_custom,custom_cosine_similarity,metric_signs,custom_mean_absolute_error,stock_loss,stock_loss_metric
+from LSTM.callbacks import metric_signs_loss,mean_squared_error_custom,custom_cosine_similarity,metric_signs,custom_mean_absolute_error,stock_loss,stock_loss_metric
 from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.models import load_model
 import os
@@ -23,7 +23,7 @@ def predict(y_test_t,model_name='Default',update=False):
 
 
     saved_model = load_model(os.path.join(f'F:\MM\production\pancake_predictions\models\\1min\\', f'{model_name}.h5'),
-                             custom_objects={'MultiHead':MultiHead,'stock_loss_metric':stock_loss_metric,'stock_loss':stock_loss,'custom_mean_absolute_error':custom_mean_absolute_error,'metric_signs':metric_signs,'SeqSelfAttention': SeqSelfAttention,'custom_cosine_similarity':custom_cosine_similarity,'mean_squared_error_custom':mean_squared_error_custom})
+                             custom_objects={'metric_signs_loss':metric_signs_loss,'MultiHead':MultiHead,'stock_loss_metric':stock_loss_metric,'stock_loss':stock_loss,'custom_mean_absolute_error':custom_mean_absolute_error,'metric_signs':metric_signs,'SeqSelfAttention': SeqSelfAttention,'custom_cosine_similarity':custom_cosine_similarity,'mean_squared_error_custom':mean_squared_error_custom})
     # saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.000005),
     #                     loss= custom_mean_absolute_error,metrics=metric_signs) #for regression
     saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.000005),
@@ -41,9 +41,9 @@ def predict(y_test_t,model_name='Default',update=False):
                                        shuffle=False,callbacks=[mcp])
     saved_model.reset_states()
 
-    y_pred_lstm = saved_model.predict(trim_dataset(x_test_t[-1280:-126], BATCH_SIZE), batch_size=BATCH_SIZE)
+    y_pred_lstm = saved_model.predict(trim_dataset(x_test_t[:-10000], BATCH_SIZE), batch_size=BATCH_SIZE)
 
-    y_pred_lstm = saved_model.predict(trim_dataset(x_test_t[-128:], BATCH_SIZE), batch_size=BATCH_SIZE)
+    y_pred_lstm = saved_model.predict(trim_dataset(x_test_t[-10000:], BATCH_SIZE), batch_size=BATCH_SIZE)
 
     MM_path = 'F:\MM\scalers\\bnbusdt_mm_pancake1min'
     SS_path = 'F:\MM\scalers\\bnbusdt_ss_pancake1min'
@@ -62,15 +62,17 @@ def predict(y_test_t,model_name='Default',update=False):
     y_pred_diff = np.diff(y_pred_lstm,axis=0)
 
 
-    print(correct_signs(y_test_diff[-127:],y_pred_diff[-127:]))
+    print(correct_signs(y_test_diff[-9500:],y_pred_diff[-9500:]))
     print(y_test_diff[-1:])
     print(y_pred_diff[-1:])
 
 
-predict(y_test_t,'1.16306531_51.82756805-best_model-60',False)
-predict(y_test_t,'2.02343607_51.81361771-best_model-20',False)
-predict(y_test_t,'1.15276921_51.59040070-best_model-69',False)
-predict(y_test_t,'1.68059230_51.54506302-best_model-21',False)
+predict(y_test_t,'4.90464449_51.78369904-best_model-03',False)
+predict(y_test_t,'2.58527970_51.44013596-best_model-19',False)
+# predict(y_test_t,'1.16306531_51.82756805-best_model-60',False)
+# predict(y_test_t,'1.04890132_51.31213760-best_model-23',False)
+#
+
 
 
 # MM_path = 'F:\MM\scalers\\bnbusdt_mm_pancake1min'

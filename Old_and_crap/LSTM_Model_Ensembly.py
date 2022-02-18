@@ -1,10 +1,11 @@
-from tensorflow.keras.layers import Dense, Input
+from tensorflow.keras.layers import Dense, Input, Conv1D,MaxPooling1D
 from Arguments import args
 from LSTM.callbacks import custom_loss,ratio_loss,my_metric_fn
 from tensorflow.keras.models import load_model
 from attention import Attention
 import os
 import tensorflow as tf
+
 
 def create_model_ensembly(x_t,model_name_load):
     BATCH_SIZE = args['batch_size']
