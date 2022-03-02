@@ -1,6 +1,5 @@
 from tensorflow.keras.layers import Dense, Input, Concatenate, Conv1D, MaxPooling1D,Flatten
 from Arguments import args
-from LSTM.callbacks import custom_loss,ratio_loss,my_metric_fn
 from tensorflow.keras.models import load_model
 from attention import Attention
 import os
@@ -8,7 +7,7 @@ import tensorflow as tf
 from pipeline import data_prep
 from Arguments import args
 from Data_Processing.data_trim import trim_dataset
-from LSTM.callbacks import mean_squared_error_custom,custom_cosine_similarity,metric_signs,custom_mean_absolute_error,stock_loss,stock_loss_metric
+from training.callbacks import custom_cosine_similarity,metric_signs,custom_mean_absolute_error
 from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.models import load_model
 import os
@@ -43,19 +42,9 @@ def create_model_ensembly(x_t):
 
     outputs_models = [model(model_input,training=False) for model in models]
 
-    conv = Conv1D(kernel_size=4,filters=128,kernel_initializer=kernel_init,kernel_regularizer=regularizer,activation=activation)(model_input)
-
-    conv_2 = Conv1D(kernel_size=4,filters=64,kernel_initializer=kernel_init,kernel_regularizer=regularizer,activation=activation)(conv)
-
-    conv_3 = Conv1D(kernel_size=4, filters=32, kernel_initializer=kernel_init, kernel_regularizer=regularizer,
-                    activation=activation)(conv_2)
-
-    pool = MaxPooling1D(pool_size=3)(conv_3)
-
-    flat = Flatten()(pool)
 
 
-    concat = Concatenate()([outputs_models[0],outputs_models[1],outputs_models[2],outputs_models[3],flat])
+    concat = Concatenate()([outputs_models[0],outputs_models[1],outputs_models[2],outputs_models[3],outputs_models[4],outputs_models[5],outputs_models[6],outputs_models[7]])
 
 
     Dense_one = Dense(100,kernel_initializer=kernel_init,kernel_regularizer=regularizer,activation=activation)(concat)
@@ -68,8 +57,8 @@ def create_model_ensembly(x_t):
     ensemble_output = Dense(1,kernel_initializer=kernel_init,kernel_regularizer=regularizer,activation=activation)(Dense_two)
 
     ensemble_model = tf.keras.Model(inputs=model_input, outputs=ensemble_output,name=f'ensemble_model')
-    optimizer = tf.keras.optimizers.Adam(learning_rate=0.00005)
-    ensemble_model.compile(loss=custom_cosine_similarity, optimizer=optimizer, metrics=metric_signs)
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001)
+    ensemble_model.compile(loss=[custom_cosine_similarity,'mse'], optimizer=optimizer, metrics=metric_signs)
 
     return ensemble_model
 

@@ -6,6 +6,8 @@ from Arguments import args
 from datetime import datetime, timedelta
 from utility import join_files
 from test_and_debug.test_arrays import dummy_timeseries
+import cryptowatch as cw
+from coinapi_rest_v1.restapi import CoinAPIv1
 
 '''This module is for grabbing stock information from Yahoo Finance or other sources
 Ticker_data grabs specific ticker, vix_data will grab only vix data and rename its columns so its easier to differentiate down the line'''
@@ -85,7 +87,7 @@ def scv_data(path,filename):
 '''private key: x4p1k7VvUiRdd+5JLmE5SOm3P1cM/ZQyjPTE61lp
 periods can be: 1m,5m,4h,1d and other (see api docs)
 One thousand data points only'''
-import cryptowatch as cw
+
 
 
 def cryptowatch_data(path,pair, periods,filename):
@@ -115,7 +117,7 @@ def cryptowatch_data(path,pair, periods,filename):
 Use for transfer learning step 1, then apply real world with cryptowatch api
 useless for bnb-usd, has no data on it (It says it does but returns empty array)'''
 
-from coinapi_rest_v1.restapi import CoinAPIv1
+
 import datetime, sys
 
 

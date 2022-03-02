@@ -2,10 +2,9 @@ from pipeline import data_prep_batch_2, data_prep
 from Arguments import args
 from Data_Processing.data_trim import trim_dataset
 from tensorflow.keras.callbacks import ModelCheckpoint
-import numpy as np
 import os
 import tensorflow as tf
-from LSTM.LSTM_network import create_lstm_model as create_model
+from Network_structures.Conv1D_Network import create_lstm_model as create_model
 
 BATCH_SIZE = args['batch_size']
 

@@ -32,7 +32,7 @@ def data_prep(data_from,ta=True,initial_training=True,batch=True,SS_path = 'F:\M
         history = pancake_data('F:\MM\production\pancake_predictions\data','bnb_5m_pancake',kwargs['big_update'])
     elif data_from == 'testing':
         history = testing_data(100000)
-    history = history[300000:]
+    history = history[175000:]
     # print('Got the Data!')
     '''Step 2: Apply TA Analysis'''
     if ta == True:
@@ -69,13 +69,13 @@ def data_prep(data_from,ta=True,initial_training=True,batch=True,SS_path = 'F:\M
     '''Step 9: Create time-series data'''
     size = len(x_train) - 1
     if batch == False:
-        x_train, y_train = build_timeseries(x_train, y_train)
+        x_train, y_train = build_timeseries(x_train, y_train,y_type='closing')
 
-        x_validation, y_validation = build_timeseries(x_validation, y_validation)
-        x_test, y_test = build_timeseries(x_test, y_test)
+        x_validation, y_validation = build_timeseries(x_validation, y_validation,y_type='closing')
+        x_test, y_test = build_timeseries(x_test, y_test,y_type='closing')
     else:
-        x_validation, y_validation = build_timeseries(x_validation, y_validation)
-        x_test, y_test = build_timeseries(x_test, y_test)
+        x_validation, y_validation = build_timeseries(x_validation, y_validation,y_type='closing')
+        x_test, y_test = build_timeseries(x_test, y_test,y_type='closing')
         # print(y_test[-10:])
     # print('timeseries = built')
     return x_train, y_train, x_validation, y_validation, x_test, y_test, size

@@ -3,12 +3,12 @@ from Arguments import args
 from Data_Processing.data_trim import trim_dataset
 from tensorflow.keras.callbacks import ModelCheckpoint
 # from plotting import plot_results
-from LSTM.callbacks import ResetStatesOnEpochEnd
-import numpy as np
+from training.callbacks import ResetStatesOnEpochEnd
 import os
 import tensorflow as tf
-from LSTM.LSTM_network import create_lstm_model as create_model
-from LSTM.Ensemble_model import create_model_ensembly
+from Network_structures.Conv1D_Network import create_lstm_model as create_model
+from Network_structures.Ensemble_model import create_model_ensembly
+from Network_structures.Conv1DLSTM_Network import create_convlstm_model
 
 '''Module for training new models'''
 ticker = args['ticker']
@@ -20,11 +20,11 @@ BATCH_SIZE = args['batch_size']
 
 def train_model(ensembly = False):
     x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = data_prep('pancake',ta=True,initial_training=True,batch=False,SS_path = 'F:\MM\scalers\\bnbusdt_ss_pancake1min',MM_path = 'F:\MM\scalers\\bnbusdt_mm_pancake1min',big_update=False)
-    early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_metric_signs',mode='max', patience=32)
+    early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss',mode='min', patience=100)
 
-    reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_metric_signs', factor=0.5,
-                                                     patience=4, min_lr=0.000000000001,
-                                                     verbose=1, mode='max')
+    reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.85,
+                                                     patience=8, min_lr=0.000000000001,
+                                                     verbose=1, mode='min')
     reset_states = ResetStatesOnEpochEnd()
     mcp = ModelCheckpoint(
         os.path.join(f'F:\MM\models\\bnbusdt\\1min\\',
@@ -32,12 +32,12 @@ def train_model(ensembly = False):
         monitor='val_loss', verbose=3,
         save_best_only=False, save_weights_only=False, mode='min', period=1)
     if ensembly == False:
-        lstm_model = create_model(x_t)
+        lstm_model = create_convlstm_model(x_t)
     else:
         lstm_model = create_model_ensembly(x_t)
 
 
-    history_lstm = lstm_model.fit(trim_dataset(x_t, BATCH_SIZE), trim_dataset(y_t, BATCH_SIZE), epochs=1000,
+    history_lstm = lstm_model.fit(trim_dataset(x_t, BATCH_SIZE), trim_dataset(y_t, BATCH_SIZE), epochs=10000,
                                   verbose=1, batch_size=BATCH_SIZE,
                                   shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
                                                                   trim_dataset(y_val, BATCH_SIZE)),

@@ -1,6 +1,6 @@
 from tensorflow.keras.layers import LSTM, Dense, Input,TimeDistributed
 from Arguments import args
-from LSTM.callbacks import mean_squared_error_custom
+from training.callbacks import mean_squared_error_custom
 import tensorflow as tf
 from keras_self_attention import SeqSelfAttention
 from tensorflow.keras import initializers
@@ -30,19 +30,19 @@ def create_lstm_model_transfer(x_t,model):
     input_1 = saved_model_1(input,training=False)
 
 
-# #This is First side-chain: input>LSTM(stateful)>LSTM(stateful)>TD Dense layer. The output is a 3d vector
+# #This is First side-chain: input>training(stateful)>training(stateful)>TD Dense layer. The output is a 3d vector
     LSTM_1 = LSTM(int(75), return_sequences=True, stateful=True,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(input_1)
 #
     LSTM_2 = LSTM(int(50), return_sequences=True, stateful=True,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(LSTM_1)
 
     Dense_1 = TimeDistributed(Dense(50,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init))(LSTM_2)
-#This is the attention side-chain: LSTM(Stateless)>LSTM>Attention. The output is a 3d vector
+#This is the attention side-chain: training(Stateless)>training>Attention. The output is a 3d vector
     LSTM_3 = LSTM(int(75), return_sequences=True, stateful=False,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(input_1)
 
     LSTM_4 = LSTM(int(50), return_sequences=True, stateful=False,activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(LSTM_3)
 
     attention_1 = SeqSelfAttention(attention_activation='softsign',attention_type='additive',kernel_initializer=kernel_init,bias_initializer=kernel_init)(LSTM_4)
-# This is the attention side-chain: LSTM(Stateless)>LSTM>Attention. The output is a 3d vector
+# This is the attention side-chain: training(Stateless)>training>Attention. The output is a 3d vector
     LSTM_5 = LSTM(int(75), return_sequences=True, stateful=False, activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(input_1)
 
     LSTM_6 = LSTM(int(50), return_sequences=True, stateful=False, activation='softsign',kernel_initializer=kernel_init,bias_initializer=kernel_init)(LSTM_5)

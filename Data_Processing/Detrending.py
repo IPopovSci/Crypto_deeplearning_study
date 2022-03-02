@@ -45,19 +45,22 @@ def row_difference(df,ta):
     #df_ta = np.log1p(df_ta)
 
 
-    df_diff_data = df_data.pct_change()
+    df_diff_data = df_data.pct_change(axis=0)
 
-    #df_sign = np.sign(df_diff_data) #This is categorical data, -1 for negative values, 0 for 0, 1 for positive values
+    print(df_diff_data[-30:])
+
+    #df_diff_ta = df_ta.pct_change(axis=0)
+    #df_diff_ta = df_diff_ta.fillna(0)
     if ta == True:
-        df_diff = pd.concat([df_data,df_ta],axis=1)
+        df_diff = pd.concat([df_diff_data,df_ta],axis=1)
     else:
-        df_diff = pd.concat([df_diff_data,df_data], axis=1)
+        df_diff = pd.concat([df_diff_data], axis=1)
 
 
 
-    df_diff = df_diff.iloc[1:, :] #this drops the first row
+    df_diff = df_diff.iloc[1:, :] #this drops the first row (For avoiding N/A)
     '''Debug options'''
-    pd.set_option('max_columns', None)
+    #pd.set_option('max_columns', None)
 
     #print(df_diff.head(n=30))
 

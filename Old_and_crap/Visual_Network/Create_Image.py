@@ -11,7 +11,7 @@ import tensorflow as tf
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import minmax_scale,scale
 from Data_Processing.build_timeseries import build_timeseries_conv
-from Visual_Network import LSTM_network_conv
+from Old_and_crap.Visual_Network import LSTM_network_conv
 
 ticker = args['ticker']
 

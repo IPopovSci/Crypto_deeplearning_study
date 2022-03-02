@@ -1,12 +1,13 @@
 import numpy as np
 from Arguments import args
 from Data_Processing.data_trim import trim_dataset
+from numpy import expand_dims
 import tensorflow as tf
 from tensorflow.keras.utils import to_categorical
 
 
 '''This takes training or test data and returns x,y scaled using window approach (Unless TIME_STEPS = 1)'''
-def build_timeseries(x_t,y_t):
+def build_timeseries(x_t,y_t,expand_dims=True,y_type='closing'):
     #Shifting the y data 1 day in advance
     # x_t = x_t[:-1] #when we load the data, we need to not shift, since we only need X
     # y_t = y_t[1:]
@@ -20,36 +21,36 @@ def build_timeseries(x_t,y_t):
     #print(dim_0,TIME_STEPS,dim_1)
 
     x = np.zeros((dim_0, TIME_STEPS, dim_1))
-    y = np.zeros((dim_0,1))
+    if y_type == 'closing':
+        y = np.zeros((dim_0, 1))
+    else:
+        y = np.zeros((dim_0, TIME_STEPS, dim_1))
 
 
     for i in range(dim_0):
         x[i] = x_t[i:TIME_STEPS + i]
-        y[i] = y_t[TIME_STEPS + i + predict]
+        if y_type == 'closing':
+
+            y[i] = y_t[TIME_STEPS + i + predict]
+        else:
+            #Can't do it like this, X values are PCA'ed! That's complete scramble
+            y[i] = x_t[i + predict:TIME_STEPS + i + predict] #This will return shifted x dataset - useful for ConvLSTM, since it outputs a 4d vector
 
 
-    #print("Length of inputs", dim_0)
-    '''if categorical'''
-    # x = np.zeros((dim_0, TIME_STEPS, dim_1))
-    # y = np.zeros((dim_0,3))
-    # y_t = to_categorical(y_t,num_classes=3)
 
-
-    # for i in range(dim_0):
-    #     x[i] = x_t[i:TIME_STEPS + i]
-    #     for column in range(3):
-    #         y[i,column] = y_t[TIME_STEPS + i,column]
-
-    #y = y_t[-dim_0:,:4]
 
     x = trim_dataset(x,batch_size=args['batch_size'])
     y = trim_dataset(y, batch_size=args['batch_size'])
 
+    if expand_dims == True:
+        x = np.expand_dims(x,axis = -1)
+        if y_type != 'closing':
+            y = np.expand_dims(y,axis = -1)
 
+    print("length of time-series - inputs", x.shape)
+    print("length of time-series - outputs", y.shape)
+#    print(y[-10,-1,-1,-1])
 
-
-    #print("length of time-series - inputs", x.shape)
-    #print("length of time-series - outputs", y.shape)
 
     return x, y
 

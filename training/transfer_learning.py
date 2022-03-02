@@ -2,13 +2,13 @@ from pipeline import data_prep,data_prep_transfer,data_prep_batch_1,data_prep_ba
 from Arguments import args
 from Data_Processing.data_trim import trim_dataset
 from tensorflow.keras.callbacks import ModelCheckpoint
-from LSTM.callbacks import custom_loss,ratio_loss,my_metric_fn,mean_squared_error_custom
+from training.callbacks import custom_loss,ratio_loss,my_metric_fn,mean_squared_error_custom
 from tensorflow.keras.models import load_model
 from keras_self_attention import SeqSelfAttention
 import numpy as np
 import os
 import tensorflow as tf
-from LSTM.LSTM_network_transfer import create_lstm_model_transfer
+from Network_structures.LSTM_network_transfer import create_lstm_model_transfer
 
 BATCH_SIZE = args['batch_size']
 ticker = 'bnbusdt'
