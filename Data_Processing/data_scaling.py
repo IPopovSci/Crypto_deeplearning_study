@@ -9,7 +9,8 @@ import os
 '''Standard scaler transform - it will substract the mean to center the data
 as well as bring the standard deviation to 1. Will transform incoming pandas data into numpy in the process
 The target columns are the first 5
-returns transformed train,validation,test sets as well as the scaler'''
+returns transformed train,validation,test sets as well as the scaler
+If initial_training = True, will create new scalers, otherwise will read them from the drive'''
 def SS_transform(x_train,x_validation,x_test,y_train,y_validation,y_test,initial_training=True,SS_path=[]):
     if initial_training == False:
         sc_x = joblib.load(SS_path + ".x" )
