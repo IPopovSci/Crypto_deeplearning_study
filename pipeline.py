@@ -22,7 +22,7 @@ np.set_printoptions(threshold=sys.maxsize)
 
 
 '''This is the pipeline function, which will call upon required functions to load and process the data'''
-def data_prep(data_from,ta=True,initial_training=True,batch=True,SS_path = SS_path,MM_path = MM_path,**kwargs):
+def data_prep(data_from,ta=True,initial_training=True,batch=True,SS_path = SS_path,MM_path = MM_path,y_type='testing',pca=False,**kwargs):
     '''Step 1: Get Data'''
     #Move step 1 into a separate function in get_data
     if data_from == 'Yahoo':
@@ -52,7 +52,7 @@ def data_prep(data_from,ta=True,initial_training=True,batch=True,SS_path = SS_pa
 
     # print('AND I SPLIT IT IN HALF')
     '''Step 5: SS Transform'''
-    x_train, x_validation, x_test, y_train, y_validation, y_test = x_y_split(x_train, x_validation, x_test)
+    x_train, x_validation, x_test, y_train, y_validation, y_test = x_y_split(x_train, x_validation, x_test,y_type)
     #print(y_test[-10:])
 
     #print('test after inversing:', y_test[-25:, :])
@@ -62,7 +62,8 @@ def data_prep(data_from,ta=True,initial_training=True,batch=True,SS_path = SS_pa
     x_train, x_validation, x_test,y_train,y_validation,y_test, SS_scaler = SS_transform(x_train, x_validation, x_test, y_train,y_validation,y_test, initial_training, SS_path)
     # print('I SPLIT IT IN HALF, AGAIN!')
     '''Step 7: PCA'''
-    x_train, x_validation, x_test = pca_reduction(x_train, x_validation, x_test)
+    if pca == True:
+        x_train, x_validation, x_test = pca_reduction(x_train, x_validation, x_test)
     # print('PCA done')
     '''Step 8: Min-max scaler (-1 to 1 for sigmoid)'''
     x_train, x_validation, x_test, y_train, y_validation, y_test, mm_scaler_y = min_max_transform(x_train, x_validation,
@@ -74,13 +75,13 @@ def data_prep(data_from,ta=True,initial_training=True,batch=True,SS_path = SS_pa
     '''Step 9: Create time-series data'''
     size = len(x_train) - 1
     if batch == False:
-        x_train, y_train = build_timeseries(x_train, y_train,y_type='closing')
+        x_train, y_train = build_timeseries(x_train, y_train,y_timeseries_type='close')
 
-        x_validation, y_validation = build_timeseries(x_validation, y_validation,y_type='closing')
-        x_test, y_test = build_timeseries(x_test, y_test,y_type='closing')
+        x_validation, y_validation = build_timeseries(x_validation, y_validation,y_timeseries_type='close')
+        x_test, y_test = build_timeseries(x_test, y_test,y_timeseries_type='close')
     else:
-        x_validation, y_validation = build_timeseries(x_validation, y_validation,y_type='closing')
-        x_test, y_test = build_timeseries(x_test, y_test,y_type='closing')
+        x_validation, y_validation = build_timeseries(x_validation, y_validation,y_timeseries_type='close')
+        x_test, y_test = build_timeseries(x_test, y_test,y_timeseries_type='close')
         # print(y_test[-10:])
     # print('timeseries = built')
     return x_train, y_train, x_validation, y_validation, x_test, y_test, size
