@@ -1,17 +1,17 @@
+import os
+
+import joblib
 import tensorflow as tf
 import tensorflow.keras.backend as K
-from tensorflow.keras.callbacks import ModelCheckpoint
-import os
-import numpy as np
-from Arguments import args
+from dotenv import load_dotenv
+from tensorflow import keras
 # tf.config.experimental_run_functions_eagerly(True)
 from tensorflow.python.framework import ops
-from tensorflow.python.ops import array_ops
 from tensorflow.python.ops import math_ops
-from tensorflow.python.ops import nn
-import joblib
-from utility import tf_mm_inverse_transform
-from tensorflow import keras
+
+from Arguments import args
+
+load_dotenv()
 
 
 def tf_diff_axis_1(a):
@@ -34,8 +34,8 @@ def loss_unit_test(y_true_un,y_pred_un):
 
 
 batch_size = args['batch_size']
-MM_path = 'F:\MM\scalers\\bnbusdt_mm_pancake1min'
-SS_path = 'F:\MM\scalers\\bnbusdt_ss_pancake1min'
+MM_path = os.getenv('MM_Path')
+SS_path = os.getenv('SS_Path')
 
 mm_y = joblib.load(MM_path + ".y")
 sc_y = joblib.load(SS_path + ".y")

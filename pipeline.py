@@ -8,16 +8,21 @@ from Data_Processing.PCA import pca_reduction,pca_reduction_small
 from Data_Processing.build_timeseries import build_timeseries,build_univariate_close
 import numpy as np
 import sys
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 ticker = args['ticker']
 BATCH_SIZE = args['batch_size']
 start_date = args['starting_date']
+MM_path = os.getenv('MM_Path')
+SS_path = os.getenv('SS_Path')
 np.set_printoptions(threshold=sys.maxsize)
 
 
 
 '''This is the pipeline function, which will call upon required functions to load and process the data'''
-def data_prep(data_from,ta=True,initial_training=True,batch=True,SS_path = 'F:\MM\scalers\\bnbusdt_ss',MM_path = 'F:\MM\scalers\\bnbusdt_mm',**kwargs):
+def data_prep(data_from,ta=True,initial_training=True,batch=True,SS_path = SS_path,MM_path = MM_path,**kwargs):
     '''Step 1: Get Data'''
     #Move step 1 into a separate function in get_data
     if data_from == 'Yahoo':
