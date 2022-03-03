@@ -4,7 +4,8 @@ from Arguments import args
 import numpy as np
 
 '''Accepts a pandas dataframe, reads the size of train and test sizes from the arguments dictionary, and uses sklearn library
-implementation for splitting the dataframe into 2 portions'''
+implementation for splitting the dataframe into 2 portions
+Outputs 3 dataframes for train,validation and test'''
 
 
 def train_test_split_custom(df):
@@ -18,13 +19,13 @@ def train_test_split_custom(df):
     return df_train, df_validation, df_test
 
 
-'''This is a split between x (data) and y (targets). The amount of targets is currently hardcoded - something to think about in the future
-Since we have 5 targets, first 5 columns of original database represent those targets, while the rest is input data'''
-'''If we are using the custom loss in custom_function, we won't need to shift x and y variables, but we will have to do it if we decide not to use that loss'''
+
+'''Function for splitting inputs into inputs and outputs
+Accepts training, validation and testing data
+y_type is a switch: "close" will grab only the closing price, 'ohclv' will grab OHCLV data, 'testing' grabs only the first feature'''
 
 
-
-def x_y_split(x_train, x_validation, x_test,target_y_position = 3):
+def x_y_split(x_train, x_validation, x_test,y_type = 'close'):
 
     '''converting pandas> numpy'''
     x_train = x_train.to_numpy()
@@ -36,16 +37,23 @@ def x_y_split(x_train, x_validation, x_test,target_y_position = 3):
     x_train, x_validation, x_test = np.nan_to_num(x_train), np.nan_to_num(x_validation), np.nan_to_num(
         x_test)  # Get rid of any potential NaN values
 
-    y_train = x_train[:,
-              3]  # Separate the target variables (5 because we have 5 target variables, which are the first 5 columns of original dataset)
-    x_train = x_train[:,:]  # Get the x data
+    if y_type == 'close':
+        y_train = x_train[:,
+                  3]
+        y_test = x_test[:, 3]
+        y_validation = x_validation[:, 3]
+    elif y_type == 'ohlcv':
+        y_train = x_train[:,
+                  :5]
+        y_test = x_test[:, :5]
+        y_validation = x_validation[:, :5]
+    elif y_type == 'testing':
+        y_train = x_train[:,
+                  0]
+        y_test = x_test[:, 0]
+        y_validation = x_validation[:, 0]
 
-    y_test = x_test[:, 3]
-    x_test = x_test[:,:]
-
-    y_validation = x_validation[:, 3]
-    x_validation = x_validation[:, :]
-    y_train_t,y_validation_t,y_test_t = y_train.reshape(-1,1),y_validation.reshape(-1,1),y_test.reshape(-1,1)
+    y_train_t,y_validation_t,y_test_t = y_train.reshape(-1,1),y_validation.reshape(-1,1),y_test.reshape(-1,1) #This reshaping is needed for SS
     print(y_train_t.shape,y_validation_t.shape,y_test_t.shape)
 
     return x_train, x_validation, x_test, y_train_t, y_validation_t, y_test_t
