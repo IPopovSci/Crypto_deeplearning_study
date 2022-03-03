@@ -7,7 +7,7 @@ from tensorflow.keras.utils import to_categorical
 
 
 '''This takes training or test data and returns x,y scaled using window approach (Unless TIME_STEPS = 1)'''
-def build_timeseries(x_t,y_t,expand_dims=True,y_type='closing'):
+def build_timeseries(x_t,y_t,expand_dims=True,y_timeseries_type='close'):
     #Shifting the y data 1 day in advance
     # x_t = x_t[:-1] #when we load the data, we need to not shift, since we only need X
     # y_t = y_t[1:]
@@ -21,7 +21,7 @@ def build_timeseries(x_t,y_t,expand_dims=True,y_type='closing'):
     #print(dim_0,TIME_STEPS,dim_1)
 
     x = np.zeros((dim_0, TIME_STEPS, dim_1))
-    if y_type == 'closing':
+    if y_timeseries_type == 'close':
         y = np.zeros((dim_0, 1))
     else:
         y = np.zeros((dim_0, TIME_STEPS, dim_1))
@@ -29,7 +29,7 @@ def build_timeseries(x_t,y_t,expand_dims=True,y_type='closing'):
 
     for i in range(dim_0):
         x[i] = x_t[i:TIME_STEPS + i]
-        if y_type == 'closing':
+        if y_timeseries_type == 'close':
 
             y[i] = y_t[TIME_STEPS + i + predict]
         else:
@@ -44,7 +44,7 @@ def build_timeseries(x_t,y_t,expand_dims=True,y_type='closing'):
 
     if expand_dims == True:
         x = np.expand_dims(x,axis = -1)
-        if y_type != 'closing':
+        if y_timeseries_type != 'close':
             y = np.expand_dims(y,axis = -1)
 
     print("length of time-series - inputs", x.shape)
