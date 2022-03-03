@@ -10,9 +10,6 @@ def pca_reduction(x_train, x_validation, x_test):
     pca = PCA(n_components='mle', svd_solver='auto', whiten=True)  # Auto-solve for number of components
 
     #print('Dimensions before PCA:', x_train.shape)
-    # np.nan_to_num(x_train, copy=False, nan=0.0, posinf=None, neginf=None)
-    # np.nan_to_num(x_test, copy=False, nan=0.0, posinf=None, neginf=None)
-    # np.nan_to_num(x_validation, copy=False, nan=0.0, posinf=None, neginf=None)
 
 
     pca_train = pca.fit_transform(x_train)
