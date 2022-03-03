@@ -17,8 +17,7 @@ load_dotenv()
 def tf_diff_axis_1(a):
     return a[1:] - a[:-1]
 
-y_true_un = [[0., 1.], [1., 1.], [1., 1.], [-1, -0.8]]
-y_pred_un = [[1., 0.], [1., 1.], [-1., -1.], [-1, -1]]
+
 
 def loss_unit_test(y_true_un,y_pred_un):
 
