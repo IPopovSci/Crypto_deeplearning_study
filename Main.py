@@ -8,10 +8,7 @@ Required: Coingecko API hookup (Going to use a different one)
 Required: Test hand-made dataset to test neural network
 Required: Shift the 5m dataset so it alligns with pancake swap one'''
 
-#TODO:create backtests, train model, test out models by hand.
-#Grab as much data as possible from coinapi, implement function to continue learning (load and continue)
-#TODO: Introduce 1h/1day data to the x input?
-
+#Todo: implement denoisining, AlphaLense to determine which TA factors are more useful
 '''From Paper what good practices should be: http://yann.lecun.com/exdb/publis/pdf/lecun-98b.pdf
 Shuffle the examples - Feed various companies/markets to the training
 Centre the input variables by substracting the mean - SS transform

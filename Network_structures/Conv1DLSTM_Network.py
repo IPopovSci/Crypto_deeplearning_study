@@ -34,7 +34,7 @@ def create_convlstm_model(x_t):
     #
     # #convlstm = ConvLSTM1D(64,stateful=True,kernel_size=3,recurrent_initializer=kernel_init,activation=activation,kernel_initializer=kernel_init, kernel_regularizer=regularizer,return_sequences=True,padding='same')(convlstm)
     #
-    convlstm = Conv2D(64,kernel_size=[3,3])(convlstm)
+    convlstm = Conv2D(64,kernel_size=[1,1])(convlstm)
 
     convlstm = BatchNormalization()(convlstm)
     #

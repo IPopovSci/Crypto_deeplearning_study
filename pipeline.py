@@ -39,6 +39,7 @@ def data_prep(data_from,ta=True,initial_training=True,batch=True,SS_path = SS_pa
         history = testing_data(100000)
     history = history[175000:]
     # print('Got the Data!')
+    '''Step 1.5 to implement - wavelet denoisining - pywavelets, apply post detrending'''
     '''Step 2: Apply TA Analysis'''
     if ta == True:
         history = add_ta(history, ticker)  # The columns names can be acessed from arguments 'train_cols'
