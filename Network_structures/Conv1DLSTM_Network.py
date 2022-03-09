@@ -2,7 +2,7 @@ import tensorflow as tf
 from tensorflow.keras.layers import AlphaDropout,Conv2D,LSTM,Conv1D,MaxPooling1D,Flatten, Concatenate,Dense, Input,TimeDistributed,GRU,Dropout,Bidirectional,SimpleRNN,LayerNormalization,BatchNormalization,LeakyReLU,PReLU,GaussianNoise,Convolution1D,MaxPooling1D
 from Arguments import args
 from keras.layers.convolutional_recurrent import ConvLSTM1D
-from training.callbacks import custom_cosine_similarity,metric_signs,custom_mean_absolute_error
+from training.callbacks import custom_cosine_similarity,metric_signs,custom_mean_absolute_error,portfolio_metric
 
 from keras.layers.convolutional_recurrent import ConvLSTM1D
 from keras_self_attention import SeqSelfAttention
@@ -17,6 +17,8 @@ def create_convlstm_model(x_t):
     n_components = args['n_components']
 
     input = Input(shape=(TIME_STEPS, x_t.shape[2],x_t.shape[3]),batch_size=BATCH_SIZE)
+    money = Input(shape=(1),batch_size=BATCH_SIZE, name='money')
+    y_true = Input(shape=(5),batch_size=BATCH_SIZE)
     regularizer = None#tf.keras.regularizers.l2(l2=0.0005)
     kernel_init = tf.keras.initializers.LecunNormal()
     dropout = 0.2
@@ -69,10 +71,10 @@ def create_convlstm_model(x_t):
     output = Dense(8,activation=activation)(output)
 
 
-    output = tf.keras.layers.Dense(1,activation='softsign',kernel_regularizer=regularizer)(output)
+    y_pred = tf.keras.layers.Dense(5,activation='softsign',kernel_regularizer=regularizer)(output)
 
 
-    lstm_model = tf.keras.Model(inputs=input, outputs=output)
+    lstm_model = tf.keras.Model(inputs=[input,money,y_true], outputs=y_pred)
 
     lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
         0.000001,
@@ -84,9 +86,12 @@ def create_convlstm_model(x_t):
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001)
     #optimizer = tf.keras.optimizers.SGD(lr=0.005,momentum=True,nesterov=True)
     #lstm_model.compile(loss=[mean_squared_error_custom], optimizer=optimizer)
+    lstm_model.add_metric(portfolio_metric(y_true,y_pred,money),name='portfolio_metric')
     #lstm_model.compile(loss=[custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity], optimizer=optimizer,metrics=metric_signs)
+    #lstm_model.add_metric(portfolio_metric,name='portfolio_metric',aggregation='mean')
     lstm_model.compile(
-        loss=[custom_cosine_similarity,'mse'], optimizer=optimizer, metrics=metric_signs)
+        loss=[custom_cosine_similarity,'mse'], optimizer=optimizer, metrics=[metric_signs])
+
     #lstm_model.compile(
         #loss='CosineSimilarity', optimizer=optimizer,metrics=metric_signs)
     return lstm_model
