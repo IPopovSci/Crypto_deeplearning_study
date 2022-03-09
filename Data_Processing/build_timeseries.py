@@ -13,8 +13,8 @@ def build_timeseries(x_t,y_t,expand_dims=True,y_timeseries_type='close'):
     # y_t = y_t[1:]
     predict = 1
     TIME_STEPS = args["time_steps"]
-    # print(x_t.shape)
-    # print(y_t.shape) #So we have 5 outputs now, need a new loop
+    print('before timeseries conversion',x_t.shape)
+    print(y_t.shape) #So we have 5 outputs now, need a new loop
 
     dim_0 = x_t.shape[0] - TIME_STEPS - predict
     dim_1 = x_t.shape[1]
@@ -24,8 +24,8 @@ def build_timeseries(x_t,y_t,expand_dims=True,y_timeseries_type='close'):
     if y_timeseries_type == 'close':
         y = np.zeros((dim_0, 1))
     else:
-        y = np.zeros((dim_0, TIME_STEPS, dim_1))
-
+        y = np.zeros((dim_0, 5))
+        print(y.shape)
 
     for i in range(dim_0):
         x[i] = x_t[i:TIME_STEPS + i]
@@ -33,8 +33,8 @@ def build_timeseries(x_t,y_t,expand_dims=True,y_timeseries_type='close'):
 
             y[i] = y_t[TIME_STEPS + i + predict]
         else:
-            #Can't do it like this, X values are PCA'ed! That's complete scramble
-            y[i] = x_t[i + predict:TIME_STEPS + i + predict] #This will return shifted x dataset - useful for ConvLSTM, since it outputs a 4d vector
+
+            y[i] = y_t[TIME_STEPS + i + predict]
 
 
 
@@ -44,8 +44,8 @@ def build_timeseries(x_t,y_t,expand_dims=True,y_timeseries_type='close'):
 
     if expand_dims == True:
         x = np.expand_dims(x,axis = -1)
-        if y_timeseries_type != 'close':
-            y = np.expand_dims(y,axis = -1)
+        # if y_timeseries_type != 'close':
+        #     y = np.expand_dims(y,axis = -1)
 
     print("length of time-series - inputs", x.shape)
     print("length of time-series - outputs", y.shape)
