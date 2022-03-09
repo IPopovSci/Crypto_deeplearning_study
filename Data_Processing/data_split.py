@@ -25,7 +25,7 @@ Accepts training, validation and testing data
 y_type is a switch: "close" will grab only the closing price, 'ohclv' will grab OHCLV data, 'testing' grabs only the first feature'''
 
 
-def x_y_split(x_train, x_validation, x_test,y_type = 'close'):
+def x_y_split(x_train, x_validation, x_test,y_type = 'ohlcv'):
 
     '''converting pandas> numpy'''
     x_train = x_train.to_numpy()
@@ -42,18 +42,22 @@ def x_y_split(x_train, x_validation, x_test,y_type = 'close'):
                   3]
         y_test = x_test[:, 3]
         y_validation = x_validation[:, 3]
+        y_train_t, y_validation_t, y_test_t = y_train.reshape(-1, 1), y_validation.reshape(-1, 1), y_test.reshape(-1,
+                                                                                                                  1)  # This reshaping is needed for SS
     elif y_type == 'ohlcv':
-        y_train = x_train[:,
+        y_train_t = x_train[:,
                   :5]
-        y_test = x_test[:, :5]
-        y_validation = x_validation[:, :5]
+        y_test_t = x_test[:, :5]
+        y_validation_t = x_validation[:, :5]
     elif y_type == 'testing':
         y_train = x_train[:,
                   0]
         y_test = x_test[:, 0]
         y_validation = x_validation[:, 0]
+        y_train_t, y_validation_t, y_test_t = y_train.reshape(-1, 1), y_validation.reshape(-1, 1), y_test.reshape(-1,
+                                                                                                                  1)  # This reshaping is needed for SS
 
-    y_train_t,y_validation_t,y_test_t = y_train.reshape(-1,1),y_validation.reshape(-1,1),y_test.reshape(-1,1) #This reshaping is needed for SS
+
     print(y_train_t.shape,y_validation_t.shape,y_test_t.shape)
 
     return x_train, x_validation, x_test, y_train_t, y_validation_t, y_test_t
