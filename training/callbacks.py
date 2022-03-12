@@ -192,7 +192,7 @@ class ResetStatesOnEpochEnd(keras.callbacks.Callback):
 
 m = tf.keras.metrics.Sum()
 
-def portfolio_metric(y_true, y_pred,money):
+def portfolio_metric(y_true, y_pred):
     '''Metric that simulates basic trading on OHLCV candles
     y_true[0] = Open
     y_true[1] = High
