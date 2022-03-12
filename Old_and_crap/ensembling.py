@@ -13,9 +13,9 @@ import tensorflow as tf
 import random
 from Backtesting_old import up_or_down,back_test
 import statistics
-from Network_structures.Conv1D_Network import create_lstm_model as create_model
+from Networks.structures.Conv1D import create_lstm_model as create_model
 from keras_self_attention import SeqSelfAttention
-from Backtesting.Backtest_DaysCorrect import backtest
+from Backtesting import Backtesting
 
 
 #TODO: Read the timesries keras tutorial, look up special layers for using selu, can you lambda loop in the loss?
