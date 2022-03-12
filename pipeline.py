@@ -22,30 +22,30 @@ np.set_printoptions(threshold=sys.maxsize)
 
 
 '''This is the pipeline function, which will call upon required functions to load and process the data'''
-def data_prep(data_from,ta=True,initial_training=True,batch=True,SS_path = SS_path,MM_path = MM_path,y_type='testing',pca=False,**kwargs):
+def data_prep(PARAMS, **kwargs):
     '''Step 1: Get Data'''
     #Move step 1 into a separate function in get_data
-    if data_from == 'Yahoo':
+    if PARAMS.data.data_from == 'Yahoo':
         history = ticker_data(ticker, start_date)
         history = aux_data(history, ['CL=F', 'GC=F', '^VIX', '^TNX'], start_date)  # Get any extra data
-    elif data_from == 'CSV':
+    elif PARAMS.data_from == 'CSV':
         history = scv_data(ticker)
         #history = history[:150000] #This is bad, but the dataset is too big, I'm too newb, and the beggining of the dataset has a lot of gaps anyways
-    elif data_from == 'cryptowatch':
+    elif PARAMS.data.data_from == 'cryptowatch':
         history = cryptowatch_data(ticker,'5m')
-    elif data_from == 'pancake':
+    elif PARAMS.data.data_from == 'pancake':
         history = pancake_data('F:\MM\production\pancake_predictions\data','bnb_5m_pancake',kwargs['big_update'])
-    elif data_from == 'testing':
+    elif PARAMS.data.data_from == 'testing':
         history = testing_data(100000)
     history = history[175000:]
     # print('Got the Data!')
     '''Step 1.5 to implement - wavelet denoisining - pywavelets, apply post detrending'''
     '''Step 2: Apply TA Analysis'''
-    if ta == True:
-        history = add_ta(history, ticker)  # The columns names can be acessed from arguments 'train_cols'
+    if PARAMS.data.ta == True:
+        history = add_ta(history, ticker)  # The columns names can be acessed from data_params 'train_cols'
     # print('ta = applied')
     '''Step 3: Detrend the data'''
-    one_day_detrend = row_difference(history,ta)
+    one_day_detrend = row_difference(history, PARAMS.data.ta)
     # print('detrending = donzo')
     '''Step 4: Split data into training/testing'''
     x_train, x_validation, x_test = train_test_split_custom(one_day_detrend)
@@ -53,7 +53,7 @@ def data_prep(data_from,ta=True,initial_training=True,batch=True,SS_path = SS_pa
 
     # print('AND I SPLIT IT IN HALF')
     '''Step 5: SS Transform'''
-    x_train, x_validation, x_test, y_train, y_validation, y_test = x_y_split(x_train, x_validation, x_test,y_type)
+    x_train, x_validation, x_test, y_train, y_validation, y_test = x_y_split(x_train, x_validation, x_test,PARAMS.data.y_type)
     #print(y_test[-10:])
 
     #print('test after inversing:', y_test[-25:, :])
@@ -63,19 +63,19 @@ def data_prep(data_from,ta=True,initial_training=True,batch=True,SS_path = SS_pa
     x_train, x_validation, x_test,y_train,y_validation,y_test, SS_scaler = SS_transform(x_train, x_validation, x_test, y_train,y_validation,y_test, initial_training, SS_path)
     # print('I SPLIT IT IN HALF, AGAIN!')
     '''Step 7: PCA'''
-    if pca == True:
+    if PARAMS.data.pca == True:
         x_train, x_validation, x_test = pca_reduction(x_train, x_validation, x_test)
     # print('PCA done')
     '''Step 8: Min-max scaler (-1 to 1 for sigmoid)'''
     x_train, x_validation, x_test, y_train, y_validation, y_test, mm_scaler_y = min_max_transform(x_train, x_validation,
                                                                                                   x_test, y_train,
-                                                                                                  y_validation, y_test,initial_training,MM_path)
+                                                                                                  y_validation, y_test,PARAMS.data.initial_training,MM_path)
     #print(y_test[-10:])
     #
     # print('Min-maxed to the tits')
     '''Step 9: Create time-series data'''
     size = len(x_train) - 1
-    if batch == False:
+    if PARAMS.data.batch == False:
         x_train, y_train = build_timeseries(x_train, y_train,y_timeseries_type='close')
 
         x_validation, y_validation = build_timeseries(x_validation, y_validation,y_timeseries_type='close')
@@ -99,7 +99,7 @@ def data_prep(data_from,ta=True,initial_training=True,batch=True,SS_path = SS_pa
 #         history = cryptowatch_data(ticker,'5m')
 #     print('Got the Data!')
 #     '''Step 2: Apply TA Analysis'''
-#     ta_data = add_ta(history, ticker)  # The columns names can be acessed from arguments 'train_cols'
+#     ta_data = add_ta(history, ticker)  # The columns names can be acessed from data_params 'train_cols'
 #     print('ta = applied')
 #     '''Step 3: Detrend the data'''
 #     one_day_detrend = row_difference(ta_data)
@@ -153,7 +153,7 @@ def data_prep_transfer(data_from):
         history = coinapi_data(historical=False)
     print('Got the Data!')
     '''Step 2: Apply TA Analysis'''
-    ta_data = add_ta(history, ticker)  # The columns names can be acessed from arguments 'train_cols'
+    ta_data = add_ta(history, ticker)  # The columns names can be acessed from data_params 'train_cols'
     print('ta = applied')
     '''Step 3: Detrend the data'''
     one_day_detrend = row_difference(ta_data)
