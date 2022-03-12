@@ -6,7 +6,7 @@ now = date.today()
 
 current_time = now.strftime("%H:%M:%S")
 
-def cryptowatch_data_save_to_csv(pair, periods):
+def cryptowatch_data_save_to_csv(pair, periods, save_to_csv=True):
     cw.api_key = 'LZKL7ULRG322Z0793KU3'
 
     hist = cw.markets.get(f"BINANCE:{pair}", ohlc=True, periods=[f'{periods}'])
@@ -20,8 +20,9 @@ def cryptowatch_data_save_to_csv(pair, periods):
 
     df['time'] = pd.to_datetime(df['time'], unit='s')  # Unix to datetime conversion
     df.set_index('time', inplace=True)
-    df.to_csv(f'F:\MM\historical_data\\bnbusdt\{now}.csv')
+    if save_to_csv==True:
+        df.to_csv(f'F:\MM\historical_data\\bnbusdt\{now}.csv')
 
     return df
 
-cryptowatch_data_save_to_csv('bnbusdt','5m')
+#cryptowatch_data_save_to_csv('bnbusdt','5m')
