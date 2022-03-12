@@ -39,14 +39,17 @@ def data_prep(PARAMS, **kwargs):
         history = testing_data(100000)
     history = history[175000:]
     # print('Got the Data!')
-    '''Step 1.5 to implement - wavelet denoisining - pywavelets, apply post detrending'''
+    '''Using tsfresh we can extra more time-series features - here (maybe after ta, but that will be too much prehaps (Unfortunately tsfresh uses outdated libs)'''
     '''Step 2: Apply TA Analysis'''
     if PARAMS.data.ta == True:
         history = add_ta(history, ticker)  # The columns names can be acessed from data_params 'train_cols'
     # print('ta = applied')
+
     '''Step 3: Detrend the data'''
     one_day_detrend = row_difference(history, PARAMS.data.ta)
     # print('detrending = donzo')
+
+    '''Step 1.5 to implement - wavelet denoisining - pywavelets, apply post detrending'''
     '''Step 4: Split data into training/testing'''
     x_train, x_validation, x_test = train_test_split_custom(one_day_detrend)
     #print(x_test[-10:])
@@ -78,8 +81,8 @@ def data_prep(PARAMS, **kwargs):
     if PARAMS.data.batch == False:
         x_train, y_train = build_timeseries(x_train, y_train,y_timeseries_type='close')
 
-        x_validation, y_validation = build_timeseries(x_validation, y_validation,y_timeseries_type='close')
-        x_test, y_test = build_timeseries(x_test, y_test,y_timeseries_type='close')
+        x_validation, y_validation = build_timeseries(x_validation, y_validation,y_timeseries_type='cohlcv')
+        x_test, y_test = build_timeseries(x_test, y_test,y_timeseries_type='ohlcv')
     else:
         x_validation, y_validation = build_timeseries(x_validation, y_validation,y_timeseries_type='close')
         x_test, y_test = build_timeseries(x_test, y_test,y_timeseries_type='close')

@@ -12,6 +12,7 @@ from Networks.structures.Ensemble_model import create_model_ensembly
 from pipeline import data_prep
 # from plotting import plot_results
 from training.callbacks import ResetStatesOnEpochEnd
+import numpy as np
 
 load_dotenv()
 
@@ -24,9 +25,9 @@ SS_path = os.getenv('SS_Path')
 BATCH_SIZE = args['batch_size']
 
 '''Singular Model training function'''
-
+#money = np.full(shape=BATCH_SIZE,fill_value=1000)
 def train_model(ensembly = False):
-    x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = data_prep('testing',ta=False,initial_training=True,batch=False,SS_path = SS_path,MM_path = MM_path,big_update=False)
+    x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = data_prep('pancake',ta=True,initial_training=True,batch=False,SS_path = SS_path,MM_path = MM_path,big_update=False)
     early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss',mode='min', patience=100)
 
     reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.85,
@@ -44,9 +45,9 @@ def train_model(ensembly = False):
         lstm_model = create_model_ensembly(x_t)
 
 
-    history_lstm = lstm_model.fit(trim_dataset(x_t, BATCH_SIZE), trim_dataset(y_t, BATCH_SIZE), epochs=10000,
+    history_lstm = lstm_model.fit(x=[trim_dataset(x_t, BATCH_SIZE),trim_dataset(y_t, BATCH_SIZE)],y=trim_dataset(y_t, BATCH_SIZE), epochs=10000,
                                   verbose=1, batch_size=BATCH_SIZE,
-                                  shuffle=False, validation_data=(trim_dataset(x_val, BATCH_SIZE),
+                                  shuffle=False, validation_data=([trim_dataset(x_val, BATCH_SIZE),trim_dataset(y_val,BATCH_SIZE)],
                                                                   trim_dataset(y_val, BATCH_SIZE)),
                                   callbacks=[mcp, reduce_lr,early_stop])
 
