@@ -1,6 +1,6 @@
 from Arguments import args
 
-class Conv1D_Network:
+class Conv1DLSTM_Network:
     def __init__(self):
         self.data = {
             'ticker': args['ticker'], #ethusd,bnbusdt
