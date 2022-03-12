@@ -8,8 +8,8 @@ class Conv1D_Network:
             'test_size': 0.15,
             'target_features':None,
             'n_components': None,  # n_components is responsible for designating number of features the data will be reduced to
-            'data_from': 'CSV',
-            'ta': True,
+            'data_from': 'testing',
+            'ta': False,
             'initial_training': True,
             'batch': False,
             'y_type': "testing",
