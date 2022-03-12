@@ -3,11 +3,13 @@ import os
 import tensorflow as tf
 from dotenv import load_dotenv
 from tensorflow.keras.callbacks import ModelCheckpoint
+from Networks.data_params._index import *
+from Networks.data_params._index import Conv1D_net
 
 from Arguments import args
 from Data_Processing.data_trim import trim_dataset
-from Network_structures.Conv1DLSTM_Network import create_convlstm_model
-from Network_structures.Ensemble_model import create_model_ensembly
+from Networks.structures.Conv1DLSTM import create_convlstm_model
+from Networks.structures.Ensemble_model import create_model_ensembly
 from pipeline import data_prep
 # from plotting import plot_results
 from training.callbacks import ResetStatesOnEpochEnd
@@ -25,8 +27,11 @@ BATCH_SIZE = args['batch_size']
 
 '''Singular Model training function'''
 #money = np.full(shape=BATCH_SIZE,fill_value=1000)
+
+x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = data_prep(Conv1D_net)
+
 def train_model(ensembly = False):
-    x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = data_prep('pancake',ta=True,initial_training=True,batch=False,SS_path = SS_path,MM_path = MM_path,big_update=False)
+
     early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss',mode='min', patience=100)
 
     reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.85,

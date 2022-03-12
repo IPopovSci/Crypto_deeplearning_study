@@ -4,7 +4,7 @@ from Data_Processing.data_trim import trim_dataset
 from tensorflow.keras.callbacks import ModelCheckpoint
 import os
 import tensorflow as tf
-from Network_structures.Conv1D_Network import create_lstm_model as create_model
+from Networks.structures.Conv1D import create_lstm_model as create_model
 
 BATCH_SIZE = args['batch_size']
 
