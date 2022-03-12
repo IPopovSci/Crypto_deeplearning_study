@@ -1,13 +1,16 @@
 
 #import tensorflow as tf
 import tensorflow.keras.backend as K
+import pandas as pd
+import glob
+import os
 
 
 #tf.config.experimental_run_functions_eagerly(True)
 
 import joblib
 
-
+#Todo: Rework this function to resample into any interval
 def one_to_five(data):
     ohlc = {
         'Open': 'first',
@@ -53,11 +56,8 @@ def one_to_five(data):
 #                                    callbacks=[mcp, early_stop, reduce_lr])
 #     # saved_model.reset_states()
 
-import pandas as pd
-import glob
-import os
 
-
+#TODO: This function not needed anymore, since we will be using csv for training and cryptowatch for predictions
 def join_files(path_load, path_save):
     joined_files = os.path.join(f"{path_load}", "bnb*.csv")
 
