@@ -74,7 +74,7 @@ def create_convlstm_model(x_t):
     y_pred = tf.keras.layers.Dense(5,activation='softsign',kernel_regularizer=regularizer)(output)
 
 
-    lstm_model = tf.keras.Model(inputs=[input,money,y_true], outputs=y_pred)
+    lstm_model = tf.keras.Model(inputs=[input,y_true], outputs=y_pred)
 
     lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
         0.000001,
@@ -86,7 +86,8 @@ def create_convlstm_model(x_t):
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001)
     #optimizer = tf.keras.optimizers.SGD(lr=0.005,momentum=True,nesterov=True)
     #lstm_model.compile(loss=[mean_squared_error_custom], optimizer=optimizer)
-    lstm_model.add_metric(portfolio_metric(y_true,y_pred,money),name='portfolio_metric')
+    # TODO portfolio_metric
+    # lstm_model.add_metric(portfolio_metric(y_true,y_pred,money),name='portfolio_metric')
     #lstm_model.compile(loss=[custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity,custom_cosine_similarity], optimizer=optimizer,metrics=metric_signs)
     #lstm_model.add_metric(portfolio_metric,name='portfolio_metric',aggregation='mean')
     lstm_model.compile(
