@@ -3,11 +3,12 @@ import os
 import tensorflow as tf
 from dotenv import load_dotenv
 from tensorflow.keras.callbacks import ModelCheckpoint
+from Networks.data_params.index import *
 
 from Arguments import args
 from Data_Processing.data_trim import trim_dataset
-from Network_structures.Conv1DLSTM_Network import create_convlstm_model
-from Network_structures.Ensemble_model import create_model_ensembly
+from Networks.structures.Conv1DLSTM import create_convlstm_model
+from Networks.structures.Ensemble_model import create_model_ensembly
 from pipeline import data_prep
 # from plotting import plot_results
 from training.callbacks import ResetStatesOnEpochEnd
