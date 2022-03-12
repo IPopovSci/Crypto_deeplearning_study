@@ -25,28 +25,29 @@ np.set_printoptions(threshold=sys.maxsize)
 def data_prep(PARAMS, **kwargs):
     '''Step 1: Get Data'''
     #Move step 1 into a separate function in get_data
-    if PARAMS.data.data_from == 'Yahoo':
+    if PARAMS.data['data_from'] == 'Yahoo':
         history = ticker_data(ticker, start_date)
         history = aux_data(history, ['CL=F', 'GC=F', '^VIX', '^TNX'], start_date)  # Get any extra data
-    elif PARAMS.data_from == 'CSV':
-        history = scv_data(ticker)
+    elif PARAMS.data['data_from'] == 'CSV':
+        history = scv_data('filename',ticker)
         #history = history[:150000] #This is bad, but the dataset is too big, I'm too newb, and the beggining of the dataset has a lot of gaps anyways
-    elif PARAMS.data.data_from == 'cryptowatch':
+    elif PARAMS.data['data_from'] == 'cryptowatch':
         history = cryptowatch_data(ticker,'5m')
-    elif PARAMS.data.data_from == 'pancake':
+    elif PARAMS.data['data_from'] == 'pancake':
         history = pancake_data('F:\MM\production\pancake_predictions\data','bnb_5m_pancake',kwargs['big_update'])
-    elif PARAMS.data.data_from == 'testing':
+    elif PARAMS.data['data_from'] == 'testing':
         history = testing_data(100000)
-    history = history[175000:]
+    # TODO figure out history
+    # history = history[175000:]
     # print('Got the Data!')
     '''Using tsfresh we can extra more time-series features - here (maybe after ta, but that will be too much prehaps (Unfortunately tsfresh uses outdated libs)'''
     '''Step 2: Apply TA Analysis'''
-    if PARAMS.data.ta == True:
+    if PARAMS.data['ta'] == True:
         history = add_ta(history, ticker)  # The columns names can be acessed from data_params 'train_cols'
     # print('ta = applied')
 
     '''Step 3: Detrend the data'''
-    one_day_detrend = row_difference(history, PARAMS.data.ta)
+    one_day_detrend = row_difference(history, PARAMS.data['ta'])
     # print('detrending = donzo')
 
     '''Step 1.5 to implement - wavelet denoisining - pywavelets, apply post detrending'''
@@ -56,29 +57,29 @@ def data_prep(PARAMS, **kwargs):
 
     # print('AND I SPLIT IT IN HALF')
     '''Step 5: SS Transform'''
-    x_train, x_validation, x_test, y_train, y_validation, y_test = x_y_split(x_train, x_validation, x_test,PARAMS.data.y_type)
+    x_train, x_validation, x_test, y_train, y_validation, y_test = x_y_split(x_train, x_validation, x_test,PARAMS.data['y_type'])
     #print(y_test[-10:])
 
     #print('test after inversing:', y_test[-25:, :])
     # print('SS, but this aint 1942')
     '''Step 6: Split data into x and y'''
 
-    x_train, x_validation, x_test,y_train,y_validation,y_test, SS_scaler = SS_transform(x_train, x_validation, x_test, y_train,y_validation,y_test, initial_training, SS_path)
+    x_train, x_validation, x_test,y_train,y_validation,y_test, SS_scaler = SS_transform(x_train, x_validation, x_test, y_train,y_validation,y_test, PARAMS.data['initial_training'], SS_path)
     # print('I SPLIT IT IN HALF, AGAIN!')
     '''Step 7: PCA'''
-    if PARAMS.data.pca == True:
+    if PARAMS.data['pca'] == True:
         x_train, x_validation, x_test = pca_reduction(x_train, x_validation, x_test)
     # print('PCA done')
     '''Step 8: Min-max scaler (-1 to 1 for sigmoid)'''
     x_train, x_validation, x_test, y_train, y_validation, y_test, mm_scaler_y = min_max_transform(x_train, x_validation,
                                                                                                   x_test, y_train,
-                                                                                                  y_validation, y_test,PARAMS.data.initial_training,MM_path)
+                                                                                                  y_validation, y_test,PARAMS.data['initial_training'],MM_path)
     #print(y_test[-10:])
     #
     # print('Min-maxed to the tits')
     '''Step 9: Create time-series data'''
     size = len(x_train) - 1
-    if PARAMS.data.batch == False:
+    if PARAMS.data['batch'] == False:
         x_train, y_train = build_timeseries(x_train, y_train,y_timeseries_type='close')
 
         x_validation, y_validation = build_timeseries(x_validation, y_validation,y_timeseries_type='cohlcv')
