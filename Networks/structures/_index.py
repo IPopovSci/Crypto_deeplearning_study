@@ -3,6 +3,9 @@ from Networks.structures.lstm_att_model import lstm_att_model
 from Networks.structures.conv1d_model import conv1d_model
 from Networks.structures.conv1d_lstm_model import convlstm_model
 from Networks.network_config import  NetworkParams
+import hashlib
+import binascii
+
 
 params = NetworkParams.get_instance()
 
@@ -17,4 +20,13 @@ def create_model(model_type=params.network['model_type']):
         model = convlstm_model()
     else:
         print('No suitable model. Avaliable models: dense,lstm,conv1d,convlstm')
+
     return model
+
+
+'''Potential future functionality for hash-based model differentiation'''
+def hash_model(model):
+    model_json = model.to_json()
+    model_hash = hash(model_json)
+    params.network['model_hash'] = model_hash
+
