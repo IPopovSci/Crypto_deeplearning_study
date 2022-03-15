@@ -1,7 +1,7 @@
 
 import tensorflow as tf
 
-from tensorflow.keras.layers import Dense, Input, GaussianNoise,Dropout
+from tensorflow.keras.layers import Dense, Input, GaussianNoise,AlphaDropout
 
 from pipeline.pipelineargs import PipelineArgs
 from Networks.network_config import NetworkParams
@@ -25,20 +25,22 @@ def dense_model():
 
     activation = 'selu'
 
-    noise = GaussianNoise(0.05)(input)
+    noise = GaussianNoise(0.005)(input)
 
-    x = Dense(160,activation=activation,kernel_regularizer=regularizer,activity_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(noise)
+    x = Dense(100,activation=activation,kernel_regularizer=regularizer,activity_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(noise)
 
-    x = Dropout(dropout)(x)
+    x = AlphaDropout(dropout)(x)
 
-    x = Dense(80,activation=activation,kernel_regularizer=regularizer,activity_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
+    x = Dense(50,activation=activation,kernel_regularizer=regularizer,activity_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
 
-    x = Dropout(dropout)(x)
+    x = AlphaDropout(dropout)(x)
 
-    x = Dense(40,activation=activation,kernel_regularizer=regularizer,activity_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
+    x = Dense(25,activation=activation,kernel_regularizer=regularizer,activity_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
+
+    x = AlphaDropout(dropout)(x)
 
 
-    output = tf.keras.layers.Dense(5,activation='linear',kernel_regularizer=regularizer)(x)
+    output = tf.keras.layers.Dense(5,activation='linear')(x)
 
 
     lstm_model = tf.keras.Model(inputs=input, outputs=output)

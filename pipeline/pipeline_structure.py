@@ -22,7 +22,7 @@ def pipeline(pipeline_args):
     if pipeline_args.args['mode'] == 'training':
         history = scv_data(pipeline_args.args['ticker'], os.getenv('data_path'), pipeline_args.args['interval'])
     elif pipeline_args.args['mode'] == 'prediction':
-        history = cryptowatch_data(pipeline_args.args['ticker'], '5m')
+        history = cryptowatch_data(pipeline_args.args['ticker'], pipeline_args.args['interval'])
 
     '''Any additional feature extractors can go here'''
 
@@ -36,7 +36,9 @@ def pipeline(pipeline_args):
     '''Any sort of denoising, such is wavelet or fourier can go here'''
 
     '''Step 4: Split data into training/testing'''
-    x_train, x_validation, x_test = train_test_split_custom(history,pipeline_args.args['train_size'],pipeline_args.args['test_size'])
+    if  pipeline_args.args['mode'] == 'training':
+        x_train, x_validation, x_test = train_test_split_custom(history,pipeline_args.args['train_size'],pipeline_args.args['test_size'])
+
 
 
     '''Step 5: SS Transform'''

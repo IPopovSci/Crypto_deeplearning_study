@@ -16,12 +16,12 @@ class PipelineArgs:
             PipelineArgs.__instance = self
 
         self.args = {
-            'ticker': 'btcusd', #ethusd,bnbusdt
+            'ticker': 'btcusdt', #ethusd,bnbusdt
             'mode': 'training',
             'interval': '1h',
             'train_size': 0.95,
             'test_size': 0.05,
-            'time_steps': 15,
+            'time_steps': 10,
             'batch_size': 128,
             'data_lag': 1,
             'ta': True,

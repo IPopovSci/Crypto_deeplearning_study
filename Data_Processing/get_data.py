@@ -90,7 +90,7 @@ def cryptowatch_data(pair, periods):
     df = pd.DataFrame(hist_list, columns=col)
     df.drop(['Volume'], axis=1, inplace=True)  # getting rid of first currency volume
 
-    df.rename(columns={'volume_a': 'Volume'},
+    df.rename(columns={'volume_a': 'volume','Open':'open','High':'high','Low':'low','Close':'close'},
               inplace=True)
 
     df['time'] = pd.to_datetime(df['time'], unit='s').dt.strftime('%Y-%m-%dT%H:%M:%SZ')  # Unix to datetime conversion
@@ -128,12 +128,12 @@ def coinapi_data(path,filename,mode):
 
     df = pd.DataFrame(ohlcv_historical, columns=col)
 
-    df.rename(columns={'time_period_end':'time','price_open': 'Open', 'price_high': 'High', 'price_low': 'Low', 'price_close': 'Close', 'volume_traded': 'Volume'},
+    df.rename(columns={'time_period_end':'time','price_open': 'open', 'price_high': 'high', 'price_low': 'low', 'price_close': 'close', 'volume_traded': 'volume'},
               inplace=True)
 
     df.set_index('time', inplace=True)
 
-    df.to_csv(f'{path}\\{filename}_coinapi_book.csv')  # saves to csv
+    #df.to_csv(f'{path}\\{filename}_coinapi_book.csv')  # saves to csv
 
 
 def testing_data(n):

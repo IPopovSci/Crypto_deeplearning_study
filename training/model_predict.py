@@ -7,7 +7,7 @@ import tensorflow as tf
 from pipeline.pipelineargs import PipelineArgs
 from dotenv import load_dotenv
 from Networks.network_config import NetworkParams
-from Networks.losses_metrics import ohlcv_combined,metric_signs_close
+from Networks.losses_metrics import ohlcv_combined,metric_signs_close,ohlcv_cosine_similarity,ohlcv_mse
 from utility import unscale
 
 
@@ -22,11 +22,11 @@ time_steps = pipeline_args.args['time_steps']
 pipeline_args.args['mode'] = 'prediction'
 
 x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = pipeline(pipeline_args)
-
+#TODO: ticker name of data is different from API - mini facade? During training data split destroys testing data, need to disable it
 def predict(model_name='Default'):
-
-    saved_model = load_model(os.path.join('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}', f'{model_name}.h5',
-                             custom_objects={'metric_signs_close':metric_signs_close,'SeqSelfAttention': SeqSelfAttention,'ohlcv_combined':ohlcv_combined})
+    print(os.getenv('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}\\'+ f'{model_name}.h5')
+    saved_model = load_model(filepath=(os.getenv('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}\\'+ f'{model_name}.h5'),
+                             custom_objects={'metric_signs_close':metric_signs_close,'SeqSelfAttention': SeqSelfAttention,'ohlcv_combined':ohlcv_combined,'ohlcv_cosine_similarity':ohlcv_cosine_similarity,'ohlcv_mse':ohlcv_mse})
     saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00000005),
                         loss= ohlcv_combined,metrics=metric_signs_close)
 
@@ -37,4 +37,4 @@ def predict(model_name='Default'):
 
     print(y_true,y_pred)
 
-predict('0.12958081_59.17741776-best_model-01')
+predict('21689.11523438_100')

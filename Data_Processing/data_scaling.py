@@ -82,9 +82,9 @@ def min_max_transform(x_train, x_validation, x_test, y_train, y_validation, y_te
 
 
     elif mode == 'training':
-        mm_x = MinMaxScaler(feature_range=(-0.5, 0.5))
+        mm_x = MinMaxScaler(feature_range=(-1, 1))
 
-        mm_y = MinMaxScaler(feature_range=(-0.5, 0.5))
+        mm_y = MinMaxScaler(feature_range=(-1, 1))
 
         x_train = mm_x.fit_transform(x_train)
 

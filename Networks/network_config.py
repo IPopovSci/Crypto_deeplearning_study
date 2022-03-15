@@ -19,15 +19,15 @@ class NetworkParams:
         self.network = {
             'model_type': 'dense',
             'epochs': 256,
-            'LR': 0.001,
-            'dropout': 0.3,
-            'l1_reg': 0.0005,
-            'l2_reg': 0.0005,
-            'lr': 0.0001}
+            'LR': 0.01,
+            'dropout': 0,
+            'l1_reg': 0.01,
+            'l2_reg': 0.01,
+            'lr': 0.0005}
         self.callbacks = {
             'monitor': 'val_loss',
             'mode': 'min',
             'es_patience': 50,
-            'rlr_factor': 0.9,
+            'rlr_factor': 0.6,
             'rlr_patience': 5,
         }
