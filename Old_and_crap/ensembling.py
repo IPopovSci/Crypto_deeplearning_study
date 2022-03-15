@@ -2,7 +2,7 @@ from pipeline.pipeline_structure import pipeline
 from pipeline_args import args
 from Data_Processing.data_trim import trim_dataset
 from tensorflow.keras.callbacks import ModelCheckpoint
-from training.callbacks import custom_loss,ratio_loss,my_metric_fn,mean_squared_error_custom
+from Old_and_crap.callbacks import custom_loss,ratio_loss,my_metric_fn,mean_squared_error_custom
 from tensorflow.keras.models import load_model
 from attention import Attention
 #from plotting import plot_results
@@ -13,7 +13,7 @@ import tensorflow as tf
 import random
 from Backtesting_old import up_or_down,back_test
 import statistics
-from Networks.structures.Conv1D import create_lstm_model as create_model
+from Networks.structures.conv1d_model import create_lstm_model as create_model
 from keras_self_attention import SeqSelfAttention
 
 #TODO: Read the timesries keras tutorial, look up special layers for using selu, can you lambda loop in the loss?

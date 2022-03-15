@@ -17,11 +17,17 @@ class NetworkParams:
         self.data = {
         }
         self.network = {
+            'model_type': 'dense',
             'epochs': 256,
             'LR': 0.00000010000,
             'dropout': 0.3,
             'l1_reg': 0.0005,
             'l2_reg': 0.0005,
-            'lr': 0.0001
-
+            'lr': 0.0001}
+        self.callbacks = {
+            'monitor': 'val_loss',
+            'mode': 'min',
+            'es_patience': 50,
+            'rlr_factor': 0.95,
+            'rlr_patience': 15,
         }

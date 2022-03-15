@@ -17,7 +17,9 @@ pipeline_args = PipelineArgs.get_instance()
 batch_size = pipeline_args.args['batch_size']
 
 
-
+'''Custom cosine similarity loss
+Extracts the last time step and unscales y values before computing loss
+Final result has 1. added to it so that the loss is normalized to 0-2 range'''
 def ohlcv_cosine_similarity(y_true,y_pred):
 
 
@@ -38,6 +40,8 @@ def ohlcv_cosine_similarity(y_true,y_pred):
 
     return loss + 1.0
 
+'''Custom MSE loss
+Extracts the last time step and unscales y values before computing loss'''
 def ohlcv_mse(y_true,y_pred):
     y_true = ops.convert_to_tensor_v2(y_true)
     y_pred = ops.convert_to_tensor_v2(y_pred)
@@ -56,6 +60,8 @@ def ohlcv_mse(y_true,y_pred):
 
     return loss
 
+'''Combined cosine similarity and MSE loss
+CS loss is squared to put a higher emphasis on the correct direction'''
 def ohlcv_combined(y_true,y_pred):
     loss = ohlcv_mse(y_true,y_pred) * (ohlcv_cosine_similarity(y_true,y_pred) ** 2)
 

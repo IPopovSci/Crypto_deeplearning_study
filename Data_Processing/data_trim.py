@@ -1,4 +1,4 @@
-'''This trims the dataset so that its row size is divisible by the batch size, needed for stateful networks'''
+'''This trims the dataset so that its row size is divisible by the batch size, needed for stateful Networks'''
 def trim_dataset(df, batch_size):
     # trims dataset to a size that's divisible by BATCH_SIZE
     no_of_rows_drop = df.shape[0] % batch_size

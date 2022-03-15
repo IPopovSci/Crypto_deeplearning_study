@@ -1,16 +1,15 @@
 from pipeline.pipeline_structure import pipeline
 from pipeline_args import args
 from Data_Processing.data_trim import trim_dataset
-from training.callbacks import custom_cosine_similarity,metric_signs,custom_mean_absolute_error
+from Old_and_crap.callbacks import custom_cosine_similarity,metric_signs,custom_mean_absolute_error
 from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.models import load_model
 import os
 from keras_self_attention import SeqSelfAttention
 import tensorflow as tf
-from keras_multi_head import MultiHead,MultiHeadAttention
+from keras_multi_head import MultiHead
 from Backtesting.Backtesting import correct_signs
 import joblib
-import numpy as np
 import tensorflow.keras.backend as K
 
 BATCH_SIZE = args['batch_size']

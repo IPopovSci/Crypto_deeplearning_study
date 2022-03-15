@@ -1,7 +1,7 @@
 from pipeline.pipeline_structure import pipeline
 from pipeline_args import args
 from Data_Processing.data_trim import trim_dataset
-from training.callbacks import mean_squared_error_custom,custom_cosine_similarity,metric_signs
+from Old_and_crap.callbacks import mean_squared_error_custom,custom_cosine_similarity,metric_signs
 from tensorflow.keras.models import load_model
 import os
 from keras_self_attention import SeqSelfAttention

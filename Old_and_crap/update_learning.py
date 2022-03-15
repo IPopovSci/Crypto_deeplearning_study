@@ -1,12 +1,10 @@
-from pipeline.pipeline_structure import pipeline,data_prep_transfer,data_prep_batch_2
+from pipeline.pipeline_structure import pipeline, data_prep_batch_2
 from pipeline_args import args
 from Data_Processing.data_trim import trim_dataset
 from tensorflow.keras.callbacks import ModelCheckpoint
-from training.callbacks import custom_loss,ratio_loss,my_metric_fn,mean_squared_error_custom,custom_cosine_similarity,metric_signs,custom_mean_absolute_error,stock_loss,stock_loss_metric
+from Old_and_crap.callbacks import mean_squared_error_custom,custom_cosine_similarity,metric_signs,custom_mean_absolute_error,stock_loss,stock_loss_metric
 from tensorflow.keras.models import load_model
 from keras_self_attention import SeqSelfAttention
-from sklearn.model_selection import train_test_split
-import numpy as np
 import os
 import tensorflow as tf
 

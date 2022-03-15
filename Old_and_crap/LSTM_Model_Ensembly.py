@@ -1,6 +1,6 @@
-from tensorflow.keras.layers import Dense, Input, Conv1D,MaxPooling1D
+from tensorflow.keras.layers import Dense, Input
 from pipeline_args import args
-from training.callbacks import custom_loss,ratio_loss,my_metric_fn
+from Old_and_crap.callbacks import custom_loss,ratio_loss,my_metric_fn
 from tensorflow.keras.models import load_model
 from attention import Attention
 import os

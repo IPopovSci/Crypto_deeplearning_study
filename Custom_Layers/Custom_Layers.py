@@ -1,7 +1,6 @@
 from keras import backend as K
 from keras.layers import Layer
-from training.callbacks import portfolio_metric
-import tensorflow as tf
+from Old_and_crap.callbacks import portfolio_metric
 
 '''    y_true[0] = Open
     y_true[1] = High

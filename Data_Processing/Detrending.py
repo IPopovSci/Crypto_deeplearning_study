@@ -22,7 +22,7 @@ def test_stationarity(timeseries):
 
 '''Creates a new dataset filled with the differences of values of each day
 This will make the data stationary (Use the above test to check), as well
-as easier to work with for neural networks
+as easier to work with for neural Networks
 Inputs: dataset (Pandas), ta (True/False)
 Outputs: Pandas Dataframe'''
 '''Medium article discussion: Do covariants need to be stationary? Do we take the percent changes of ta features as well?'''

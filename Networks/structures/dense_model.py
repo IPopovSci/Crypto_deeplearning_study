@@ -2,18 +2,16 @@
 import tensorflow as tf
 
 from tensorflow.keras.layers import Dense, Input, GaussianNoise
-from pipeline import pipelineargs
-
 
 from pipeline.pipelineargs import PipelineArgs
 from Networks.network_config import NetworkParams
-from Networks.losses_metrics.losses_metrics import ohlcv_mse,ohlcv_cosine_similarity,metric_signs_close,ohlcv_combined
+from Networks.losses_metrics import ohlcv_mse,ohlcv_cosine_similarity,metric_signs_close,ohlcv_combined
 
 pipeline_args = PipelineArgs.get_instance()
 network_args = NetworkParams.get_instance()
 
 
-def create_dense_model():
+def dense_model():
     batch_size = pipeline_args.args['batch_size']
     time_steps = pipeline_args.args['time_steps']
     num_features = pipeline_args.args['num_features']

@@ -1,6 +1,6 @@
 from tensorflow.keras.layers import Dense, Input, Concatenate
 from pipeline_args import args
-from training.callbacks import custom_cosine_similarity,metric_signs,custom_mean_absolute_error
+from Old_and_crap.callbacks import custom_cosine_similarity,metric_signs,custom_mean_absolute_error
 from tensorflow.keras.models import load_model
 import os
 from keras_self_attention import SeqSelfAttention
