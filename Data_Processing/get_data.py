@@ -1,13 +1,10 @@
 import pandas as pd
 import yfinance as yf
-import os
-from Arguments import args
-# from pycoingecko import CoinGeckoAPI
-from datetime import datetime, timedelta
-from utility import join_files
+from datetime import datetime
 from test_and_debug.test_arrays import dummy_timeseries
 import cryptowatch as cw
 from coinapi_rest_v1.restapi import CoinAPIv1
+import datetime
 
 '''This module is for grabbing stock information from Yahoo Finance or other sources
 Ticker_data grabs specific ticker, vix_data will grab only vix data and rename its columns so its easier to differentiate down the line'''
@@ -15,7 +12,7 @@ Ticker_data grabs specific ticker, vix_data will grab only vix data and rename i
 
 def ticker_data(ticker, start_date):
     col = ['Open', 'High', 'Low', 'Close', 'Volume']  # Relevant Columns
-    args['target_features'] = col  # Send the features to predict name columns to the dictionary
+    pipeline_args.args['target_features'] = col  # Send the features to predict name columns to the dictionary
 
     stock_object = yf.Ticker(ticker)  # yf stock object
 
@@ -29,8 +26,9 @@ def ticker_data(ticker, start_date):
 
 
 '''Function for getting auxillilary data, such as VIX, bond yields, currency conversion values and so on
-Works similarly to the above, and does automatic column renaming so as not to interfece with target_features columns,
-accepts a list of tickers'''
+Works similarly to the above, and does automatic column renaming so as not to interfere with target_features columns,
+accepts a list of tickers
+This data is daily, so will only work with daily, or longer time intervals (Unless sparse array is OK)'''
 
 
 def aux_data(df_main, aux_ticker_list, start_date):
@@ -56,32 +54,22 @@ def aux_data(df_main, aux_ticker_list, start_date):
 '''This function is from loading in prepared CSV data'''
 
 
-def scv_data(path,filename):
-    col = ['time', 'Open', 'High', 'Low', 'Close', 'Volume']
+def scv_data(ticker,path,interval):
+    col = ['time', 'open', 'high', 'low', 'close', 'volume']
     #df = pd.read_csv(f'C:\\Users\\Ivan\\PycharmProjects\\MlFinancialAnal\\data\datasets\\{pair}\\{pair}.csv')
-    df = pd.read_csv(f'{path}\\{filename}.csv')
+    df = pd.read_csv(f'{path}\{interval}\{ticker}.csv')
     df = df[col]
+
     try:
-        df.rename(columns={'open': 'Open', 'high': 'High', 'low': 'Low', 'close': 'Close', 'volume': 'Volume'},
-                inplace=True)
+        df['time'] = pd.to_datetime(df['time'], unit='ms')  # Unix to datetime conversion
     except:
-        print('No columns to rename')
-#    df['time'] = pd.to_datetime(df['time'], unit='ms')  # Unix to datetime conversion
+        print('No need to convert to datetime')
 
     df.set_index('time', inplace=True)
     #print(df.head())
 
     return df
 
-
-# '''Using Coingecko API to get minute data for the last day'''
-# def coingecko_data(id,vscurrency,days):
-#     cg = CoinGeckoAPI()
-#     hist = cg.get_coin_market_chart_range_by_id(id=id,vs_currency=vscurrency,days=days)
-#     # coins = cg.get_coins_list()
-#     print(hist)
-#     return hist
-# coingecko_data('binancecoin','usd',1)
 
 '''Get data from cryptowatch API'''
 '''private key: x4p1k7VvUiRdd+5JLmE5SOm3P1cM/ZQyjPTE61lp
@@ -90,7 +78,7 @@ One thousand data points only'''
 
 
 
-def cryptowatch_data(path,pair, periods,filename):
+def cryptowatch_data(pair, periods):
     cw.api_key = 'LZKL7ULRG322Z0793KU3'
 
     hist = cw.markets.get(f"BINANCE:{pair}", ohlc=True, periods=[f'{periods}'])
@@ -107,7 +95,7 @@ def cryptowatch_data(path,pair, periods,filename):
 
     df['time'] = pd.to_datetime(df['time'], unit='s').dt.strftime('%Y-%m-%dT%H:%M:%SZ')  # Unix to datetime conversion
     df.set_index('time', inplace=True)
-    df.to_csv(f'{path}\\{filename}_cryptowatch.csv')
+    #df.to_csv(f'{path}\\{filename}_cryptowatch.csv')
 
     return df
 
@@ -118,7 +106,7 @@ Use for transfer learning step 1, then apply real world with cryptowatch api
 useless for bnb-usd, has no data on it (It says it does but returns empty array)'''
 
 
-import datetime, sys
+
 
 
 
@@ -147,17 +135,6 @@ def coinapi_data(path,filename,mode):
 
     df.to_csv(f'{path}\\{filename}_coinapi_book.csv')  # saves to csv
 
-#coinapi_data('F:\MM\production\pancake_predictions\data','bnb_5m_pancake',mode='book')
-
-def pancake_data(path,filename,big_update=False):
-    if big_update == True:
-        try:
-            coinapi_data(path,filename,False)
-        except:
-            print('coinapi API key is out of requests')
-    cryptowatch_data(path + '\load','bnbusdt', '5m',filename)
-    df = join_files(path_load=path +'\load',path_save = path + '\save')
-    return df
 
 def testing_data(n):
     x = dummy_timeseries(n)

@@ -1,5 +1,5 @@
-from pipeline import data_prep,data_prep_transfer,data_prep_batch_2
-from Arguments import args
+from pipeline.pipeline_structure import pipeline,data_prep_transfer,data_prep_batch_2
+from pipeline_args import args
 from Data_Processing.data_trim import trim_dataset
 from tensorflow.keras.callbacks import ModelCheckpoint
 from training.callbacks import custom_loss,ratio_loss,my_metric_fn,mean_squared_error_custom,custom_cosine_similarity,metric_signs,custom_mean_absolute_error,stock_loss,stock_loss_metric
@@ -14,7 +14,7 @@ import tensorflow as tf
 BATCH_SIZE = args['batch_size']
 ticker = 'bnbusdt'
 def continue_learning_batch(ticker, model,start,increment,final_pass):
-        x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = data_prep('pancake',initial_training=False,batch=True,SS_path = 'F:\MM\scalers\\bnbusdt_ss_pancake1min',MM_path = 'F:\MM\scalers\\bnbusdt_mm_pancake1min',big_update=False)
+        x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = pipeline('pancake', initial_training=False, batch=True, SS_path ='F:\MM\scalers\\bnbusdt_ss_pancake1min', MM_path ='F:\MM\scalers\\bnbusdt_mm_pancake1min', big_update=False)
 
         saved_model = load_model(f'F:\MM\models\\{ticker}\\1min\{model}.h5',
                                  custom_objects={'stock_loss_metric':stock_loss_metric,'stock_loss':stock_loss,'custom_mean_absolute_error':custom_mean_absolute_error,'SeqSelfAttention': SeqSelfAttention,'mean_squared_error_custom':mean_squared_error_custom,'custom_cosine_similarity':custom_cosine_similarity,'metric_signs':metric_signs})

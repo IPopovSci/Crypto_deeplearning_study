@@ -1,23 +1,11 @@
-from tensorflow.keras.layers import Dense, Input, Concatenate, Conv1D, MaxPooling1D,Flatten
-from Arguments import args
-from tensorflow.keras.models import load_model
-from attention import Attention
-import os
-import tensorflow as tf
-from pipeline import data_prep
-from Arguments import args
-from Data_Processing.data_trim import trim_dataset
+from tensorflow.keras.layers import Dense, Input, Concatenate
+from pipeline_args import args
 from training.callbacks import custom_cosine_similarity,metric_signs,custom_mean_absolute_error
-from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.models import load_model
 import os
 from keras_self_attention import SeqSelfAttention
 import tensorflow as tf
-from keras_multi_head import MultiHead,MultiHeadAttention
-from Backtesting.Backtesting import correct_signs
-import joblib
-import numpy as np
-import tensorflow.keras.backend as K
+from keras_multi_head import MultiHead
 
 
 def create_model_ensembly(x_t):

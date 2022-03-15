@@ -1,7 +1,6 @@
-import pandas as pd
+
 from sklearn.decomposition import PCA
-from Arguments import args
-import numpy as np
+
 
 '''PCA will de-correlate variables allowing downstreaming algorithms to predict more accurately'''
 

@@ -1,7 +1,7 @@
 
 from Data_Processing.get_data import ticker_data
 import pandas as pd
-from Arguments import args
+from pipeline_args import args
 
 import numpy as np
 from Data_Processing.data_trim import trim_dataset_conv

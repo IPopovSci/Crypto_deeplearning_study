@@ -1,5 +1,5 @@
-from pipeline import data_prep
-from Arguments import args
+from pipeline.pipeline_structure import pipeline
+from pipeline_args import args
 from Data_Processing.data_trim import trim_dataset
 from training.callbacks import custom_cosine_similarity,metric_signs,custom_mean_absolute_error
 from tensorflow.keras.callbacks import ModelCheckpoint
@@ -15,10 +15,10 @@ import tensorflow.keras.backend as K
 
 BATCH_SIZE = args['batch_size']
 ticker = 'bnbusdt'
-x_t, y_t, x_val, y_val, x_test_t, y_test_t, size = data_prep('pancake', ta=True, initial_training=True, batch=True,
-                                                             SS_path='F:\MM\scalers\\bnbusdt_ss_pancake1min',
-                                                             MM_path='F:\MM\scalers\\bnbusdt_mm_pancake1min',
-                                                             big_update=False)
+x_t, y_t, x_val, y_val, x_test_t, y_test_t, size = pipeline('pancake', ta=True, initial_training=True, batch=True,
+                                                            SS_path='F:\MM\scalers\\bnbusdt_ss_pancake1min',
+                                                            MM_path='F:\MM\scalers\\bnbusdt_mm_pancake1min',
+                                                            big_update=False)
 def predict(y_test_t,model_name='Default',update=False):
 
 

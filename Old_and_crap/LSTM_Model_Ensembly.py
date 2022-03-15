@@ -1,5 +1,5 @@
 from tensorflow.keras.layers import Dense, Input, Conv1D,MaxPooling1D
-from Arguments import args
+from pipeline_args import args
 from training.callbacks import custom_loss,ratio_loss,my_metric_fn
 from tensorflow.keras.models import load_model
 from attention import Attention

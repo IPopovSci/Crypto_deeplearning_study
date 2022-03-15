@@ -5,14 +5,14 @@ import tensorflow as tf
 import tensorflow.keras.backend as K
 from dotenv import load_dotenv
 from tensorflow import keras
+from pipeline import pipelineargs
 # tf.config.experimental_run_functions_eagerly(True)
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import math_ops
 
-from Arguments import args
 
 load_dotenv()
-batch_size = args['batch_size']
+batch_size = pipelineargs.args['batch_size']
 #money = args['money']
 MM_path = os.getenv('MM_Path')
 SS_path = os.getenv('SS_Path')
@@ -49,22 +49,6 @@ def metric_signs(y_true,y_pred):
     y_true = ops.convert_to_tensor_v2(y_true)
     y_pred = ops.convert_to_tensor_v2(y_pred)
     y_true = math_ops.cast(y_true, y_pred.dtype)
-    #
-
-#----------------
-    # y_true = y_true[:,0]
-    # y_pred = y_pred[:,0]
-
-
-    # y_true = y_true[:,:,:,-1]
-    # y_pred = y_pred[:,:,:,-1]
-    #
-    # y_true = y_true[:,-1,:]
-    # y_pred = y_pred[:,-1,:]
-    print(y_pred.shape)
-    print(y_true.shape)
-
-#--------------
 
     y_true_un = (((y_true - K.constant(mm_y.min_)) / K.constant(mm_y.scale_))* K.constant(sc_y.scale_)) + K.constant(sc_y.mean_)
 
@@ -73,29 +57,11 @@ def metric_signs(y_true,y_pred):
 
     y_true_un = y_true_un[:,3]
     y_pred_un = y_pred_un[:,3]
-    # print(y_pred_un.shape)
-    # print(y_true_un.shape)
-
-
-    # tf.print(y_true_un)
-    # tf.print(y_pred_un)
-
-
-    # y_true_diff = tf_diff_axis_1(y_true_un)
-    #
-    # y_pred_diff = tf_diff_axis_1(y_pred_un)
-    #------------------------------
 
     y_true_sign = math_ops.sign(y_true_un)
     y_pred_sign = math_ops.sign(y_pred_un)
 
     metric = math_ops.divide(math_ops.abs(math_ops.subtract(y_true_sign,y_pred_sign)),2.)
-    #---------------------
-
-    # metric = K.switch(K.less_equal(y_true * y_pred, 0),
-    #     y_true/y_true,
-    #     0 * y_true
-    #     )
 
     return math_ops.multiply(math_ops.divide(math_ops.subtract(float(batch_size),K.sum(metric)),float(batch_size)),100.)
 

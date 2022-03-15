@@ -1,9 +1,5 @@
-# Basic packages
-import numpy as np  # linear algebra
-import pandas as pd  # data processing, CSV file I/O (e.g. pd.read_csv)
-from pandas import Series
-from statsmodels.tsa.stattools import adfuller, acf, pacf, arma_order_select_ic
-import datetime as dt
+import pandas as pd
+from statsmodels.tsa.stattools import adfuller
 
 # settings
 import warnings
@@ -29,21 +25,15 @@ This will make the data stationary (Use the above test to check), as well
 as easier to work with for neural networks
 Inputs: dataset (Pandas), ta (True/False)
 Outputs: Pandas Dataframe'''
+'''Medium article discussion: Do covariants need to be stationary? Do we take the percent changes of ta features as well?'''
 
+def row_difference(df):
 
-def row_difference(df, ta):
-    df_data = df.iloc[:, :5]
+    cols = ['open','high','low','close','volume']
 
-    df_ta = df.iloc[:, 5:]
+    df[cols] = df[cols].pct_change(axis=0)
 
-    df_diff_data = df_data.pct_change(axis=0)
-
-    if ta == True:
-        df_diff = pd.concat([df_diff_data, df_ta], axis=1)
-    else:
-        df_diff = pd.concat([df_diff_data], axis=1)
-
-    df_diff = df_diff.iloc[1:, :]  # this drops the first row (For avoiding N/A)
+    df_diff = df.iloc[1:, :]  # this drops the first row (For avoiding N/A)
     '''Debug options'''
     # pd.set_option('max_columns', None)
 

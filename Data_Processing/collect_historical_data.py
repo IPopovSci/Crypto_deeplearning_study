@@ -25,4 +25,3 @@ def cryptowatch_data_save_to_csv(pair, periods, save_to_csv=True):
 
     return df
 
-#cryptowatch_data_save_to_csv('bnbusdt','5m')

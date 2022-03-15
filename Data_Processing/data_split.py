@@ -1,6 +1,4 @@
 from sklearn.model_selection import train_test_split
-import pandas as pd
-from Arguments import args
 import numpy as np
 
 '''Accepts a pandas dataframe, reads the size of train and test sizes from the arguments dictionary, and uses sklearn library
@@ -8,9 +6,7 @@ implementation for splitting the dataframe into 2 portions
 Outputs 3 dataframes for train,validation and test'''
 
 
-def train_test_split_custom(df):
-    train_size = args['train_size']
-    test_size = args['test_size']
+def train_test_split_custom(df,train_size,test_size):
 
     df_train, df_test = train_test_split(df, train_size=train_size, test_size=test_size, shuffle=False,random_state=42)
 
@@ -27,7 +23,7 @@ y_type is a switch: "close" will grab only the closing price, 'ohclv' will grab 
 
 def x_y_split(x_train, x_validation, x_test,y_type = 'ohlcv'):
 
-    '''converting pandas> numpy'''
+    '''converting pandas to numpy'''
     x_train = x_train.to_numpy()
     x_validation = x_validation.to_numpy()
     x_test = x_test.to_numpy()
@@ -37,28 +33,14 @@ def x_y_split(x_train, x_validation, x_test,y_type = 'ohlcv'):
     x_train, x_validation, x_test = np.nan_to_num(x_train), np.nan_to_num(x_validation), np.nan_to_num(
         x_test)  # Get rid of any potential NaN values
 
-    if y_type == 'close':
-        y_train = x_train[:,
-                  3]
-        y_test = x_test[:, 3]
-        y_validation = x_validation[:, 3]
-        y_train_t, y_validation_t, y_test_t = y_train.reshape(-1, 1), y_validation.reshape(-1, 1), y_test.reshape(-1,
-                                                                                                                  1)  # This reshaping is needed for SS
-    elif y_type == 'ohlcv':
-        y_train_t = x_train[:,
-                  :5]
-        y_test_t = x_test[:, :5]
-        y_validation_t = x_validation[:, :5]
-    elif y_type == 'testing':
-        y_train = x_train[:,
-                  0]
-        y_test = x_test[:, 0]
-        y_validation = x_validation[:, 0]
-        y_train_t, y_validation_t, y_test_t = y_train.reshape(-1, 1), y_validation.reshape(-1, 1), y_test.reshape(-1,
-                                                                                                                  1)  # This reshaping is needed for SS
+    #Grabbing only the first 5 columns for y data (OHLCV)
+    y_train_t = x_train[:,
+              :5]
+    y_test_t = x_test[:, :5]
+    y_validation_t = x_validation[:, :5]
 
 
-    print(y_train_t.shape,y_validation_t.shape,y_test_t.shape)
+    # print(y_train_t.shape,y_validation_t.shape,y_test_t.shape)
 
     return x_train, x_validation, x_test, y_train_t, y_validation_t, y_test_t
 

@@ -1,5 +1,5 @@
 from tensorflow.keras.layers import LSTM, Dense, Input,TimeDistributed
-from Arguments import args
+from pipeline_args import args
 import tensorflow as tf
 from keras_self_attention import SeqSelfAttention
 from tensorflow.keras import initializers

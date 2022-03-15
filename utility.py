@@ -1,60 +1,44 @@
-
-#import tensorflow as tf
-import tensorflow.keras.backend as K
 import pandas as pd
 import glob
 import os
-
-
-#tf.config.experimental_run_functions_eagerly(True)
-
+import tensorflow.keras.backend as K
+from dotenv import load_dotenv
+from pipeline.pipelineargs import PipelineArgs
 import joblib
 
-#Todo: Rework this function to resample into any interval
-def one_to_five(data):
-    ohlc = {
-        'Open': 'first',
-        'High': 'max',
-        'Low': 'min',
-        'Close': 'last',
-        'Volume': 'sum'
-    }
-    df = data.resample('5min', base=0).apply(ohlc)
-    df.dropna(inplace=True)
+load_dotenv()
+pipeline_args = PipelineArgs.get_instance()
+'''This function will resample all csv files in data_path\\interval_from folder to interval_to interval
+accepts: interval_from - folder name with respective data interval
+        interval_to - which interval to resample to, and which respective folder to save to'''
+def resample(interval_from,interval_to):
+    all_csv = os.path.join(os.getenv('data_path') + f'\{interval_from}','*.csv')
 
-    print(df)
+    all_csv_list = glob.glob(all_csv)
+
+    for file in all_csv_list:
+        df = pd.read_csv(file)
+
+        filename = file.split('1min\\')[1] #Grab just the name of the csv for saving purposes
+
+        df['time'] = pd.to_datetime(df['time'], unit='ms')  # Unix to datetime conversion
+
+        ohlcv = {
+            'open': 'first',
+            'high': 'max',
+            'low': 'min',
+            'close': 'last',
+            'volume': 'sum'
+        }
+        df.set_index('time', inplace=True)
+
+        df = df.resample(rule=f'{interval_to}', offset=0).apply(ohlcv)
+
+        df.dropna(inplace=True)
+
+        df.to_csv(os.getenv('data_path') + f'\{interval_to}' + f'\\{filename}')
 
 
-# ticker = args['ticker']
-# history = scv_data(ticker)
-# #print(history.head())
-# one_to_five(history)
-# def continue_learning(ticker, model):
-#     saved_model = load_model(f'F:\MM\models_update\{ticker}\{model}.h5',
-#                              custom_objects={'SeqSelfAttention': SeqSelfAttention,
-#                                              'mean_squared_error_custom': mean_squared_error_custom})
-#     early_stop = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=16)
-#
-#     saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),
-#                         loss=mean_squared_error_custom)
-#
-#     reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='loss', factor=0.5,
-#                                                      patience=6, min_lr=0.0000000001,
-#                                                      verbose=1, mode='min')
-#
-#     x_t, y_t = data_prep_transfer('cryptowatch')
-#
-#     mcp = ModelCheckpoint(
-#         os.path.join(f'F:\MM\models_update\\bnbusdt_save\\',
-#                      "{loss:.8f}-best_model-{epoch:02d}.h5"),
-#         monitor='loss', verbose=3,
-#         save_best_only=False, save_weights_only=False, mode='min', period=1)
-#
-#     history_lstm = saved_model.fit(trim_dataset(x_t, BATCH_SIZE), trim_dataset(y_t, BATCH_SIZE), epochs=256, verbose=1,
-#                                    batch_size=BATCH_SIZE,
-#                                    shuffle=False,
-#                                    callbacks=[mcp, early_stop, reduce_lr])
-#     # saved_model.reset_states()
 
 
 #TODO: This function not needed anymore, since we will be using csv for training and cryptowatch for predictions
@@ -105,20 +89,14 @@ def join_files(path_load, path_save):
 
     return f
 
+def unscale(y_true,y_pred):
+    mm_y = joblib.load(pipeline_args.args['mm_y_path'])
+    sc_y = joblib.load(pipeline_args.args['ss_y_path'])
 
-# join_files()
+    y_true_un = (((y_true - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * K.constant(sc_y.scale_)) + K.constant(
+        sc_y.mean_)
 
-# def multiply_volume_by_price():
+    y_pred_un = (((y_pred - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)) * K.constant(sc_y.scale_)) + K.constant(
+        sc_y.mean_)
 
-
-def tf_mm_inverse_transform(X):
-    MM_path = 'F:\MM\scalers\BNBusdt_MM'
-    SS_path = 'F:\MM\scalers\BNBusdt_SS'
-
-    mm_y = joblib.load(MM_path + ".y")
-    sc_y = joblib.load(SS_path + ".y")
-    # X = ops.convert_to_tensor_v2(X,dtype=tf.float32)
-
-    X = (X - K.constant(mm_y.min_)) / K.constant(mm_y.scale_)
-
-    return X
+    return y_true_un,y_pred_un

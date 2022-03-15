@@ -1,5 +1,5 @@
-from pipeline import data_prep
-from Arguments import args
+from pipeline.pipeline_structure import pipeline
+from pipeline_args import args
 from Data_Processing.data_trim import trim_dataset
 from tensorflow.keras.callbacks import ModelCheckpoint
 from training.callbacks import custom_loss,ratio_loss,my_metric_fn,mean_squared_error_custom
@@ -15,8 +15,6 @@ from Backtesting_old import up_or_down,back_test
 import statistics
 from Networks.structures.Conv1D import create_lstm_model as create_model
 from keras_self_attention import SeqSelfAttention
-from Backtesting import Backtesting
-
 
 #TODO: Read the timesries keras tutorial, look up special layers for using selu, can you lambda loop in the loss?
 ticker = args['ticker']
@@ -51,7 +49,7 @@ def train_models(x_t, y_t, x_val, y_val, x_test_t,y_test_t, num_models=1, model_
         if multiple:
             for ticker in continuous_list:
                 print(f'Now Training {ticker}')
-                x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
+                x_t, y_t, x_val, y_val, x_test_t, y_test_t = pipeline(ticker)
                 history_lstm = lstm_model.fit(x_total, y_total, epochs=12, verbose=1, batch_size=BATCH_SIZE,
                                               shuffle=False, validation_data=(trim_dataset(x_test_t, BATCH_SIZE),
                                                                               trim_dataset(y_test_t, BATCH_SIZE)),
@@ -82,7 +80,7 @@ def simple_mean_ensemble(ticker, model_name='Default',update=False,load_weights=
     while i < 10:
         preds = []
         back_test_info = []
-        x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep('cryptowatch')
+        x_t, y_t, x_val, y_val, x_test_t, y_test_t = pipeline('cryptowatch')
         x_total = np.concatenate((x_t, x_val))
         y_total = np.concatenate((y_t, y_val))
         for model in os.listdir(f'data\output\\'):
@@ -141,7 +139,7 @@ def update_models(ticker_list=['HUV.TO'], model_name_load='Default',
                       metrics=my_metric_fn)
 
         for ticker in ticker_list:
-            x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
+            x_t, y_t, x_val, y_val, x_test_t, y_test_t = pipeline(ticker)
             x_total = np.concatenate((x_t, x_val))
             y_total = np.concatenate((y_t, y_val))
             reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.2,
@@ -167,7 +165,7 @@ def keras_ensembly():
     back_test_info = []
     ticker = '^NDX'
     args['ticker'] = ticker
-    x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(ticker)
+    x_t, y_t, x_val, y_val, x_test_t, y_test_t = pipeline(ticker)
     x_total = np.concatenate((x_t, x_val))
     y_total = np.concatenate((y_t, y_val))
 
@@ -198,7 +196,7 @@ def model_cleanup():
     for subdir, dirs, files in os.walk(f'../data/output/models/Cleanup'):
         for dir in dirs:
             args['ticker'] = dir
-            x_t, y_t, x_val, y_val, x_test_t, y_test_t = data_prep(dir)
+            x_t, y_t, x_val, y_val, x_test_t, y_test_t = pipeline(dir)
 
             for model in random.sample(os.listdir(f'data\output\models\cleanup\\{dir}'),len(os.listdir(f'data\output\models\cleanup\\{dir}'))):
                 model_path = os.path.join(f'data\output\models\cleanup\\{dir}', model)
