@@ -81,6 +81,11 @@ One thousand data points only'''
 def cryptowatch_data(pair, periods):
     cw.api_key = 'LZKL7ULRG322Z0793KU3'
 
+    #Sometimes data from Kaggle has different pair differentiator, need to implement custom swaps.
+    if pair == 'btcusd':
+        pair = 'btcusdt'
+
+
     hist = cw.markets.get(f"BINANCE:{pair}", ohlc=True, periods=[f'{periods}'])
 
     hist_list = getattr(hist, f'of_{periods}')  # Calling a method on a class to get the desired interval

@@ -29,27 +29,25 @@ def lstm_att_model():
     noise = GaussianNoise(0.05)(input)
 
     # #This is First side-chain: input>LSTM(stateful)>LSTM(stateful)>TD Dense layer. The output is a 3d vector
-    LSTM_1 = LSTM(int(50), return_sequences=True, stateful=True, activation=activation, kernel_initializer=initializer,
+    LSTM_1 = LSTM(int(75), return_sequences=True, stateful=True, activation=activation, kernel_initializer=initializer,
                   bias_initializer=initializer)(noise)
 
     Dense_1 = TimeDistributed(
-        Dense(25, activation=activation, kernel_initializer=initializer, bias_initializer=initializer))(LSTM_1)
+        Dense(50, activation=activation, kernel_initializer=initializer, bias_initializer=initializer))(LSTM_1)
 
     # This is the attention side-chain: LSTM(Stateless)>LSTM>Attention. The output is a 3d vector
 
-    LSTM_3 = LSTM(int(50), return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer,
+    LSTM_3 = LSTM(int(75), return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer,
                   bias_initializer=initializer)(noise)
 
-    attention_1 = SeqSelfAttention()(LSTM_3)
+    attention_1 = SeqSelfAttention(units=50)(LSTM_3)
 
     concat = tf.keras.layers.concatenate([Dense_1, attention_1])
 
-    concat = LayerNormalization()(concat)
-
-    Dense_fin = Dense(50, activation=activation, kernel_initializer=initializer, bias_initializer=initializer)(
+    Dense_fin = Dense(100, activation=activation, kernel_initializer=initializer, bias_initializer=initializer)(
         concat)
 
-    Dense_fin_2 = Dense(25, activation=activation, kernel_initializer=initializer, bias_initializer=initializer)(
+    Dense_fin_2 = Dense(75, activation=activation, kernel_initializer=initializer, bias_initializer=initializer)(
         Dense_fin)
 
     output = tf.keras.layers.Dense(5, activation='linear', kernel_regularizer=regularizer)(Dense_fin_2)
@@ -59,6 +57,6 @@ def lstm_att_model():
     optimizer = tf.keras.optimizers.Adam(learning_rate=network_args.network['lr'], amsgrad=True)
 
     lstm_model.compile(
-        loss=ohlcv_combined, optimizer=optimizer, metrics=[metric_signs_close, ohlcv_cosine_similarity, ohlcv_mse])
+        loss=ohlcv_combined, optimizer=optimizer, metrics=[metric_signs_close, ohlcv_cosine_similarity])
 
     return lstm_model

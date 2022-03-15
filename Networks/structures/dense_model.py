@@ -25,22 +25,17 @@ def dense_model():
 
     activation = 'selu'
 
-    noise = GaussianNoise(0.005)(input)
+    noise = GaussianNoise(0.01)(input)
 
-    x = Dense(100,activation=activation,kernel_regularizer=regularizer,activity_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(noise)
+    x = Dense(50,activation=activation,kernel_regularizer=regularizer,kernel_initializer=initializer)(noise)
 
-    x = AlphaDropout(dropout)(x)
-
-    x = Dense(50,activation=activation,kernel_regularizer=regularizer,activity_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
-
-    x = AlphaDropout(dropout)(x)
-
-    x = Dense(25,activation=activation,kernel_regularizer=regularizer,activity_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
-
-    x = AlphaDropout(dropout)(x)
+    x = Dense(35,activation=activation,kernel_regularizer=regularizer,kernel_initializer=initializer)(x)
 
 
-    output = tf.keras.layers.Dense(5,activation='linear')(x)
+    x = Dense(15,activation=activation,kernel_regularizer=regularizer,kernel_initializer=initializer)(x)
+
+
+    output = tf.keras.layers.Dense(5,activation='linear',kernel_regularizer=regularizer,kernel_initializer=initializer)(x)
 
 
     lstm_model = tf.keras.Model(inputs=input, outputs=output)
@@ -50,6 +45,6 @@ def dense_model():
     optimizer = tf.keras.optimizers.Adam(learning_rate=network_args.network['lr'],amsgrad=True)
 
     lstm_model.compile(
-        loss=ohlcv_combined, optimizer=optimizer, metrics=[metric_signs_close,ohlcv_cosine_similarity,ohlcv_mse])
+        loss=ohlcv_combined, optimizer=optimizer, metrics=[metric_signs_close,ohlcv_cosine_similarity])
 
     return lstm_model
