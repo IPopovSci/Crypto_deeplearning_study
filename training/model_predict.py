@@ -1,15 +1,16 @@
 from pipeline.pipeline_structure import pipeline
-from pipeline_args import args
 from Data_Processing.data_trim import trim_dataset
-from Old_and_crap.callbacks import mean_squared_error_custom,custom_cosine_similarity,metric_signs
 from tensorflow.keras.models import load_model
 import os
 from keras_self_attention import SeqSelfAttention
 import tensorflow as tf
 from Backtesting.Backtesting import correct_signs
+from pipeline.pipelineargs import PipelineArgs
 
 BATCH_SIZE = args['batch_size']
 ticker = 'bnbusdt'
+pipeline_args = PipelineArgs.get_instance()
+
 def predict(model_name='Default',update=False):
     x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = pipeline('CSV')
 
@@ -30,3 +31,19 @@ def predict(model_name='Default',update=False):
 
 
 predict(ticker,'0.12958081_59.17741776-best_model-01',False)
+
+def train_model():
+
+
+    lstm_model = create_model()
+
+
+    history_lstm = lstm_model.fit(x=trim_dataset(x_t, batch_size),y=trim_dataset(y_t,batch_size), epochs=10000,
+                                  verbose=1, batch_size=batch_size,
+                                  shuffle=False, validation_data=(trim_dataset(x_val, batch_size),
+                                                                  trim_dataset(y_val, batch_size)),
+                                  callbacks=callbacks())
+
+
+train_model()
+
