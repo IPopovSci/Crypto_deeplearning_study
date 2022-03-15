@@ -36,13 +36,16 @@ def pipeline(pipeline_args):
     '''Any sort of denoising, such is wavelet or fourier can go here'''
 
     '''Step 4: Split data into training/testing'''
-    if  pipeline_args.args['mode'] == 'training':
-        x_train, x_validation, x_test = train_test_split_custom(history,pipeline_args.args['train_size'],pipeline_args.args['test_size'])
+
+    x_train, x_validation, x_test = train_test_split_custom(history,pipeline_args.args['train_size'],pipeline_args.args['test_size'])
 
 
 
     '''Step 5: SS Transform'''
-    x_train, x_validation, x_test, y_train, y_validation, y_test = x_y_split(x_train, x_validation, x_test)
+    if pipeline_args.args['mode'] == 'training':
+        x_train, x_validation, x_test, y_train, y_validation, y_test = x_y_split(x_train, x_validation, x_test)
+    elif pipeline_args.args['mode'] == 'prediction':
+        x_train, x_validation, x_test, y_train, y_validation, y_test = x_y_split(x_train, x_validation, history) #This is a somewhat dirty workaround, this way during the predictions test always gets full data
 
     '''Step 6: Split data into x and y'''
 

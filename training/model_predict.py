@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from Networks.network_config import NetworkParams
 from Networks.losses_metrics import ohlcv_combined,metric_signs_close,ohlcv_cosine_similarity,ohlcv_mse
 from utility import unscale
+from Backtesting.Backtesting import correct_signs
 
 
 load_dotenv()
@@ -33,8 +34,12 @@ def predict(model_name='Default'):
 
     y_pred = saved_model.predict(trim_dataset(x_test_t[:], batch_size), batch_size=batch_size)
 
+    y_pred = y_pred[:, -1, :]  # Because Dense predictions will have timesteps
+
     y_true, y_pred = unscale(y_test_t,y_pred)
 
-    print(y_true,y_pred)
+    #correct_signs(y_true,y_pred)
+
+    print(correct_signs(y_true,y_pred))
 
 predict('21689.11523438_100')
