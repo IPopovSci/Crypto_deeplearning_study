@@ -20,10 +20,5 @@ Initialize weights to random values - (Maybe add a genetic algo too for mutating
 '''
 
 #Todo: To bring the project to presentable form -
-# 1) Get data - introduce a home path via .env, separate data into ticker/ticker_{timeinterval}.csv format
-# 2) Create training mode, which will grab only CSV data, and prediction mode - which will use one of the APIS to grab only the latest data (Make sure that it grabs the data of the right interval)
-# 3) Modify the rescaler function - Take an interval and save a new csv under home/ticker/ticker_{new_timeinterval}.csv format - not for pipeline, utility
-# 4) No need for pancake mode, since training is only done on CSV and inference/predictions only done API data
 # 5) Write 5 models - Dense, LSTM w/ Attention, Conv1d, Conv1dLSTM and Conv1dLSTM w/ conv2d as final layer. Train models.
 # 6) Create information coefficient computation w/ graphs, as well as returns using alpha library as per book
-# 7) Separate training/prediction functions, that load in correct callbacks functions for each network (Based on Alons work)

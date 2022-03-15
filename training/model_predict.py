@@ -42,4 +42,4 @@ def predict(model_name='Default'):
 
     print(correct_signs(y_true,y_pred))
 
-predict('23690.35351562_10')
+predict('131584.92187500_81')

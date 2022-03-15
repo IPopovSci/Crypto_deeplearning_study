@@ -1,7 +1,7 @@
 
 import tensorflow as tf
 
-from tensorflow.keras.layers import Dense, Input, GaussianNoise,AlphaDropout
+from tensorflow.keras.layers import Dense, Input, GaussianNoise,AlphaDropout,Dropout
 
 from pipeline.pipelineargs import PipelineArgs
 from Networks.network_config import NetworkParams
@@ -23,19 +23,25 @@ def dense_model():
     initializer = tf.keras.initializers.LecunNormal()
     dropout = network_args.network['dropout']
 
-    activation = 'selu'
+    activation = 'softsign'
 
-    noise = GaussianNoise(0.01)(input)
+    noise = GaussianNoise(0.05)(input)
 
-    x = Dense(50,activation=activation,kernel_regularizer=regularizer,kernel_initializer=initializer)(noise)
+    x = Dense(61)(noise)
 
-    x = Dense(35,activation=activation,kernel_regularizer=regularizer,kernel_initializer=initializer)(x)
+    x = Dropout(dropout)(x)
+
+    x = Dense(41)(x)
+
+    x = Dropout(dropout)(x)
 
 
-    x = Dense(15,activation=activation,kernel_regularizer=regularizer,kernel_initializer=initializer)(x)
+    x = Dense(21)(x)
+
+    x = Dropout(dropout)(x)
 
 
-    output = tf.keras.layers.Dense(5,activation='linear',kernel_regularizer=regularizer,kernel_initializer=initializer)(x)
+    output = tf.keras.layers.Dense(5,activation='linear')(x)
 
 
     lstm_model = tf.keras.Model(inputs=input, outputs=output)
@@ -45,6 +51,6 @@ def dense_model():
     optimizer = tf.keras.optimizers.Adam(learning_rate=network_args.network['lr'],amsgrad=True)
 
     lstm_model.compile(
-        loss=ohlcv_combined, optimizer=optimizer, metrics=[metric_signs_close,ohlcv_cosine_similarity])
+        loss=ohlcv_cosine_similarity, optimizer=optimizer, metrics=[metric_signs_close])
 
     return lstm_model

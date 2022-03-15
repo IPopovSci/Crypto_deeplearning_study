@@ -16,7 +16,7 @@ def callbacks():
     early_stop = EarlyStopping(monitor=network_args.callbacks['monitor'], mode=network_args.callbacks['mode'], patience=network_args.callbacks['es_patience'])
 
     reduce_lr = ReduceLROnPlateau(monitor=network_args.callbacks['monitor'], factor=network_args.callbacks['rlr_factor'],
-                                  patience=network_args.callbacks['rlr_patience'], min_lr=0.0000000000001,
+                                  patience=network_args.callbacks['rlr_patience'], min_lr=0.00000001,
                                   verbose=1, mode=network_args.callbacks['mode'])
 
     #hash_folder_create()

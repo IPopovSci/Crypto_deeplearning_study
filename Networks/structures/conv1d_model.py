@@ -44,11 +44,11 @@ def conv1d_model():
 
     pool = MaxPooling1D(pool_size=4)(conv_4)
 
-    flat = Flatten()(pool)
+    #flat = Flatten()(pool)
 
 
     dense = Dense(64, kernel_initializer=initializer, activation=activation, kernel_regularizer=regularizer)(
-        flat)  # do we need tanh activation here? Ensemble with none mb
+        pool)  # do we need tanh activation here? Ensemble with none mb
 
 
 

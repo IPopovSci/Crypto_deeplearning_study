@@ -47,7 +47,6 @@ def ohlcv_mse(y_true,y_pred):
     y_pred = ops.convert_to_tensor_v2(y_pred)
     y_true = math_ops.cast(y_true, y_pred.dtype)
 
-
     y_pred = y_pred[:,-1,:] #Because Dense predictions will have timesteps
 
 
@@ -63,7 +62,7 @@ def ohlcv_mse(y_true,y_pred):
 '''Combined cosine similarity and MSE loss
 CS loss is squared to put a higher emphasis on the correct direction'''
 def ohlcv_combined(y_true,y_pred):
-    loss = (ohlcv_mse(y_true,y_pred) * (ohlcv_cosine_similarity(y_true,y_pred) ** 3))
+    loss = (ohlcv_mse(y_true,y_pred) * (ohlcv_cosine_similarity(y_true,y_pred) ** 2))
 
     return loss
 
