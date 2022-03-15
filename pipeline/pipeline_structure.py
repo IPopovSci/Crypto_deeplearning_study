@@ -7,6 +7,7 @@ from Data_Processing.PCA import pca_reduction
 from Data_Processing.build_timeseries import build_timeseries
 import os
 from dotenv import load_dotenv
+from utility import structure_create
 
 load_dotenv()
 
@@ -15,6 +16,8 @@ load_dotenv()
 
 
 def pipeline(pipeline_args):
+    '''Step 0: Create folder structure, if needed'''
+    structure_create()
     '''Step 1: Get Data'''
     if pipeline_args.args['mode'] == 'training':
         history = scv_data(pipeline_args.args['ticker'], os.getenv('data_path'), pipeline_args.args['interval'])
