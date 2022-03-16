@@ -7,8 +7,6 @@ from dotenv import load_dotenv
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import math_ops
 from pipeline.pipelineargs import PipelineArgs
-from utility import unscale
-from utility import remove_mean
 
 load_dotenv()
 
@@ -45,7 +43,7 @@ def ohlcv_cosine_similarity(y_true,y_pred):
 
 
 
-    return loss + 1.0
+    return 1000*(loss + 1.0)
 
 '''Custom MSE loss
 Extracts the last time step and unscales y values before computing loss'''
@@ -66,6 +64,22 @@ def ohlcv_mse(y_true,y_pred):
 
     return loss
 
+def ohlcv_abs(y_true,y_pred):
+    y_true = ops.convert_to_tensor_v2(y_true)
+    y_pred = ops.convert_to_tensor_v2(y_pred)
+    y_true = math_ops.cast(y_true, y_pred.dtype)
+
+    y_pred = y_pred[:,-1,:] #Because Dense predictions will have timesteps
+
+
+    y_true_un, y_pred_un = y_true, y_pred
+
+    y_true_un = y_true_un[:,3]
+    y_pred_un = y_pred_un[:,3]
+
+    loss = K.mean(K.abs(y_true_un - y_pred_un), axis=-1)
+
+    return loss
 '''Combined cosine similarity and MSE loss
 CS loss is squared to put a higher emphasis on the correct direction'''
 def ohlcv_combined(y_true,y_pred):

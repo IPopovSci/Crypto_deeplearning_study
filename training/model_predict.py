@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from Networks.network_config import NetworkParams
 from Networks.losses_metrics import ohlcv_combined,metric_signs_close,ohlcv_cosine_similarity,ohlcv_mse
 from utility import unscale
-from Backtesting.Backtesting import correct_signs
+from Backtesting.Backtesting import correct_signs, information_coefficient
 from plotting import plot_results
 from utility import remove_mean
 import numpy as np
@@ -38,10 +38,11 @@ def predict(model_name='Default'):
 
     return y_pred
 
-y_pred = predict('53.4_0.10361932_06')
+y_pred = predict('51.3_17281.76562500_30')
 
 
 def plot_backtest(y_pred):
+
     y_pred = y_pred[:, -1, :]  # Because Dense predictions will have timesteps
 
     #y_true, y_pred = unscale(y_test_t,y_pred)
@@ -63,5 +64,6 @@ def plot_backtest(y_pred):
     #print(np.mean(y_pred))
     print(correct_signs(y_true,y_pred))
     print(correct_signs(y_true,y_pred_nomean))
+    information_coefficient(y_true,y_pred)
 
 plot_backtest(y_pred)

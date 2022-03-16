@@ -29,17 +29,16 @@ def lstm_att_model():
 
     # #This is First side-chain: input>LSTM(stateful)>LSTM(stateful)>TD Dense layer. The output is a 3d vector
     LSTM_1 = LSTM(int(75), return_sequences=True, stateful=True, activation=activation, kernel_initializer=initializer,
-                  bias_initializer=bias_initializer,bias_regularizer=regularizer,kernel_regularizer=regularizer)(input)
+                  bias_initializer=bias_initializer,recurrent_initializer=initializer,bias_regularizer=regularizer,kernel_regularizer=regularizer)(input)
 
     x = LayerNormalization()(LSTM_1)
 
-    Dense_1 = TimeDistributed(
-        Dense(50, activation=activation, kernel_initializer=initializer, bias_initializer=bias_initializer,bias_regularizer=regularizer,kernel_regularizer=regularizer))(x)
+    Dense_1 = Dense(50, activation=activation, kernel_initializer=initializer, bias_initializer=bias_initializer,bias_regularizer=regularizer,kernel_regularizer=regularizer)(x)
 
     # This is the attention side-chain: LSTM(Stateless)>LSTM>Attention. The output is a 3d vector
 
     LSTM_3 = LSTM(int(75), return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer,
-                  bias_initializer=bias_initializer,bias_regularizer=regularizer,kernel_regularizer=regularizer)(input)
+                  bias_initializer=bias_initializer,recurrent_initializer=initializer,bias_regularizer=regularizer,kernel_regularizer=regularizer)(input)
 
     x = LayerNormalization()(LSTM_3)
 
@@ -47,25 +46,25 @@ def lstm_att_model():
 
     concat = tf.keras.layers.concatenate([Dense_1, attention_1])
 
-    x = LayerNormalization()(concat)
+    x = BatchNormalization()(concat)
 
-    Dense_fin = Dense(150, activation=activation, kernel_initializer=initializer, bias_initializer=bias_initializer,bias_regularizer=regularizer,kernel_regularizer=regularizer)(
+    Dense_fin = Dense(125, activation=activation, kernel_initializer=initializer, bias_initializer=bias_initializer,bias_regularizer=regularizer,kernel_regularizer=regularizer)(
         x)
 
-    x = LayerNormalization()(Dense_fin)
+    x = BatchNormalization()(Dense_fin)
 
     Dense_fin_2 = Dense(75, activation=activation, kernel_initializer=initializer, bias_initializer=bias_initializer,bias_regularizer=regularizer,kernel_regularizer=regularizer)(
         x)
 
-    x = LayerNormalization()(Dense_fin_2)
+    x = BatchNormalization()(Dense_fin_2)
 
-    output = tf.keras.layers.Dense(5, activation='linear', kernel_regularizer=regularizer, bias_initializer=bias_initializer,bias_regularizer=regularizer)(x)
+    output = tf.keras.layers.Dense(5, activation='linear', kernel_initializer=initializer, kernel_regularizer=regularizer, bias_initializer=bias_initializer,bias_regularizer=regularizer)(x)
 
     lstm_model = tf.keras.Model(inputs=input, outputs=output)
 
     optimizer = tf.keras.optimizers.Adam(learning_rate=network_args.network['lr'], amsgrad=True)
 
     lstm_model.compile(
-        loss=ohlcv_combined, optimizer=optimizer, metrics=[metric_signs_close, ohlcv_cosine_similarity])
+        loss=ohlcv_cosine_similarity, optimizer=optimizer, metrics=[metric_signs_close, ohlcv_cosine_similarity])
 
     return lstm_model
