@@ -27,18 +27,23 @@ def dense_model():
 
     noise = GaussianNoise(0.05)(input)
 
-    x = Dense(61)(noise)
+    x = Dense(300,use_bias=False)(noise)
 
     x = Dropout(dropout)(x)
 
-    x = Dense(41)(x)
+    x = Dense(250,use_bias=False)(x)
 
     x = Dropout(dropout)(x)
 
 
-    x = Dense(21)(x)
+    x = Dense(150,use_bias=False)(x)
 
     x = Dropout(dropout)(x)
+
+    x = Dense(50,use_bias=False)(x)
+
+    x = Dropout(dropout)(x)
+
 
 
     output = tf.keras.layers.Dense(5,activation='linear')(x)
@@ -51,6 +56,6 @@ def dense_model():
     optimizer = tf.keras.optimizers.Adam(learning_rate=network_args.network['lr'],amsgrad=True)
 
     lstm_model.compile(
-        loss=ohlcv_cosine_similarity, optimizer=optimizer, metrics=[metric_signs_close])
+        loss=ohlcv_combined, optimizer=optimizer, metrics=[metric_signs_close])
 
     return lstm_model

@@ -49,7 +49,7 @@ def pipeline(pipeline_args):
 
     '''Step 6: Split data into x and y'''
 
-    x_train, x_validation, x_test, y_train, y_validation, y_test, SS_scaler = SS_transform(x_train, x_validation,
+    x_train, x_validation, x_test, _, _, _, SS_scaler = SS_transform(x_train, x_validation,
                                                                                            x_test, y_train,
                                                                                            y_validation, y_test,
                                                                                            pipeline_args.args[
@@ -60,7 +60,7 @@ def pipeline(pipeline_args):
         x_train, x_validation, x_test = pca_reduction(x_train, x_validation, x_test)
 
     '''Step 8: Min-max scaler (-1 to 1 for sigmoid)'''
-    x_train, x_validation, x_test, y_train, y_validation, y_test, mm_scaler_y = min_max_transform(x_train, x_validation,
+    x_train, x_validation, x_test, _, _, _, mm_scaler_y = min_max_transform(x_train, x_validation,
                                                                                                   x_test, y_train,
                                                                                                   y_validation, y_test,
                                                                                                   pipeline_args.args[

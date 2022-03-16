@@ -17,9 +17,9 @@ class NetworkParams:
         self.data = {
         }
         self.network = {
-            'model_type': 'conv1d',
+            'model_type': 'lstm',
             'epochs': 256,
-            'dropout': 0.2,
+            'dropout': 0.5,
             'l1_reg': 0.0005,
             'l2_reg': 0.0005,
             'lr': 0.0001}
@@ -28,5 +28,5 @@ class NetworkParams:
             'mode': 'min',
             'es_patience': 125,
             'rlr_factor': 0.8,
-            'rlr_patience': 3,
+            'rlr_patience': 10,
         }

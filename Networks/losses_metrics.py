@@ -32,7 +32,11 @@ def ohlcv_cosine_similarity(y_true,y_pred):
     y_pred = y_pred[:,-1,:] #Because Dense predictions will have timesteps
 
 
-    y_true_un,y_pred_un = unscale(y_true,y_pred)
+    #y_true_un,y_pred_un = unscale(y_true,y_pred)
+    y_true_un, y_pred_un = y_true,y_pred
+
+    y_true_un = y_true_un[:,3]
+    y_pred_un = y_pred_un[:,3]
 
     loss = tf.keras.losses.cosine_similarity(y_true_un, y_pred_un, axis=-1)
 
@@ -50,8 +54,11 @@ def ohlcv_mse(y_true,y_pred):
     y_pred = y_pred[:,-1,:] #Because Dense predictions will have timesteps
 
 
-    y_true_un,y_pred_un = unscale(y_true,y_pred)
+    #y_true_un,y_pred_un = unscale
+    y_true_un, y_pred_un = y_true, y_pred
 
+    y_true_un = y_true_un[:,3]
+    y_pred_un = y_pred_un[:,3]
 
     #print(y_true_un.shape,y_pred_un.shape)
 

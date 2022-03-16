@@ -20,5 +20,7 @@ Initialize weights to random values - (Maybe add a genetic algo too for mutating
 '''
 
 #Todo: To bring the project to presentable form -
+# 4) It seems like predicting 5 individual properties is better than all at once - separate into 5 inputs and 5 outputs
 # 5) Write 5 models - Dense, LSTM w/ Attention, Conv1d, Conv1dLSTM and Conv1dLSTM w/ conv2d as final layer. Train models.
+# 5.5) need graphing capabilities - need to 1) convert % changes to actual values 2) graph the results - including the moving average, to see if it works
 # 6) Create information coefficient computation w/ graphs, as well as returns using alpha library as per book

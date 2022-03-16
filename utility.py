@@ -5,6 +5,7 @@ import tensorflow.keras.backend as K
 from dotenv import load_dotenv
 from pipeline.pipelineargs import PipelineArgs
 from Networks.network_config import NetworkParams
+from sklearn.preprocessing import StandardScaler
 
 import joblib
 
@@ -69,5 +70,12 @@ def structure_create():
 def hash_folder_create():
     if not os.path.exists(os.getenv('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}'):
         os.makedirs(os.getenv('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}', mode=0o777)
+
+def remove_mean(data):
+    sc_x = StandardScaler(with_std=False)
+
+    data = sc_x.fit_transform(data)
+
+    return data
 
 

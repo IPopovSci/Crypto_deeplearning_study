@@ -33,21 +33,21 @@ def lstm_att_model():
                   bias_initializer=initializer)(noise)
 
     Dense_1 = TimeDistributed(
-        Dense(50, activation=activation, kernel_initializer=initializer, bias_initializer=initializer))(LSTM_1)
+        Dense(60, activation=activation, kernel_initializer=initializer, bias_initializer=initializer))(LSTM_1)
 
     # This is the attention side-chain: LSTM(Stateless)>LSTM>Attention. The output is a 3d vector
 
     LSTM_3 = LSTM(int(75), return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer,
                   bias_initializer=initializer)(noise)
 
-    attention_1 = SeqSelfAttention(units=50)(LSTM_3)
+    attention_1 = SeqSelfAttention(units=60)(LSTM_3)
 
     concat = tf.keras.layers.concatenate([Dense_1, attention_1])
 
-    Dense_fin = Dense(100, activation=activation, kernel_initializer=initializer, bias_initializer=initializer)(
+    Dense_fin = Dense(150, activation=activation, kernel_initializer=initializer, bias_initializer=initializer)(
         concat)
 
-    Dense_fin_2 = Dense(75, activation=activation, kernel_initializer=initializer, bias_initializer=initializer)(
+    Dense_fin_2 = Dense(50, activation=activation, kernel_initializer=initializer, bias_initializer=initializer)(
         Dense_fin)
 
     output = tf.keras.layers.Dense(5, activation='linear', kernel_regularizer=regularizer)(Dense_fin_2)

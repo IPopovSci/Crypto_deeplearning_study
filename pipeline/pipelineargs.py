@@ -22,7 +22,7 @@ class PipelineArgs:
             'train_size': 0.95,
             'test_size': 0.05,
             'time_steps': 5,
-            'batch_size': 32,
+            'batch_size': 8,
             'data_lag': 1,
             'ta': True,
             'pca': True,
