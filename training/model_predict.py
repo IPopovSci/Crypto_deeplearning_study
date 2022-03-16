@@ -38,7 +38,8 @@ def predict(model_name='Default'):
 
     return y_pred
 
-predict('1.05101240_49_51.3')
+y_pred = predict('0.00138252_40_53.8')
+
 
 def plot_backtest(y_pred):
     y_pred = y_pred[:, -1, :]  # Because Dense predictions will have timesteps
@@ -62,3 +63,5 @@ def plot_backtest(y_pred):
     #print(np.mean(y_pred))
     print(correct_signs(y_true,y_pred))
     print(correct_signs(y_true,y_pred_nomean))
+
+plot_backtest(y_pred)

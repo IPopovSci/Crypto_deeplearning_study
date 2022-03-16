@@ -20,25 +20,20 @@ def dense_model():
     input = Input(batch_shape=(batch_size, time_steps, num_features))
 
     regularizer = tf.keras.regularizers.l1_l2(l1=network_args.network['l1_reg'],l2=network_args.network['l2_reg'])
-    initializer = tf.keras.initializers.RandomUniform()
+    initializer = tf.keras.initializers.LecunNormal()
     dropout = network_args.network['dropout']
 
     activation = tf.keras.activations.swish
-    x = BatchNormalization()(input)
 
-    # x = GaussianNoise(0.05)(x)
-    #
-    # x = BatchNormalization()(x)
-
-    x = Dense(60,activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
+    x = Dense(75,activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(input)
 
     x = BatchNormalization()(x)
 
-    x = Dense(35,activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
+    x = Dense(50,activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
 
     x = BatchNormalization()(x)
 
-    output = tf.keras.layers.Dense(5,activation='linear',activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
+    output = tf.keras.layers.Dense(5,activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
 
 
     lstm_model = tf.keras.Model(inputs=input, outputs=output)

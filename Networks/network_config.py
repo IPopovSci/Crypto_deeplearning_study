@@ -22,7 +22,7 @@ class NetworkParams:
             'dropout': 0.3,
             'l1_reg': 0.0005,
             'l2_reg': 0.0005,
-            'lr': 0.001}
+            'lr': 0.0001}
         self.callbacks = {
             'monitor': 'val_loss',
             'mode': 'min',

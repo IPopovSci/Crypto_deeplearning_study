@@ -69,7 +69,7 @@ def ohlcv_mse(y_true,y_pred):
 '''Combined cosine similarity and MSE loss
 CS loss is squared to put a higher emphasis on the correct direction'''
 def ohlcv_combined(y_true,y_pred):
-    loss = (ohlcv_mse(y_true,y_pred) * (ohlcv_cosine_similarity(y_true,y_pred) ** 3))
+    loss = (ohlcv_mse(y_true,y_pred) * (ohlcv_cosine_similarity(y_true,y_pred))**2)
 
     return loss
 
