@@ -84,6 +84,8 @@ def cryptowatch_data(pair, periods):
     #Sometimes data from Kaggle has different pair differentiator, need to implement custom swaps.
     if pair == 'btcusd':
         pair = 'btcusdt'
+    elif pair == 'ethusd':
+        pair = 'ethusdt'
 
 
     hist = cw.markets.get(f"BINANCE:{pair}", ohlc=True, periods=[f'{periods}'])
