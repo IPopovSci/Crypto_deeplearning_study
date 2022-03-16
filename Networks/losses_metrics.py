@@ -85,7 +85,8 @@ def metric_signs_close(y_true,y_pred):
 
 
 
-    y_true_un, y_pred_un = unscale(y_true, y_pred)
+    #y_true_un, y_pred_un = unscale(y_true, y_pred)
+    y_true_un, y_pred_un = y_true, y_pred
 
     y_true_un = tf.expand_dims(y_true_un[:, 3], axis=1)  # This metric works on closing
     y_pred_un = tf.expand_dims(y_pred_un[:, 3], axis=1)

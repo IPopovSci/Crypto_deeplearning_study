@@ -27,20 +27,20 @@ def dense_model():
 
     noise = GaussianNoise(0.05)(input)
 
-    x = Dense(300,use_bias=False)(noise)
+    x = Dense(50,use_bias=False)(noise)
 
     x = Dropout(dropout)(x)
 
-    x = Dense(250,use_bias=False)(x)
+    x = Dense(25,use_bias=False)(x)
 
     x = Dropout(dropout)(x)
 
 
-    x = Dense(150,use_bias=False)(x)
+    x = Dense(10,use_bias=False)(x)
 
     x = Dropout(dropout)(x)
 
-    x = Dense(50,use_bias=False)(x)
+    x = Dense(5,use_bias=False)(x)
 
     x = Dropout(dropout)(x)
 
