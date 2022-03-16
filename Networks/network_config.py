@@ -17,12 +17,12 @@ class NetworkParams:
         self.data = {
         }
         self.network = {
-            'model_type': 'lstm',
+            'model_type': 'dense',
             'epochs': 256,
-            'dropout': 0.5,
+            'dropout': 0.3,
             'l1_reg': 0.0005,
             'l2_reg': 0.0005,
-            'lr': 0.0001}
+            'lr': 0.001}
         self.callbacks = {
             'monitor': 'val_loss',
             'mode': 'min',

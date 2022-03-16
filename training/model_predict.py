@@ -36,6 +36,11 @@ def predict(model_name='Default'):
 
     y_pred = saved_model.predict(trim_dataset(x_test_t, batch_size), batch_size=batch_size)
 
+    return y_pred
+
+predict('1.05101240_49_51.3')
+
+def plot_backtest(y_pred):
     y_pred = y_pred[:, -1, :]  # Because Dense predictions will have timesteps
 
     #y_true, y_pred = unscale(y_test_t,y_pred)
@@ -47,15 +52,13 @@ def predict(model_name='Default'):
     y_pred = y_pred[:,3]
     y_pred_nomean = y_pred_nomean[:,3]
 
-    window_size = 50
-    window_true = np.ones(int(window_size*3)) / float(window_size*3)
+    window_size = 10
+    window_true = np.ones(int(window_size)) / float(window_size)
     window_pred = np.ones(int(window_size)) / float(window_size)
     y_true_average = np.convolve(y_true, window_true, 'same')
-    y_pred_average = np.convolve(y_pred, window_pred, 'same')
+    y_pred_average = np.convolve(y_pred_nomean, window_pred, 'same')
 
-    plot_results(y_pred_average,y_true_average)
-
+    plot_results(y_pred,y_true)
+    #print(np.mean(y_pred))
     print(correct_signs(y_true,y_pred))
     print(correct_signs(y_true,y_pred_nomean))
-
-predict('0.00388755_02_51.6')

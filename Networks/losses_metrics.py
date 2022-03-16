@@ -8,7 +8,7 @@ from tensorflow.python.framework import ops
 from tensorflow.python.ops import math_ops
 from pipeline.pipelineargs import PipelineArgs
 from utility import unscale
-
+from utility import remove_mean
 
 load_dotenv()
 
@@ -38,6 +38,9 @@ def ohlcv_cosine_similarity(y_true,y_pred):
     y_true_un = y_true_un[:,3]
     y_pred_un = y_pred_un[:,3]
 
+    #y_true_un = y_true_un - tf.reduce_mean(y_true_un)
+    #y_pred_un = y_pred_un - tf.reduce_mean(y_pred_un)
+
     loss = tf.keras.losses.cosine_similarity(y_true_un, y_pred_un, axis=-1)
 
 
@@ -54,13 +57,10 @@ def ohlcv_mse(y_true,y_pred):
     y_pred = y_pred[:,-1,:] #Because Dense predictions will have timesteps
 
 
-    #y_true_un,y_pred_un = unscale
     y_true_un, y_pred_un = y_true, y_pred
 
     y_true_un = y_true_un[:,3]
     y_pred_un = y_pred_un[:,3]
-
-    #print(y_true_un.shape,y_pred_un.shape)
 
     loss = K.mean(K.square(y_true_un - y_pred_un), axis=-1)
 
@@ -69,7 +69,7 @@ def ohlcv_mse(y_true,y_pred):
 '''Combined cosine similarity and MSE loss
 CS loss is squared to put a higher emphasis on the correct direction'''
 def ohlcv_combined(y_true,y_pred):
-    loss = (ohlcv_mse(y_true,y_pred) * (ohlcv_cosine_similarity(y_true,y_pred) ** 2))
+    loss = (ohlcv_mse(y_true,y_pred) * (ohlcv_cosine_similarity(y_true,y_pred) ** 3))
 
     return loss
 
@@ -93,7 +93,7 @@ def metric_signs_close(y_true,y_pred):
 
     #print(y_pred_un.shape, y_true_un.shape)
 
-
+    #y_pred_un = y_pred_un - tf.reduce_mean(y_pred_un)
 
     y_true_sign = math_ops.sign(y_true_un)
     y_pred_sign = math_ops.sign(y_pred_un)

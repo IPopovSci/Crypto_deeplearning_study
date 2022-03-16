@@ -23,35 +23,35 @@ def lstm_att_model():
     regularizer = tf.keras.regularizers.l1_l2(l1=network_args.network['l1_reg'], l2=network_args.network['l2_reg'])
     initializer = tf.keras.initializers.LecunNormal()
     dropout = network_args.network['dropout']
-    bias_initializer = tf.keras.initializers.Zeros()
+    bias_initializer = initializer
 
     activation = 'selu'
 
     noise = GaussianNoise(0.05)(input)
 
     # #This is First side-chain: input>LSTM(stateful)>LSTM(stateful)>TD Dense layer. The output is a 3d vector
-    LSTM_1 = LSTM(int(75), return_sequences=True, stateful=True, activation=activation, kernel_initializer=initializer,
-                  bias_initializer=bias_initializer,use_bias=False)(noise)
+    LSTM_1 = LSTM(int(125), return_sequences=True, stateful=True, activation=activation, kernel_initializer=initializer,
+                  bias_initializer=bias_initializer)(noise)
 
     Dense_1 = TimeDistributed(
-        Dense(60, activation=activation, kernel_initializer=initializer, bias_initializer=bias_initializer,use_bias=False))(LSTM_1)
+        Dense(100, activation=activation, kernel_initializer=initializer, bias_initializer=bias_initializer))(LSTM_1)
 
     # This is the attention side-chain: LSTM(Stateless)>LSTM>Attention. The output is a 3d vector
 
-    LSTM_3 = LSTM(int(75), return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer,
-                  bias_initializer=bias_initializer,use_bias=False)(noise)
+    LSTM_3 = LSTM(int(125), return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer,
+                  bias_initializer=bias_initializer)(noise)
 
-    attention_1 = SeqSelfAttention(units=60,use_additive_bias=False,use_attention_bias=False,bias_initializer=bias_initializer)(LSTM_3)
+    attention_1 = SeqSelfAttention(units=100,bias_initializer=bias_initializer)(LSTM_3)
 
     concat = tf.keras.layers.concatenate([Dense_1, attention_1])
 
-    Dense_fin = Dense(150, activation=activation, kernel_initializer=initializer, bias_initializer=bias_initializer,use_bias=False)(
+    Dense_fin = Dense(250, activation=activation, kernel_initializer=initializer, bias_initializer=bias_initializer)(
         concat)
 
-    Dense_fin_2 = Dense(50, activation=activation, kernel_initializer=initializer, bias_initializer=bias_initializer,use_bias=False)(
+    Dense_fin_2 = Dense(150, activation=activation, kernel_initializer=initializer, bias_initializer=bias_initializer)(
         Dense_fin)
 
-    output = tf.keras.layers.Dense(5, activation='linear', kernel_regularizer=regularizer,use_bias=False, bias_initializer=bias_initializer)(Dense_fin_2)
+    output = tf.keras.layers.Dense(5, activation='linear', kernel_regularizer=regularizer, bias_initializer=bias_initializer)(Dense_fin_2)
 
     lstm_model = tf.keras.Model(inputs=input, outputs=output)
 

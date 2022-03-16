@@ -76,6 +76,7 @@ def remove_mean(data):
 
     data = sc_x.fit_transform(data)
 
+    sc_x = None
     return data
 
 
