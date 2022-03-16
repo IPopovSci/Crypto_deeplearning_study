@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from tensorflow.keras.layers import Dense, Input, GaussianNoise, LSTM, TimeDistributed, LayerNormalization
+from tensorflow.keras.layers import Dense, Input, GaussianNoise, LSTM, TimeDistributed, LayerNormalization,BatchNormalization
 
 from keras_self_attention import SeqSelfAttention
 from pipeline.pipelineargs import PipelineArgs
@@ -25,33 +25,41 @@ def lstm_att_model():
     dropout = network_args.network['dropout']
     bias_initializer = initializer
 
-    activation = 'selu'
-
-    noise = GaussianNoise(0.05)(input)
+    activation = tf.keras.activations.swish
 
     # #This is First side-chain: input>LSTM(stateful)>LSTM(stateful)>TD Dense layer. The output is a 3d vector
-    LSTM_1 = LSTM(int(125), return_sequences=True, stateful=True, activation=activation, kernel_initializer=initializer,
-                  bias_initializer=bias_initializer)(noise)
+    LSTM_1 = LSTM(int(75), return_sequences=True, stateful=True, activation=activation, kernel_initializer=initializer,
+                  bias_initializer=bias_initializer,bias_regularizer=regularizer,kernel_regularizer=regularizer)(input)
+
+    x = LayerNormalization()(LSTM_1)
 
     Dense_1 = TimeDistributed(
-        Dense(100, activation=activation, kernel_initializer=initializer, bias_initializer=bias_initializer))(LSTM_1)
+        Dense(50, activation=activation, kernel_initializer=initializer, bias_initializer=bias_initializer,bias_regularizer=regularizer,kernel_regularizer=regularizer))(x)
 
     # This is the attention side-chain: LSTM(Stateless)>LSTM>Attention. The output is a 3d vector
 
-    LSTM_3 = LSTM(int(125), return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer,
-                  bias_initializer=bias_initializer)(noise)
+    LSTM_3 = LSTM(int(75), return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer,
+                  bias_initializer=bias_initializer,bias_regularizer=regularizer,kernel_regularizer=regularizer)(input)
 
-    attention_1 = SeqSelfAttention(units=100,bias_initializer=bias_initializer)(LSTM_3)
+    x = LayerNormalization()(LSTM_3)
+
+    attention_1 = SeqSelfAttention(units=50,bias_initializer=bias_initializer,bias_regularizer=regularizer,kernel_regularizer=regularizer)(x)
 
     concat = tf.keras.layers.concatenate([Dense_1, attention_1])
 
-    Dense_fin = Dense(250, activation=activation, kernel_initializer=initializer, bias_initializer=bias_initializer)(
-        concat)
+    x = LayerNormalization()(concat)
 
-    Dense_fin_2 = Dense(150, activation=activation, kernel_initializer=initializer, bias_initializer=bias_initializer)(
-        Dense_fin)
+    Dense_fin = Dense(150, activation=activation, kernel_initializer=initializer, bias_initializer=bias_initializer,bias_regularizer=regularizer,kernel_regularizer=regularizer)(
+        x)
 
-    output = tf.keras.layers.Dense(5, activation='linear', kernel_regularizer=regularizer, bias_initializer=bias_initializer)(Dense_fin_2)
+    x = LayerNormalization()(Dense_fin)
+
+    Dense_fin_2 = Dense(75, activation=activation, kernel_initializer=initializer, bias_initializer=bias_initializer,bias_regularizer=regularizer,kernel_regularizer=regularizer)(
+        x)
+
+    x = LayerNormalization()(Dense_fin_2)
+
+    output = tf.keras.layers.Dense(5, activation='linear', kernel_regularizer=regularizer, bias_initializer=bias_initializer,bias_regularizer=regularizer)(x)
 
     lstm_model = tf.keras.Model(inputs=input, outputs=output)
 
