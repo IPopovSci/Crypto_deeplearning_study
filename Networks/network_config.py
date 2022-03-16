@@ -19,7 +19,7 @@ class NetworkParams:
         self.network = {
             'model_type': 'dense',
             'epochs': 256,
-            'dropout': 0.3,
+            'dropout': 0.4,
             'l1_reg': 0.0005,
             'l2_reg': 0.0005,
             'lr': 0.0001}

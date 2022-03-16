@@ -38,7 +38,7 @@ def predict(model_name='Default'):
 
     return y_pred
 
-y_pred = predict('0.00138252_40_53.8')
+y_pred = predict('53.4_0.10361932_06')
 
 
 def plot_backtest(y_pred):
@@ -53,11 +53,11 @@ def plot_backtest(y_pred):
     y_pred = y_pred[:,3]
     y_pred_nomean = y_pred_nomean[:,3]
 
-    window_size = 10
+    window_size = 30
     window_true = np.ones(int(window_size)) / float(window_size)
     window_pred = np.ones(int(window_size)) / float(window_size)
-    y_true_average = np.convolve(y_true, window_true, 'same')
-    y_pred_average = np.convolve(y_pred_nomean, window_pred, 'same')
+    y_true_average = np.convolve(y_true, window_true*3, 'same')
+    y_pred_average = np.convolve(y_pred, window_pred, 'same')
 
     plot_results(y_pred,y_true)
     #print(np.mean(y_pred))

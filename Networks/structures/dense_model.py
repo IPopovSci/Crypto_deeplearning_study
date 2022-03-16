@@ -29,9 +29,13 @@ def dense_model():
 
     x = BatchNormalization()(x)
 
+    x = Dropout(dropout)(x)
+
     x = Dense(50,activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
 
     x = BatchNormalization()(x)
+
+    x = Dropout(dropout)(x)
 
     output = tf.keras.layers.Dense(5,activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
 

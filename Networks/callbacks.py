@@ -23,7 +23,7 @@ def callbacks():
 
     mcp = ModelCheckpoint(
         os.path.join(os.getenv('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}',
-                     "{val_loss:.8f}_{epoch:02d}_{val_metric_signs_close:.1f}.h5"),
+                     "{val_metric_signs_close:.1f}_{val_loss:.8f}_{epoch:02d}.h5"),
         monitor=network_args.callbacks['monitor'], verbose=3,
         save_best_only=True, save_weights_only=False, mode=network_args.callbacks['mode'], period=1)
 
