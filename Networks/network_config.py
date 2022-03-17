@@ -17,7 +17,7 @@ class NetworkParams:
         self.data = {
         }
         self.network = {
-            'model_type': 'lstm',
+            'model_type': 'conv1d',
             'epochs': 256,
             'dropout': 0.4,
             'l1_reg': 0.0005,

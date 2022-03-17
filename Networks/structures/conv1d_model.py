@@ -1,7 +1,7 @@
 
 import tensorflow as tf
 
-from tensorflow.keras.layers import Dense, Input, GaussianNoise,Conv1D,MaxPooling1D,Flatten
+from tensorflow.keras.layers import Dense, Input, GaussianNoise,Conv1D,MaxPooling1D,Flatten,BatchNormalization
 
 from pipeline.pipelineargs import PipelineArgs
 from Networks.network_config import NetworkParams
@@ -23,41 +23,48 @@ def conv1d_model():
     initializer = tf.keras.initializers.LecunNormal()
     dropout = network_args.network['dropout']
 
-    activation = 'selu'
+    activation = tf.keras.activations.swish
 
-    noise = GaussianNoise(0.05)(input)
+    #noise = GaussianNoise(0.05)(input)
 
-    conv = Conv1D(kernel_size=32, filters=128, kernel_initializer=initializer, kernel_regularizer=regularizer,
-                  activation=activation, padding='causal')(noise)
+    x = Conv1D(kernel_size=3, filters=64, kernel_initializer=initializer, kernel_regularizer=regularizer,bias_initializer=initializer,bias_regularizer=regularizer,activity_regularizer=regularizer,
+                    activation=activation, padding='same')(input)
 
-
-    conv_2 = Conv1D(kernel_size=16, filters=64, kernel_initializer=initializer, kernel_regularizer=regularizer,
-                    activation=activation, padding='causal')(conv)
+    x = BatchNormalization()(x)
 
 
-    conv_3 = Conv1D(kernel_size=8, filters=64, kernel_initializer=initializer, kernel_regularizer=regularizer,
-                    activation=activation, padding='causal')(conv_2)
+    x = Conv1D(kernel_size=3, filters=64, kernel_initializer=initializer, kernel_regularizer=regularizer,bias_initializer=initializer,bias_regularizer=regularizer,activity_regularizer=regularizer,
+                    activation=activation, padding='same')(x)
 
-    conv_4 = Conv1D(kernel_size=4, filters=32, kernel_initializer=initializer, kernel_regularizer=regularizer,
-                    activation=activation, padding='causal')(conv_3)
+    x = BatchNormalization()(x)
 
 
-    pool = MaxPooling1D(pool_size=4)(conv_4)
+    x = Conv1D(kernel_size=3, filters=64, kernel_initializer=initializer, kernel_regularizer=regularizer,bias_initializer=initializer,bias_regularizer=regularizer,activity_regularizer=regularizer,
+                    activation=activation, padding='same')(x)
+
+    x = BatchNormalization()(x)
+
+    x = MaxPooling1D(pool_size=4,activity_regularizer=regularizer)(x)
 
     #flat = Flatten()(pool)
 
+    x = BatchNormalization()(x)
 
-    dense = Dense(64, kernel_initializer=initializer, activation=activation, kernel_regularizer=regularizer)(
-        pool)  # do we need tanh activation here? Ensemble with none mb
+    x = Dense(48,activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(
+        x)  # do we need tanh activation here? Ensemble with none mb
 
-
-
-    dense = Dense(32, kernel_initializer=initializer, activation=activation, kernel_regularizer=regularizer)(
-        dense)  # do we need tanh activation here? Ensemble with none mb
+    x = BatchNormalization()(x)
 
 
 
-    output = tf.keras.layers.Dense(5,activation='linear',kernel_regularizer=regularizer)(dense)
+    x = Dense(32, activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(
+        x)  # do we need tanh activation here? Ensemble with none mb
+
+    x = BatchNormalization()(x)
+
+
+
+    output = tf.keras.layers.Dense(5, activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
 
 
     lstm_model = tf.keras.Model(inputs=input, outputs=output)

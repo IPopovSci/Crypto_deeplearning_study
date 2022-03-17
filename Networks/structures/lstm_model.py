@@ -32,13 +32,13 @@ def lstm_att_model():
 
     x = LayerNormalization()(x)
 
-    #x = Dropout(dropout)(x)
 
     x = LSTM(int(50), return_sequences=True, stateful=False, activation=activation,kernel_initializer=initializer,bias_initializer=initializer,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer)(x)
 
     x = LayerNormalization()(x)
 
     #x = AlphaDropout(dropout)(x)
+
 
     x = Dense(40, activation=activation,kernel_initializer=initializer,bias_initializer=initializer,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer)(
         x)

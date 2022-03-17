@@ -60,18 +60,18 @@ def predict(model_name='Default'):
     saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00000005),
                         loss= ohlcv_combined,metrics=metric_signs_close)
 
-    #y_pred = saved_model.predict(trim_dataset(x_test_t[:-100], batch_size), batch_size=batch_size)
+    y_pred = saved_model.predict(trim_dataset(x_test_t[:-400], batch_size), batch_size=batch_size)
 
     y_pred = saved_model.predict(trim_dataset(x_test_t[:], batch_size), batch_size=batch_size)
 
     return y_pred
 
 
-y_pred = predict('49.6_2.44608092_11.h5')
-plot_backtest(y_pred)
-# for file in os.listdir((os.getenv('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}\\')):
-#     print(file)
-#     y_pred = predict(file)
-#     plot_backtest(y_pred)
+# y_pred = predict('49.6_2.44608092_11.h5')
+# plot_backtest(y_pred)
+for file in os.listdir((os.getenv('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}\\')):
+    print(file)
+    y_pred = predict(file)
+    plot_backtest(y_pred)
 
 

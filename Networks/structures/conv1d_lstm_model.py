@@ -1,7 +1,7 @@
 
 import tensorflow as tf
 
-from tensorflow.keras.layers import Input, GaussianNoise,BatchNormalization, LSTM
+from tensorflow.keras.layers import Input, GaussianNoise,BatchNormalization, LSTM,LayerNormalization
 from keras.layers.convolutional_recurrent import ConvLSTM1D
 
 from pipeline.pipelineargs import PipelineArgs
@@ -32,11 +32,11 @@ def convlstm_model():
 
     convlstm = ConvLSTM1D(64,stateful=True,kernel_size=5,recurrent_initializer=initializer,activation=activation,kernel_initializer=initializer,kernel_regularizer=regularizer,return_sequences=True,padding='same')(noise)
 
-    convlstm = BatchNormalization()(convlstm)
+    convlstm = LayerNormalization()(convlstm)
 
     convlstm = ConvLSTM1D(64,stateful=True,kernel_size=3,recurrent_initializer=initializer, activation=activation,kernel_initializer=initializer, kernel_regularizer=regularizer,return_sequences=True,padding='same')(convlstm)
 
-    convlstm = BatchNormalization()(convlstm)
+    convlstm = LayerNormalization()(convlstm)
 
     convlstm = ConvLSTM1D(64,stateful=True,kernel_size=1,recurrent_initializer=initializer, activation=activation,kernel_initializer=initializer, kernel_regularizer=regularizer,return_sequences=False,padding='same')(convlstm)
 

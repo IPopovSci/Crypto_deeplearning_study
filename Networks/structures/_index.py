@@ -1,5 +1,5 @@
 from Networks.structures.dense_model import dense_model
-from Networks.structures.lstm_att_model import lstm_att_model
+from Networks.structures.lstm_model import lstm_att_model
 from Networks.structures.conv1d_model import conv1d_model
 from Networks.structures.conv1d_lstm_model import convlstm_model
 from Networks.network_config import  NetworkParams
