@@ -13,6 +13,7 @@ from Backtesting.Backtesting import correct_signs, information_coefficient
 from plotting import plot_results
 from utility import remove_mean
 import numpy as np
+import glob
 
 load_dotenv()
 
@@ -25,22 +26,6 @@ time_steps = pipeline_args.args['time_steps']
 pipeline_args.args['mode'] = 'prediction'
 
 x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = pipeline(pipeline_args)
-#TODO: ticker name of data is different from API - mini facade? During training data split destroys testing data, need to disable it
-def predict(model_name='Default'):
-    print(os.getenv('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}\\'+ f'{model_name}.h5')
-    saved_model = load_model(filepath=(os.getenv('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}\\'+ f'{model_name}.h5'),
-                             custom_objects={'metric_signs_close':metric_signs_close,'SeqSelfAttention': SeqSelfAttention,'ohlcv_combined':ohlcv_combined,'ohlcv_cosine_similarity':ohlcv_cosine_similarity,'ohlcv_mse':ohlcv_mse})
-    saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00000005),
-                        loss= ohlcv_combined,metrics=metric_signs_close)
-
-
-    y_pred = saved_model.predict(trim_dataset(x_test_t, batch_size), batch_size=batch_size)
-
-    return y_pred
-
-y_pred = predict('51.3_17281.76562500_30')
-
-
 def plot_backtest(y_pred):
 
     y_pred = y_pred[:, -1, :]  # Because Dense predictions will have timesteps
@@ -60,10 +45,33 @@ def plot_backtest(y_pred):
     y_true_average = np.convolve(y_true, window_true*3, 'same')
     y_pred_average = np.convolve(y_pred, window_pred, 'same')
 
-    plot_results(y_pred,y_true)
+    #plot_results(y_pred,y_true)
     #print(np.mean(y_pred))
     print(correct_signs(y_true,y_pred))
     print(correct_signs(y_true,y_pred_nomean))
     information_coefficient(y_true,y_pred)
 
+
+#TODO: ticker name of data is different from API - mini facade? During training data split destroys testing data, need to disable it
+def predict(model_name='Default'):
+    #print(os.getenv('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}\\'+ f'{model_name}.h5')
+    saved_model = load_model(filepath=(os.getenv('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}\\'+ f'{model_name}'),
+                             custom_objects={'metric_signs_close':metric_signs_close,'SeqSelfAttention': SeqSelfAttention,'ohlcv_combined':ohlcv_combined,'ohlcv_cosine_similarity':ohlcv_cosine_similarity,'ohlcv_mse':ohlcv_mse})
+    saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00000005),
+                        loss= ohlcv_combined,metrics=metric_signs_close)
+
+    #y_pred = saved_model.predict(trim_dataset(x_test_t[:-100], batch_size), batch_size=batch_size)
+
+    y_pred = saved_model.predict(trim_dataset(x_test_t[:], batch_size), batch_size=batch_size)
+
+    return y_pred
+
+
+y_pred = predict('49.6_2.44608092_11.h5')
 plot_backtest(y_pred)
+# for file in os.listdir((os.getenv('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}\\')):
+#     print(file)
+#     y_pred = predict(file)
+#     plot_backtest(y_pred)
+
+

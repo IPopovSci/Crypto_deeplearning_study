@@ -20,8 +20,8 @@ def correct_signs(y_true,y_pred):
 
 
 def information_coefficient(y_true,y_pred):
-    coef, p = spearmanr(y_true, y_pred)
-    print('Spearmans correlation coefficient: %.3f' % coef)
+    coef_r, p = spearmanr(y_true, y_pred)
+    print('Spearmans correlation coefficient: %.3f' % coef_r)
     alpha = 0.05
     if p > alpha:
         print('Samples are uncorrelated (fail to reject H0) p=%.3f' % p)
@@ -36,5 +36,7 @@ def information_coefficient(y_true,y_pred):
         print('Samples are uncorrelated (fail to reject H0) p=%.3f' % p)
     else:
         print('Samples are correlated (reject H0) p=%.3f' % p)
+
+
 
 

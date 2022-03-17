@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from tensorflow.keras.layers import Dense, Input, GaussianNoise, LSTM, TimeDistributed, LayerNormalization,BatchNormalization
+from tensorflow.keras.layers import Dense, Input, GaussianNoise, LSTM, TimeDistributed, LayerNormalization,BatchNormalization,Dropout,AlphaDropout
 
 from keras_self_attention import SeqSelfAttention
 from pipeline.pipelineargs import PipelineArgs
@@ -28,43 +28,41 @@ def lstm_att_model():
     activation = tf.keras.activations.swish
 
     # #This is First side-chain: input>LSTM(stateful)>LSTM(stateful)>TD Dense layer. The output is a 3d vector
-    LSTM_1 = LSTM(int(75), return_sequences=True, stateful=True, activation=activation, kernel_initializer=initializer,
-                  bias_initializer=bias_initializer,recurrent_initializer=initializer,bias_regularizer=regularizer,kernel_regularizer=regularizer)(input)
+    x = LSTM(int(75),return_sequences=True, stateful=False, activation=activation,kernel_initializer=initializer,bias_initializer=initializer,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer)(input)
 
-    x = LayerNormalization()(LSTM_1)
+    x = LayerNormalization()(x)
 
-    Dense_1 = Dense(50, activation=activation, kernel_initializer=initializer, bias_initializer=bias_initializer,bias_regularizer=regularizer,kernel_regularizer=regularizer)(x)
+    #x = Dropout(dropout)(x)
 
-    # This is the attention side-chain: LSTM(Stateless)>LSTM>Attention. The output is a 3d vector
+    x = LSTM(int(50), return_sequences=True, stateful=False, activation=activation,kernel_initializer=initializer,bias_initializer=initializer,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer)(x)
 
-    LSTM_3 = LSTM(int(75), return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer,
-                  bias_initializer=bias_initializer,recurrent_initializer=initializer,bias_regularizer=regularizer,kernel_regularizer=regularizer)(input)
+    x = LayerNormalization()(x)
 
-    x = LayerNormalization()(LSTM_3)
+    #x = AlphaDropout(dropout)(x)
 
-    attention_1 = SeqSelfAttention(units=50,bias_initializer=bias_initializer,bias_regularizer=regularizer,kernel_regularizer=regularizer)(x)
-
-    concat = tf.keras.layers.concatenate([Dense_1, attention_1])
-
-    x = BatchNormalization()(concat)
-
-    Dense_fin = Dense(125, activation=activation, kernel_initializer=initializer, bias_initializer=bias_initializer,bias_regularizer=regularizer,kernel_regularizer=regularizer)(
+    x = Dense(40, activation=activation,kernel_initializer=initializer,bias_initializer=initializer,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer)(
         x)
 
-    x = BatchNormalization()(Dense_fin)
 
-    Dense_fin_2 = Dense(75, activation=activation, kernel_initializer=initializer, bias_initializer=bias_initializer,bias_regularizer=regularizer,kernel_regularizer=regularizer)(
+    x = LayerNormalization()(x)
+
+    #x = Dropout(dropout)(x)
+
+    x = Dense(25, activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(
         x)
 
-    x = BatchNormalization()(Dense_fin_2)
+    x = LayerNormalization()(x)
 
-    output = tf.keras.layers.Dense(5, activation='linear', kernel_initializer=initializer, kernel_regularizer=regularizer, bias_initializer=bias_initializer,bias_regularizer=regularizer)(x)
+    #x = Dropout(dropout)(x)
+
+
+    output = tf.keras.layers.Dense(5, activation=activation,kernel_initializer=initializer,bias_initializer=initializer)(x)
 
     lstm_model = tf.keras.Model(inputs=input, outputs=output)
 
     optimizer = tf.keras.optimizers.Adam(learning_rate=network_args.network['lr'], amsgrad=True)
 
     lstm_model.compile(
-        loss=ohlcv_cosine_similarity, optimizer=optimizer, metrics=[metric_signs_close, ohlcv_cosine_similarity])
+        loss=ohlcv_combined, optimizer=optimizer, metrics=[metric_signs_close, ohlcv_cosine_similarity])
 
     return lstm_model

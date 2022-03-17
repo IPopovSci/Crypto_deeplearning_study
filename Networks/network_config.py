@@ -17,7 +17,7 @@ class NetworkParams:
         self.data = {
         }
         self.network = {
-            'model_type': 'dense',
+            'model_type': 'lstm',
             'epochs': 256,
             'dropout': 0.4,
             'l1_reg': 0.0005,
@@ -27,6 +27,6 @@ class NetworkParams:
             'monitor': 'val_loss',
             'mode': 'min',
             'es_patience': 125,
-            'rlr_factor': 0.8,
-            'rlr_patience': 10,
+            'rlr_factor': 0.5,
+            'rlr_patience': 5,
         }

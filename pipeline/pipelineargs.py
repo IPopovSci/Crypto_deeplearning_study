@@ -21,7 +21,7 @@ class PipelineArgs:
             'interval': '1h',
             'train_size': 0.95,
             'test_size': 0.05,
-            'time_steps': 1,
+            'time_steps': 5,
             'batch_size': 128,
             'data_lag': 12,
             'ta': True,
