@@ -27,7 +27,8 @@ def ohlcv_cosine_similarity(y_true,y_pred):
     y_true = math_ops.cast(y_true, y_pred.dtype)
 
 
-    y_pred = y_pred[:,-1,:] #Because Dense predictions will have timesteps
+    if pipeline_args.args['expand_dims'] == False:
+        y_pred = y_pred[:,-1,:] #Because Dense predictions will have timesteps
 
 
     #y_true_un,y_pred_un = unscale(y_true,y_pred)
@@ -48,11 +49,14 @@ def ohlcv_cosine_similarity(y_true,y_pred):
 '''Custom MSE loss
 Extracts the last time step and unscales y values before computing loss'''
 def ohlcv_mse(y_true,y_pred):
+
+    #print(y_pred.shape)
     y_true = ops.convert_to_tensor_v2(y_true)
     y_pred = ops.convert_to_tensor_v2(y_pred)
     y_true = math_ops.cast(y_true, y_pred.dtype)
 
-    y_pred = y_pred[:,-1,:] #Because Dense predictions will have timesteps
+    if pipeline_args.args['expand_dims'] == False:
+        y_pred = y_pred[:,-1,:] #Because Dense predictions will have timesteps
 
 
     y_true_un, y_pred_un = y_true, y_pred
@@ -69,7 +73,8 @@ def ohlcv_abs(y_true,y_pred):
     y_pred = ops.convert_to_tensor_v2(y_pred)
     y_true = math_ops.cast(y_true, y_pred.dtype)
 
-    y_pred = y_pred[:,-1,:] #Because Dense predictions will have timesteps
+    if pipeline_args.args['expand_dims'] == False:
+        y_pred = y_pred[:,-1,:] #Because Dense predictions will have timesteps
 
 
     y_true_un, y_pred_un = y_true, y_pred
@@ -80,11 +85,37 @@ def ohlcv_abs(y_true,y_pred):
     loss = K.mean(K.abs(y_true_un - y_pred_un), axis=-1)
 
     return loss
+
+def assymetric_loss(y_true, y_pred):
+    y_true = ops.convert_to_tensor_v2(y_true)
+    y_pred = ops.convert_to_tensor_v2(y_pred)
+    y_true = math_ops.cast(y_true, y_pred.dtype)
+
+    if pipeline_args.args['expand_dims'] == False:
+        y_pred = y_pred[:,-1,:] #Because Dense predictions will have timesteps
+
+
+    y_true_un, y_pred_un = y_true, y_pred
+
+    y_true_un = y_true_un[:,3]
+    y_pred_un = y_pred_un[:,3]
+
+    alpha = 100.
+    loss = K.switch(K.less(y_true_un * y_pred_un, 0),
+        alpha*y_pred_un**2 - K.sign(y_true_un)*y_pred_un + K.abs(y_true_un),
+        K.abs(y_true_un - y_pred_un)
+        )
+    return K.mean(loss, axis=-1)
+
 '''Combined cosine similarity and MSE loss
 CS loss is squared to put a higher emphasis on the correct direction'''
 def ohlcv_combined(y_true,y_pred):
     loss = (ohlcv_mse(y_true,y_pred) * (ohlcv_cosine_similarity(y_true,y_pred)))
 
+    return loss
+
+def assymetric_combined(y_true,y_pred):
+    loss = assymetric_loss(y_true,y_pred) * ohlcv_combined(y_true,y_pred)
     return loss
 
 def metric_signs_close(y_true,y_pred):
@@ -94,7 +125,8 @@ def metric_signs_close(y_true,y_pred):
     y_true = math_ops.cast(y_true, y_pred.dtype)
 
 
-    y_pred = y_pred[:, -1, :]  # Because Dense predictions will have timesteps
+    if pipeline_args.args['expand_dims'] == False:
+        y_pred = y_pred[:,-1,:] #Because Dense predictions will have timesteps
 
 
 

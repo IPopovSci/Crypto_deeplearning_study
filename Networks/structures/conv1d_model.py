@@ -5,7 +5,7 @@ from tensorflow.keras.layers import Dense, Input, GaussianNoise,Conv1D,MaxPoolin
 
 from pipeline.pipelineargs import PipelineArgs
 from Networks.network_config import NetworkParams
-from Networks.losses_metrics import ohlcv_mse,ohlcv_cosine_similarity,metric_signs_close,ohlcv_combined
+from Networks.losses_metrics import ohlcv_mse,ohlcv_cosine_similarity,metric_signs_close,ohlcv_combined,assymetric_loss
 
 pipeline_args = PipelineArgs.get_instance()
 network_args = NetworkParams.get_instance()
@@ -74,6 +74,6 @@ def conv1d_model():
     optimizer = tf.keras.optimizers.Adam(learning_rate=network_args.network['lr'],amsgrad=True)
 
     lstm_model.compile(
-        loss=ohlcv_combined, optimizer=optimizer, metrics=[metric_signs_close,ohlcv_cosine_similarity,ohlcv_mse])
+        loss=assymetric_loss, optimizer=optimizer, metrics=[metric_signs_close,ohlcv_cosine_similarity,ohlcv_mse])
 
     return lstm_model

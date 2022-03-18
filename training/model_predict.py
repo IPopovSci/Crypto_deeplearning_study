@@ -7,7 +7,7 @@ import tensorflow as tf
 from pipeline.pipelineargs import PipelineArgs
 from dotenv import load_dotenv
 from Networks.network_config import NetworkParams
-from Networks.losses_metrics import ohlcv_combined,metric_signs_close,ohlcv_cosine_similarity,ohlcv_mse
+from Networks.losses_metrics import ohlcv_combined,metric_signs_close,ohlcv_cosine_similarity,ohlcv_mse,assymetric_loss,assymetric_combined
 from utility import unscale
 from Backtesting.Backtesting import correct_signs, information_coefficient
 from plotting import plot_results
@@ -26,9 +26,9 @@ time_steps = pipeline_args.args['time_steps']
 pipeline_args.args['mode'] = 'prediction'
 
 x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = pipeline(pipeline_args)
-def plot_backtest(y_pred):
-
-    y_pred = y_pred[:, -1, :]  # Because Dense predictions will have timesteps
+def plot_backtest(y_test_t,y_pred):
+    if pipeline_args.args['expand_dims'] == False:
+        y_pred = y_pred[:,-1,:] #Because Dense predictions will have timesteps
 
     #y_true, y_pred = unscale(y_test_t,y_pred)
 
@@ -49,6 +49,8 @@ def plot_backtest(y_pred):
     #print(np.mean(y_pred))
     print(correct_signs(y_true,y_pred))
     print(correct_signs(y_true,y_pred_nomean))
+    print(y_pred[-1])
+    print(y_pred_nomean[-1])
     information_coefficient(y_true,y_pred)
 
 
@@ -56,7 +58,7 @@ def plot_backtest(y_pred):
 def predict(model_name='Default'):
     #print(os.getenv('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}\\'+ f'{model_name}.h5')
     saved_model = load_model(filepath=(os.getenv('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}\\'+ f'{model_name}'),
-                             custom_objects={'metric_signs_close':metric_signs_close,'SeqSelfAttention': SeqSelfAttention,'ohlcv_combined':ohlcv_combined,'ohlcv_cosine_similarity':ohlcv_cosine_similarity,'ohlcv_mse':ohlcv_mse})
+                             custom_objects={'assymetric_combined':assymetric_combined,'assymetric_loss':assymetric_loss,'metric_signs_close':metric_signs_close,'SeqSelfAttention': SeqSelfAttention,'ohlcv_combined':ohlcv_combined,'ohlcv_cosine_similarity':ohlcv_cosine_similarity,'ohlcv_mse':ohlcv_mse})
     saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00000005),
                         loss= ohlcv_combined,metrics=metric_signs_close)
 
@@ -72,6 +74,6 @@ def predict(model_name='Default'):
 for file in os.listdir((os.getenv('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}\\')):
     print(file)
     y_pred = predict(file)
-    plot_backtest(y_pred)
+    plot_backtest(y_test_t,y_pred)
 
 

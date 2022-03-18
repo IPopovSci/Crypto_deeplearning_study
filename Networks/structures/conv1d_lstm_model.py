@@ -1,7 +1,7 @@
 
 import tensorflow as tf
 
-from tensorflow.keras.layers import Input, GaussianNoise,BatchNormalization, LSTM,LayerNormalization
+from tensorflow.keras.layers import Input, GaussianNoise,BatchNormalization, LSTM,LayerNormalization,Dense,MaxPooling1D,Flatten
 from keras.layers.convolutional_recurrent import ConvLSTM1D
 
 from pipeline.pipelineargs import PipelineArgs
@@ -26,23 +26,38 @@ def convlstm_model():
     initializer = tf.keras.initializers.LecunNormal()
     dropout = network_args.network['dropout']
 
-    activation = 'softsign'
+    activation = tf.keras.activations.swish
 
-    noise = GaussianNoise(0.05)(input)
+    x = ConvLSTM1D(64,stateful=False,kernel_size=3,bias_initializer=initializer,bias_regularizer=regularizer,activity_regularizer=regularizer,recurrent_regularizer=regularizer,recurrent_initializer=initializer,activation=activation,kernel_initializer=initializer,kernel_regularizer=regularizer,return_sequences=True,padding='same')(input)
 
-    convlstm = ConvLSTM1D(64,stateful=True,kernel_size=5,recurrent_initializer=initializer,activation=activation,kernel_initializer=initializer,kernel_regularizer=regularizer,return_sequences=True,padding='same')(noise)
+    x = LayerNormalization()(x)
 
-    convlstm = LayerNormalization()(convlstm)
+    x = ConvLSTM1D(64,stateful=False,kernel_size=3,bias_initializer=initializer,bias_regularizer=regularizer,activity_regularizer=regularizer,recurrent_regularizer=regularizer,recurrent_initializer=initializer, activation=activation,kernel_initializer=initializer, kernel_regularizer=regularizer,return_sequences=True,padding='same')(x)
 
-    convlstm = ConvLSTM1D(64,stateful=True,kernel_size=3,recurrent_initializer=initializer, activation=activation,kernel_initializer=initializer, kernel_regularizer=regularizer,return_sequences=True,padding='same')(convlstm)
+    x = LayerNormalization()(x)
 
-    convlstm = LayerNormalization()(convlstm)
+    x = ConvLSTM1D(64,stateful=False,kernel_size=3,bias_initializer=initializer,bias_regularizer=regularizer,activity_regularizer=regularizer,recurrent_regularizer=regularizer,recurrent_initializer=initializer, activation=activation,kernel_initializer=initializer, kernel_regularizer=regularizer,return_sequences=False,padding='same')(x)
 
-    convlstm = ConvLSTM1D(64,stateful=True,kernel_size=1,recurrent_initializer=initializer, activation=activation,kernel_initializer=initializer, kernel_regularizer=regularizer,return_sequences=False,padding='same')(convlstm)
+    x = LayerNormalization()(x)
 
-    output = LSTM(5,stateful=True,activation='linear',return_sequences=True)(convlstm)
+    x = MaxPooling1D(pool_size=4,activity_regularizer=regularizer)(x)
 
-    #output = tf.keras.layers.Dense(5,activation='softsign',kernel_regularizer=regularizer)(output)
+    x = Flatten()(x)
+
+    x = LayerNormalization()(x)
+
+    x = Dense(32,activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(
+        x)  # do we need tanh activation here? Ensemble with none mb
+
+
+    x = LayerNormalization()(x)
+
+    x = Dense(16,activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(
+        x)  # do we need tanh activation here? Ensemble with none mb
+
+    x = LayerNormalization()(x)
+
+    output = tf.keras.layers.Dense(5, activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
 
 
     lstm_model = tf.keras.Model(inputs=input, outputs=output)
