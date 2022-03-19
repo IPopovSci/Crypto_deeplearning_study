@@ -45,19 +45,32 @@ def plot_backtest(y_test_t,y_pred):
     y_true_average = np.convolve(y_true, window_true*3, 'same')
     y_pred_average = np.convolve(y_pred, window_pred, 'same')
 
-    #plot_results(y_pred,y_true)
-    #print(np.mean(y_pred))
+    def normalize(y_true,y_pred):
+        norm = abs(y_true)/abs(y_pred)
+        y_pred = norm * y_pred
+        return y_pred
+
+    information_coefficient(y_true, y_pred)
+
+    y_pred = normalize(y_true, y_pred)
+
     print(correct_signs(y_true,y_pred))
     print(correct_signs(y_true,y_pred_nomean))
     print(y_pred[-1])
     print(y_pred_nomean[-1])
-    information_coefficient(y_true,y_pred)
+
+
+
+
+    #plot_results(y_pred,y_true)
+    #print(np.mean(y_pred))
+
 
 
 #TODO: ticker name of data is different from API - mini facade? During training data split destroys testing data, need to disable it
 def predict(model_name='Default'):
     #print(os.getenv('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}\\'+ f'{model_name}.h5')
-    saved_model = load_model(filepath=(os.getenv('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}\\'+ f'{model_name}'),
+    saved_model = load_model(filepath=(os.getenv('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}\\'+ model_name),
                              custom_objects={'assymetric_combined':assymetric_combined,'assymetric_loss':assymetric_loss,'metric_signs_close':metric_signs_close,'SeqSelfAttention': SeqSelfAttention,'ohlcv_combined':ohlcv_combined,'ohlcv_cosine_similarity':ohlcv_cosine_similarity,'ohlcv_mse':ohlcv_mse})
     saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00000005),
                         loss= ohlcv_combined,metrics=metric_signs_close)
