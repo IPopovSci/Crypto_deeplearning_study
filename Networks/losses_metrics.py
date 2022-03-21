@@ -25,7 +25,7 @@ def ohlcv_cosine_similarity(y_true, y_pred):
 
     loss = tf.keras.losses.cosine_similarity(y_true, y_pred, axis=-1)
 
-    return 1000 * (loss + 1.0)
+    return 100 * (loss + 1.0)
 
 
 '''Custom MSE loss
@@ -54,7 +54,7 @@ def assymetric_loss(y_true, y_pred):
     if pipeline_args.args['expand_dims'] == False:
         y_pred = y_pred[:, -1, :]  # Because Dense predictions will have timesteps
 
-    alpha = 5000.
+    alpha = 100.
     loss = K.switch(K.less(y_true * y_pred, 0),
                     alpha * y_pred ** 2 + K.abs(y_true) - K.sign(y_true) * y_pred,
                     K.abs(y_true - y_pred)
@@ -83,28 +83,13 @@ def metric_loss(y_true, y_pred):
 
 
 def metric_signs_close(y_true, y_pred):
-    y_true = ops.convert_to_tensor_v2(y_true)
-    y_pred = ops.convert_to_tensor_v2(y_pred)
-    y_true = math_ops.cast(y_true, y_pred.dtype)
-
     if pipeline_args.args['expand_dims'] == False:
         y_pred = y_pred[:, -1, :]  # Because Dense predictions will have timesteps
 
-    # y_true_un, y_pred_un = unscale(y_true, y_pred)
-    y_true_un, y_pred_un = y_true, y_pred
-
-    y_true_un = tf.expand_dims(y_true_un[:, 3], axis=1)  # This metric works on closing
-    y_pred_un = tf.expand_dims(y_pred_un[:, 3], axis=1)
-
-    # print(y_pred_un.shape, y_true_un.shape)
-
-    # y_pred_un = y_pred_un - tf.reduce_mean(y_pred_un)
-    # y_true_un = y_true_un - tf.reduce_mean(y_true_un)
-
-    y_true_sign = math_ops.sign(y_true_un)
-    y_pred_sign = math_ops.sign(y_pred_un)
+    y_true_sign = math_ops.sign(y_true)
+    y_pred_sign = math_ops.sign(y_pred)
 
     metric = math_ops.divide(math_ops.abs(math_ops.subtract(y_true_sign, y_pred_sign)), 2.)
 
-    return math_ops.multiply(math_ops.divide(math_ops.subtract(float(batch_size), K.sum(metric)), float(batch_size)),
+    return math_ops.multiply(math_ops.divide(math_ops.subtract(float(batch_size), K.sum(metric)/5), float(batch_size)),
                              100.)
