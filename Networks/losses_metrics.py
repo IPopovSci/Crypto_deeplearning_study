@@ -54,7 +54,7 @@ def assymetric_loss(y_true, y_pred):
     if pipeline_args.args['expand_dims'] == False:
         y_pred = y_pred[:, -1, :]  # Because Dense predictions will have timesteps
 
-    alpha = 100.
+    alpha = 1000.
     loss = K.switch(K.less(y_true * y_pred, 0),
                     alpha * y_pred ** 2 + K.abs(y_true) - K.sign(y_true) * y_pred,
                     K.abs(y_true - y_pred)

@@ -6,7 +6,7 @@ from sklearn.decomposition import PCA
 
 
 def pca_reduction(x_train, x_validation, x_test):
-    pca = PCA(n_components='mle', svd_solver='auto', whiten=True)  # Auto-solve for number of components
+    pca = PCA(n_components=82, svd_solver='auto', whiten=True)  # Auto-solve for number of components
 
     #print('Dimensions before PCA:', x_train.shape)
 

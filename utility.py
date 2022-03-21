@@ -75,8 +75,6 @@ def remove_mean(data):
     sc_x = StandardScaler(with_std=False)
 
     data = sc_x.fit_transform(data)
-
-    sc_x = None
     return data
 
 

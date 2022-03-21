@@ -25,7 +25,13 @@ def dense_model():
 
     activation = tf.keras.activations.swish
 
-    x = Dense(50,activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(input)
+    x = Dense(75,activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(input)
+
+    x = BatchNormalization()(x)
+
+    x = Dropout(dropout)(x)
+
+    x = Dense(50,activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
 
     x = BatchNormalization()(x)
 
@@ -37,20 +43,14 @@ def dense_model():
 
     x = Dropout(dropout)(x)
 
-    x = Dense(30,activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
+
+    x = Dense(25,activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
 
     x = BatchNormalization()(x)
 
     x = Dropout(dropout)(x)
 
-
-    x = Dense(15,activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
-
-    x = BatchNormalization()(x)
-
-    x = Dropout(dropout)(x)
-
-    x = Dense(5,activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
+    x = Dense(7,activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
 
     x = BatchNormalization()(x)
 
@@ -67,6 +67,6 @@ def dense_model():
     optimizer = tf.keras.optimizers.Adam(learning_rate=network_args.network['lr'],amsgrad=True)
 
     lstm_model.compile(
-        loss=ohlcv_combined, optimizer=optimizer, metrics=[metric_signs_close])
+        loss=metric_loss, optimizer=optimizer, metrics=[metric_signs_close])
 
     return lstm_model

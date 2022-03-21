@@ -46,7 +46,7 @@ def lagged_returns(df,lags):
         df[f'target_{t}h'] = df[f'return_{t}h'].shift(-t)
         df = df[[f'target_{t}h'] + [col for col in df.columns if col != f'target_{t}h']] #Puts the return columns up front, for easier grabbing later
 
-    #print(df.head(n=30))
+    print(df.head(n=30))
 
 
     #df_diff = df.iloc[1:, :]  # this drops the first row (For avoiding N/A)

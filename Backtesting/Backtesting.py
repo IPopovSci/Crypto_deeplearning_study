@@ -13,9 +13,12 @@ load_dotenv()
 pipeline_args = PipelineArgs.get_instance()
 
 def correct_signs(y_true,y_pred):
-    y_total = np.empty(5)
     if pipeline_args.args['expand_dims'] == False:
         y_pred = y_pred[:,-1,:]
+    y_total = np.empty(5)
+    y_total_mean = np.empty(5)
+    y_pred_mean = y_pred - np.mean(y_pred,axis=0)
+
 
 
     for i in range(5):
@@ -26,7 +29,18 @@ def correct_signs(y_true,y_pred):
 
         y_total[i] = np.sum(y_total_sign)
 
+
+        y_pred_sign_mean = np.sign(y_pred_mean[:,i])
+
+        y_total_sign_mean = np.multiply(y_true_sign,y_pred_sign_mean)
+
+        y_total_mean[i] = np.sum(y_total_sign_mean)
+
+
+
+
         print(f'{pipeline_args.args["data_lag"][-i-1]}h correct amount of signs is: {y_total[i]}')
+        print(f'{pipeline_args.args["data_lag"][-i - 1]}h correct amount of signs with mean removal is: {y_total_mean[i]}')
 
 
 def information_coefficient(y_true,y_pred):
@@ -41,10 +55,9 @@ def information_coefficient(y_true,y_pred):
 
     return coef_r,p_r
 
-def plot_backtest(y_test_t,y_pred):
-    if pipeline_args.args['expand_dims'] == False:
-        y_pred = y_pred[:,-1,:] #Because Dense predictions will have timesteps
-
+#information_coefficient(-1,1)
+#Make function that takes 5 lags every day and plots a graph of spearman correlation for all 5 (with mean)
+# Make a graph that generates 5 subplots with lags and prices
 
 
 def ic_coef(y_true,y_pred):

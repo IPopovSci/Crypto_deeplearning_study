@@ -10,7 +10,7 @@ from Networks.network_config import NetworkParams
 from Networks.losses_metrics import ohlcv_combined,metric_signs_close,ohlcv_cosine_similarity,ohlcv_mse,assymetric_loss,assymetric_combined,metric_loss
 from utility import unscale
 from Backtesting.Backtesting import correct_signs, information_coefficient, ic_coef
-from plotting import plot_results
+from plotting import plot_results,plot_results_v2
 from utility import remove_mean
 import numpy as np
 import glob
@@ -37,13 +37,16 @@ def predict(model_name='Default'):
     saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00000005),
                         loss= ohlcv_combined,metrics=metric_signs_close)
 
-    y_pred = saved_model.predict(trim_dataset(x_test_t[:-400], batch_size), batch_size=batch_size)
+    y_pred = saved_model.predict(trim_dataset(x_test_t[:-500], batch_size), batch_size=batch_size)
 
     y_pred = saved_model.predict(trim_dataset(x_test_t[:], batch_size), batch_size=batch_size)
 
     return y_pred
 
-y_pred = predict('47.2_31.60938644_01.h5')
+y_pred = predict('100.1238_3.35956836_27.h5')
 
 ic_coef(y_test_t,y_pred)
 correct_signs(y_test_t,y_pred)
+if pipeline_args.args['expand_dims'] == False:
+    y_pred = y_pred[:, -1, :]
+plot_results_v2(y_test_t,y_pred)
