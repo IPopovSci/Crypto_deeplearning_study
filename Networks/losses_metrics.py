@@ -1,10 +1,6 @@
-import os
-
-import joblib
 import tensorflow as tf
 import tensorflow.keras.backend as K
 from dotenv import load_dotenv
-from tensorflow.python.framework import ops
 from tensorflow.python.ops import math_ops
 from pipeline.pipelineargs import PipelineArgs
 
@@ -25,11 +21,11 @@ def ohlcv_cosine_similarity(y_true, y_pred):
 
     loss = tf.keras.losses.cosine_similarity(y_true, y_pred, axis=-1)
 
-    return 100 * (loss + 1.0)
+    return loss + 1.0
 
 
 '''Custom MSE loss
-Extracts the last time step and unscales y values before computing loss'''
+Extracts the last time step and computes MSE loss'''
 
 
 def ohlcv_mse(y_true, y_pred):
@@ -40,6 +36,8 @@ def ohlcv_mse(y_true, y_pred):
 
     return loss
 
+'''Custom absolute value loss
+Extracts the last time step and computes absolute value loss'''
 
 def ohlcv_abs(y_true, y_pred):
     if pipeline_args.args['expand_dims'] == False:
@@ -54,7 +52,7 @@ def assymetric_loss(y_true, y_pred):
     if pipeline_args.args['expand_dims'] == False:
         y_pred = y_pred[:, -1, :]  # Because Dense predictions will have timesteps
 
-    alpha = 1000.
+    alpha = 100.
     loss = K.switch(K.less(y_true * y_pred, 0),
                     alpha * y_pred ** 2 + K.abs(y_true) - K.sign(y_true) * y_pred,
                     K.abs(y_true - y_pred)

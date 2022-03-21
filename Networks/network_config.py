@@ -1,3 +1,6 @@
+"""Singleton class containing settings for the network configuration."""
+
+
 class NetworkParams:
     __instance = None
 
@@ -17,12 +20,12 @@ class NetworkParams:
         self.data = {
         }
         self.network = {
-            'model_type': 'lstm',
+            'model_type': 'conv1d',
             'epochs': 256,
             'dropout': 0.3,
             'l1_reg': 0.0005,
             'l2_reg': 0.0005,
-            'lr': 0.0005}
+            'lr': 0.00005}
         self.callbacks = {
             'monitor': 'val_loss',
             'mode': 'min',

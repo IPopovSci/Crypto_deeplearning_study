@@ -4,8 +4,6 @@ from Networks.network_config import NetworkParams
 from pipeline.pipelineargs import PipelineArgs
 from dotenv import load_dotenv
 
-from utility import hash_folder_create
-
 load_dotenv()
 
 network_args = NetworkParams.get_instance()
@@ -24,8 +22,14 @@ def callbacks():
 
     mcp = ModelCheckpoint(
         os.path.join(os.getenv('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}',
-                     "{val_ohlcv_cosine_similarity:.4f}_{val_loss:.8f}_{epoch:02d}.h5"),
+                     "{val_ohlcv_cosine_similarity:.4f}_{val_loss:.4f}_{val_metric_signs_close:.4f}.h5"),
         monitor=network_args.callbacks['monitor'], verbose=3,
         save_best_only=True, save_weights_only=False, mode=network_args.callbacks['mode'], period=1)
 
     return [early_stop,reduce_lr,mcp]
+
+class ResetStatesOnEpochEnd(keras.callbacks.Callback):
+    def on_epoch_begin(self, epoch, logs=None):
+        self.model.reset_states()
+        print((self.model.output))
+        print('states are reset!')

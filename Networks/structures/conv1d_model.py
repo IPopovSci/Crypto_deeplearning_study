@@ -30,44 +30,16 @@ def conv1d_model():
     x = Conv1D(kernel_size=3,filters=64, kernel_initializer=initializer, kernel_regularizer=regularizer,bias_initializer=initializer,bias_regularizer=regularizer,activity_regularizer=regularizer,
                     activation=activation, padding='same')(input)
 
-    # x = BatchNormalization()(x)
-    #
-    # x = Dropout(dropout)(x)
-
-    x = Conv1D(kernel_size=3, filters=64, kernel_initializer=initializer, kernel_regularizer=regularizer,bias_initializer=initializer,bias_regularizer=regularizer,activity_regularizer=regularizer,
-                    activation=activation, padding='same')(x)
-
-    #x = BatchNormalization()(x)
-    #
-    # x = Dropout(dropout)(x)
-
-    # x = MaxPooling1D(pool_size=4,activity_regularizer=regularizer)(x)
-    #
-    # #flat = Flatten()(pool)
-    #
-    # x = BatchNormalization()(x)
-    #
-    # x = Dropout(dropout)(x)
-
     x = Dense(48,activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(
         x)  # do we need tanh activation here? Ensemble with none mb
-
-    #x = BatchNormalization()(x)
-
-    # x = Dropout(dropout)(x)
-
 
 
     x = Dense(32, activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(
         x)  # do we need tanh activation here? Ensemble with none mb
 
-    #x = BatchNormalization()(x)
-    #
-    # x = Dropout(dropout)(x)
 
 
-
-    output = tf.keras.layers.Dense(5, activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
+    output = tf.keras.layers.Dense(5, activation='linear',activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
 
 
     lstm_model = tf.keras.Model(inputs=input, outputs=output)

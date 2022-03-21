@@ -5,6 +5,7 @@ from Data_Processing.data_split import train_test_split_custom, x_y_split
 from Data_Processing.data_scaling import SS_transform, min_max_transform
 from Data_Processing.PCA import pca_reduction
 from Data_Processing.build_timeseries import build_timeseries
+from pipeline.pipelineargs import PipelineArgs
 import os
 from dotenv import load_dotenv
 from utility import structure_create
@@ -12,12 +13,17 @@ from utility import structure_create
 load_dotenv()
 
 
-'''This is the pipeline function, which will call upon required functions to load and process the data'''
+'''Pipeline function
+
+This function obtains, augments, cleans and separates the data required for the neural network.
+
+Outputs: train, validation, test arrays for inputs and outputs (x and y), as well as the size of training set.'''
 
 
-def pipeline(pipeline_args):
-    '''Step 0: Create folder structure, if needed'''
+def pipeline():
+    '''Step 0: Create folder structure and grab settings'''
     structure_create()
+    pipeline_args = PipelineArgs.get_instance()
     '''Step 1: Get Data'''
     if pipeline_args.args['mode'] == 'training':
         history = scv_data(pipeline_args.args['ticker'], os.getenv('data_path'), pipeline_args.args['interval'])
@@ -68,7 +74,7 @@ def pipeline(pipeline_args):
                                                                                                   os.getenv('mm_path'))
     '''Step 9: Create time-series data'''
 
-    size = len(x_train) - 1
+    size = len(x_train)
     if pipeline_args.args['mode'] == 'training': #This is to prevent errors during predictions due to timesteps
         x_train, y_train = build_timeseries(x_train, y_train,pipeline_args.args['time_steps'],pipeline_args.args['batch_size'],expand_dims=pipeline_args.args['expand_dims'],data_lag = pipeline_args.args['data_lag'])
 

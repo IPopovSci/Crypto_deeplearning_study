@@ -1,3 +1,6 @@
+"""Singleton class containing settings for the data pipeline."""
+
+
 class PipelineArgs:
     __instance = None
 
@@ -21,7 +24,7 @@ class PipelineArgs:
             'interval': '1h',
             'train_size': 0.95,
             'test_size': 0.05,
-            'time_steps': 10,
+            'time_steps': 5,
             'batch_size': 128,
             'data_lag': [48,24,12,4,1],
             'ta': True,

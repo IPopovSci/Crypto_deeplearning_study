@@ -43,15 +43,16 @@ def correct_signs(y_true,y_pred):
         print(f'{pipeline_args.args["data_lag"][-i - 1]}h correct amount of signs with mean removal is: {y_total_mean[i]}')
 
 
-def information_coefficient(y_true,y_pred):
+def information_coefficient(y_true,y_pred,verbose=True):
     coef_r, p_r = spearmanr(y_true, y_pred)
     alpha = 0.05
-    if p_r < alpha:
-        print('Samples are correlated (reject H0) p=%.3f' % p_r)
-        print('Spearmans correlation coefficient: %.3f' % coef_r)
-    else:
-        print('Samples are un-correlated (Fail to reject H0) p=%.3f' % p_r)
-        print('Spearmans correlation coefficient: %.3f' % coef_r)
+    if verbose:
+        if p_r < alpha:
+            print('Samples are correlated (reject H0) p=%.3f' % p_r)
+            print('Spearmans correlation coefficient: %.3f' % coef_r)
+        else:
+            print('Samples are un-correlated (Fail to reject H0) p=%.3f' % p_r)
+            print('Spearmans correlation coefficient: %.3f' % coef_r)
 
     return coef_r,p_r
 

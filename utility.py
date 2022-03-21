@@ -6,14 +6,15 @@ from dotenv import load_dotenv
 from pipeline.pipelineargs import PipelineArgs
 from Networks.network_config import NetworkParams
 from sklearn.preprocessing import StandardScaler
-
 import joblib
 
 load_dotenv()
 pipeline_args = PipelineArgs.get_instance()
 network_args = NetworkParams.get_instance()
+
+
 '''This function will resample all csv files in data_path\\interval_from folder to interval_to interval
-accepts: interval_from - folder name with respective data interval
+accepts: interval_from - folder name with data of respective data interval
         interval_to - which interval to resample to, and which respective folder to save to'''
 def resample(interval_from,interval_to):
     all_csv = os.path.join(os.getenv('data_path') + f'\{interval_from}','*.csv')
@@ -42,6 +43,9 @@ def resample(interval_from,interval_to):
 
         df.to_csv(os.getenv('data_path') + f'\{interval_to}' + f'\\{filename}')
 
+'''This function unscales inputs based on existing scalers
+Accepts: true and prediction arrays.
+Returns: unscaled true and prediction arrays.'''
 def unscale(y_true,y_pred):
     mm_y = joblib.load(pipeline_args.args['mm_y_path'])
     sc_y = joblib.load(pipeline_args.args['ss_y_path'])
@@ -54,6 +58,8 @@ def unscale(y_true,y_pred):
 
     return y_true_un,y_pred_un
 
+'''This function creates the required folders for the data pipeline to function, if needed
+If required folders do not exist, creates folders for standard scaler, min-max scaler as well as a folder to store model of type "model_type" from network arguments dict'''
 def structure_create():
     #Check and create folders for scalers if they don't exist
     if not os.path.exists(os.getenv('ss_path') + f'\{pipeline_args.args["interval"]}' + f'\\{pipeline_args.args["ticker"]}'):
@@ -67,9 +73,9 @@ def structure_create():
     if not os.path.exists(os.getenv('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}'):
         os.makedirs(os.getenv('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}', mode=0o777)
 
-def hash_folder_create():
-    if not os.path.exists(os.getenv('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}'):
-        os.makedirs(os.getenv('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}', mode=0o777)
+'''This utility function removes mean of set from the input data using standard scaler
+Accepts: numpy or pandas array
+Returns: numpy or pandas array'''
 
 def remove_mean(data):
     sc_x = StandardScaler(with_std=False)

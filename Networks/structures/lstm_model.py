@@ -28,16 +28,16 @@ def lstm_att_model():
     activation = 'selu'
 
     # #This is First side-chain: input>LSTM(stateful)>LSTM(stateful)>TD Dense layer. The output is a 3d vector
-    x = LSTM(int(75),return_sequences=True, stateful=False, activation=activation,kernel_initializer=initializer,bias_initializer=initializer,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer)(input)
+    x = LSTM(int(50),return_sequences=True, stateful=False, activation=activation,kernel_initializer=initializer,bias_initializer=initializer,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer)(input)
 
     #x = LayerNormalization()(x)
 
-    x = LSTM(int(50),return_sequences=True, stateful=False, activation=activation,kernel_initializer=initializer,bias_initializer=initializer,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer)(x)
+    x = LSTM(int(25),return_sequences=True, stateful=False, activation=activation,kernel_initializer=initializer,bias_initializer=initializer,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer)(x)
 
     #x = LayerNormalization()(x)
 
 
-    x = Dense(50, activation=activation,kernel_initializer=initializer,bias_initializer=initializer,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer)(
+    x = Dense(10, activation=activation,kernel_initializer=initializer,bias_initializer=initializer,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer)(
         x)
 
 
@@ -45,7 +45,7 @@ def lstm_att_model():
 
     #x = Dropout(dropout)(x)
 
-    x = Dense(25, activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(
+    x = Dense(5, activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(
         x)
 
     #x = LayerNormalization()(x)
@@ -53,7 +53,7 @@ def lstm_att_model():
     #x = Dropout(dropout)(x)
 
 
-    output = tf.keras.layers.Dense(5, activation=activation,kernel_initializer=initializer,bias_initializer=initializer)(x)
+    output = tf.keras.layers.Dense(5, activation='linear',kernel_initializer=initializer,bias_initializer=initializer)(x)
 
     lstm_model = tf.keras.Model(inputs=input, outputs=output)
 

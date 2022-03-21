@@ -1,7 +1,6 @@
 import pandas as pd
 import yfinance as yf
 from datetime import datetime
-from test_and_debug.test_arrays import dummy_timeseries
 import cryptowatch as cw
 from coinapi_rest_v1.restapi import CoinAPIv1
 import datetime
@@ -12,7 +11,7 @@ Ticker_data grabs specific ticker, vix_data will grab only vix data and rename i
 
 def ticker_data(ticker, start_date):
     col = ['Open', 'High', 'Low', 'Close', 'Volume']  # Relevant Columns
-    pipeline_args.args['target_features'] = col  # Send the features to predict name columns to the dictionary
+    #pipeline_args.args['target_features'] = col  # Send the features to predict name columns to the dictionary
 
     stock_object = yf.Ticker(ticker)  # yf stock object
 

@@ -14,10 +14,13 @@ pipeline_args = PipelineArgs.get_instance()
 batch_size = pipeline_args.args['batch_size']
 time_steps = pipeline_args.args['time_steps']
 
-x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = pipeline(pipeline_args)
+x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = pipeline()
 
+
+'''Function to train new models
+Creates a model based on model_type parameter in the network settings dict.
+Performs fitting of x data on the model using the .fit method'''
 def train_model():
-
 
     lstm_model = create_model()
 
