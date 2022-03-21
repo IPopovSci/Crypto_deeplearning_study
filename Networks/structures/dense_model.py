@@ -67,6 +67,6 @@ def dense_model():
     optimizer = tf.keras.optimizers.Adam(learning_rate=network_args.network['lr'],amsgrad=True)
 
     lstm_model.compile(
-        loss=metric_loss, optimizer=optimizer, metrics=[metric_signs_close])
+        loss=ohlcv_combined, optimizer=optimizer, metrics=[metric_signs_close])
 
     return lstm_model

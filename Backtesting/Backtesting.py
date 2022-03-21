@@ -3,22 +3,30 @@ from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
 from tensorflow.python.ops import math_ops
 from scipy.stats import spearmanr,kendalltau
+from pipeline.pipelineargs import PipelineArgs
+from dotenv import load_dotenv
+from Networks.network_config import NetworkParams
+import pandas as pd
 
 import os
+load_dotenv()
+pipeline_args = PipelineArgs.get_instance()
 
 def correct_signs(y_true,y_pred):
-    try:
-        y_true_sign = np.sign(y_true[:,3])
-        y_pred_sign = np.sign(y_pred[:,3])
-    except:
-        y_true_sign = np.sign(y_true[:])
-        y_pred_sign = np.sign(y_pred[:])
+    y_total = np.empty(5)
+    if pipeline_args.args['expand_dims'] == False:
+        y_pred = y_pred[:,-1,:]
 
-    y_total_sign = np.multiply(y_true_sign,y_pred_sign)
 
-    y_total = np.sum(y_total_sign)
+    for i in range(5):
+        y_true_sign = np.sign(y_true[:,i])
+        y_pred_sign = np.sign(y_pred[:,i])
 
-    return y_total
+        y_total_sign = np.multiply(y_true_sign,y_pred_sign)
+
+        y_total[i] = np.sum(y_total_sign)
+
+        print(f'{pipeline_args.args["data_lag"][-i-1]}h correct amount of signs is: {y_total[i]}')
 
 
 def information_coefficient(y_true,y_pred):
@@ -27,16 +35,25 @@ def information_coefficient(y_true,y_pred):
     if p_r < alpha:
         print('Samples are correlated (reject H0) p=%.3f' % p_r)
         print('Spearmans correlation coefficient: %.3f' % coef_r)
-
-    coef, p = kendalltau(y_true, y_pred)
-
-    # interpret the significance
-    alpha = 0.05
-    if p < alpha:
-        print('Samples are correlated (reject H0) p=%.3f' % p)
-        print('Kendall correlation coefficient: %.3f' % coef)
+    else:
+        print('Samples are un-correlated (Fail to reject H0) p=%.3f' % p_r)
+        print('Spearmans correlation coefficient: %.3f' % coef_r)
 
     return coef_r,p_r
+
+def plot_backtest(y_test_t,y_pred):
+    if pipeline_args.args['expand_dims'] == False:
+        y_pred = y_pred[:,-1,:] #Because Dense predictions will have timesteps
+
+
+
+def ic_coef(y_true,y_pred):
+    if pipeline_args.args['expand_dims'] == False:
+        y_pred = y_pred[:,-1,:]
+
+    for i in range(5):
+        print(f'{pipeline_args.args["data_lag"][-i-1]}h lag spearman statistics:')
+        information_coefficient(y_true[:,i],y_pred[:,i])
 
 
 

@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from Networks.network_config import NetworkParams
 from Networks.losses_metrics import ohlcv_combined,metric_signs_close,ohlcv_cosine_similarity,ohlcv_mse,assymetric_loss,assymetric_combined,metric_loss
 from utility import unscale
-from Backtesting.Backtesting import correct_signs, information_coefficient
+from Backtesting.Backtesting import correct_signs, information_coefficient, ic_coef
 from plotting import plot_results
 from utility import remove_mean
 import numpy as np
@@ -26,42 +26,6 @@ time_steps = pipeline_args.args['time_steps']
 pipeline_args.args['mode'] = 'prediction'
 
 x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = pipeline(pipeline_args)
-def plot_backtest(y_test_t,y_pred):
-    if pipeline_args.args['expand_dims'] == False:
-        y_pred = y_pred[:,-1,:] #Because Dense predictions will have timesteps
-
-    #y_true, y_pred = unscale(y_test_t,y_pred)
-
-
-    y_pred_nomean = remove_mean(y_pred)
-
-    y_true = y_test_t[:,3]
-    y_pred = y_pred[:,3]
-    y_pred_nomean = y_pred_nomean[:,3]
-
-    coef,p_r = information_coefficient(y_true, y_pred)
-
-    def normalize(y_true,y_pred):
-        norm = abs(y_true)/abs(y_pred)
-        y_pred = norm * y_pred
-        return y_pred
-
-    #print(p_r)
-
-    if 0.05 > p_r:
-        y_pred_nomean = normalize(y_true,y_pred_nomean)
-        print(correct_signs(y_true,y_pred))
-        print(correct_signs(y_true,y_pred_nomean))
-        print(y_pred[-1])
-        print(y_pred_nomean[-1])
-        plot_results(y_pred_nomean, y_true)
-    return p_r
-
-
-
-
-    #plot_results(y_pred,y_true)
-    #print(np.mean(y_pred))
 
 
 
@@ -79,14 +43,7 @@ def predict(model_name='Default'):
 
     return y_pred
 
+y_pred = predict('47.2_31.60938644_01.h5')
 
-# y_pred = predict('49.6_2.44608092_11.h5')
-# plot_backtest(y_pred)
-for file in os.listdir((os.getenv('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}\\')):
-
-    y_pred = predict(file)
-    p_r = plot_backtest(y_test_t,y_pred)
-    if 0.05 > p_r:
-        print(file)
-
-
+ic_coef(y_test_t,y_pred)
+correct_signs(y_test_t,y_pred)
