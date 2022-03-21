@@ -37,8 +37,8 @@ def ohlcv_cosine_similarity(y_true,y_pred):
     y_true_un = y_true_un[:,3]
     y_pred_un = y_pred_un[:,3]
 
-    #y_true_un = y_true_un - tf.reduce_mean(y_true_un)
-    #y_pred_un = y_pred_un - tf.reduce_mean(y_pred_un)
+    # y_true_un = y_true_un - tf.reduce_mean(y_true_un)
+    # y_pred_un = y_pred_un - tf.reduce_mean(y_pred_un)
 
     loss = tf.keras.losses.cosine_similarity(y_true_un, y_pred_un, axis=-1)
 
@@ -49,12 +49,6 @@ def ohlcv_cosine_similarity(y_true,y_pred):
 '''Custom MSE loss
 Extracts the last time step and unscales y values before computing loss'''
 def ohlcv_mse(y_true,y_pred):
-
-    #print(y_pred.shape)
-    y_true = ops.convert_to_tensor_v2(y_true)
-    y_pred = ops.convert_to_tensor_v2(y_pred)
-    y_true = math_ops.cast(y_true, y_pred.dtype)
-
     if pipeline_args.args['expand_dims'] == False:
         y_pred = y_pred[:,-1,:] #Because Dense predictions will have timesteps
 
@@ -87,9 +81,9 @@ def ohlcv_abs(y_true,y_pred):
     return loss
 
 def assymetric_loss(y_true, y_pred):
-    y_true = ops.convert_to_tensor_v2(y_true)
-    y_pred = ops.convert_to_tensor_v2(y_pred)
-    y_true = math_ops.cast(y_true, y_pred.dtype)
+    # y_true = ops.convert_to_tensor_v2(y_true)
+    # y_pred = ops.convert_to_tensor_v2(y_pred)
+    # y_true = math_ops.cast(y_true, y_pred.dtype)
 
     if pipeline_args.args['expand_dims'] == False:
         y_pred = y_pred[:,-1,:] #Because Dense predictions will have timesteps
@@ -100,9 +94,12 @@ def assymetric_loss(y_true, y_pred):
     y_true_un = y_true_un[:,3]
     y_pred_un = y_pred_un[:,3]
 
-    alpha = 100.
+    # y_true_un = y_true_un - tf.reduce_mean(y_true_un)
+    # y_pred_un = y_pred_un - tf.reduce_mean(y_pred_un)
+
+    alpha = 5000.
     loss = K.switch(K.less(y_true_un * y_pred_un, 0),
-        alpha*y_pred_un**2 - K.sign(y_true_un)*y_pred_un + K.abs(y_true_un),
+        alpha*y_pred_un**2 + K.abs(y_true_un) - K.sign(y_true_un)*y_pred_un,
         K.abs(y_true_un - y_pred_un)
         )
     return K.mean(loss, axis=-1)
@@ -115,7 +112,11 @@ def ohlcv_combined(y_true,y_pred):
     return loss
 
 def assymetric_combined(y_true,y_pred):
-    loss = assymetric_loss(y_true,y_pred) * ohlcv_combined(y_true,y_pred)
+    loss = assymetric_loss(y_true,y_pred) * ohlcv_cosine_similarity(y_true,y_pred)
+    return loss
+
+def metric_loss(y_true,y_pred):
+    loss = ohlcv_combined(y_true,y_pred)*assymetric_loss(y_true,y_pred)
     return loss
 
 def metric_signs_close(y_true,y_pred):
@@ -139,7 +140,8 @@ def metric_signs_close(y_true,y_pred):
 
     #print(y_pred_un.shape, y_true_un.shape)
 
-    #y_pred_un = y_pred_un - tf.reduce_mean(y_pred_un)
+    # y_pred_un = y_pred_un - tf.reduce_mean(y_pred_un)
+    # y_true_un = y_true_un - tf.reduce_mean(y_true_un)
 
     y_true_sign = math_ops.sign(y_true_un)
     y_pred_sign = math_ops.sign(y_pred_un)

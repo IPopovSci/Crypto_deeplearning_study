@@ -27,7 +27,7 @@ df = np.array(df) #Convert into numpy array
 df = np.delete(df, 0, 1)  # This will remove the date field
 # df = np.delete(df,0,1) #This will remove VIX - Why is it empty? (Its only empty for the first n rows)
 
-x_t = data_proc.row_difference(df) #This will populate an empty numpy array with differences in values;Last column is the price column - I double checked
+x_t = data_proc.lagged_returns(df) #This will populate an empty numpy array with differences in values;Last column is the price column - I double checked
 """Step 4"""
 '''Scaling data so PCA has easier time working with it'''
 ''''''

@@ -9,12 +9,12 @@ from pipeline.pipelineargs import PipelineArgs
 
 '''This takes training or test data and returns x,y scaled using window approach (Unless TIME_STEPS = 1)'''
 pipeline_args = PipelineArgs.get_instance()
-
+'''Currently this does not work for predictions - we don't get the last data_lag amount of x data - '''
 def build_timeseries(x_t,y_t,TIME_STEPS,batch_size,expand_dims=False,data_lag=1):
 
     print('before timeseries conversion',x_t.shape)
 
-    dim_0 = x_t.shape[0] - TIME_STEPS - data_lag
+    dim_0 = x_t.shape[0] - TIME_STEPS
     dim_1 = x_t.shape[1]
     pipeline_args.args['num_features'] = dim_1 #Final number of features, useful later for network creation
 
@@ -26,7 +26,7 @@ def build_timeseries(x_t,y_t,TIME_STEPS,batch_size,expand_dims=False,data_lag=1)
     for i in range(dim_0):
         x[i] = x_t[i:TIME_STEPS + i]
 
-        y[i] = y_t[TIME_STEPS + i + data_lag]
+        y[i] = y_t[TIME_STEPS + i]
 
 
 
@@ -42,3 +42,5 @@ def build_timeseries(x_t,y_t,TIME_STEPS,batch_size,expand_dims=False,data_lag=1)
 
 
     return x, y
+
+'++-----++++-+--+---'

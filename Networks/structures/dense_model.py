@@ -1,11 +1,11 @@
 
 import tensorflow as tf
 
-from tensorflow.keras.layers import Dense, Input, GaussianNoise,AlphaDropout,Dropout,LayerNormalization,BatchNormalization
+from tensorflow.keras.layers import Dense, Input, GaussianNoise,AlphaDropout,Dropout,LayerNormalization,BatchNormalization,LSTM
 
 from pipeline.pipelineargs import PipelineArgs
 from Networks.network_config import NetworkParams
-from Networks.losses_metrics import ohlcv_mse,ohlcv_cosine_similarity,metric_signs_close,ohlcv_combined,assymetric_loss,assymetric_combined
+from Networks.losses_metrics import ohlcv_mse,ohlcv_cosine_similarity,metric_signs_close,ohlcv_combined,assymetric_loss,assymetric_combined,metric_loss
 
 pipeline_args = PipelineArgs.get_instance()
 network_args = NetworkParams.get_instance()
@@ -31,17 +31,32 @@ def dense_model():
 
     x = Dropout(dropout)(x)
 
-    x = Dense(35,activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
+    x = Dense(45,activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
 
     x = BatchNormalization()(x)
 
     x = Dropout(dropout)(x)
+
+    x = Dense(30,activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
+
+    x = BatchNormalization()(x)
+
+    x = Dropout(dropout)(x)
+
 
     x = Dense(15,activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
 
     x = BatchNormalization()(x)
 
     x = Dropout(dropout)(x)
+
+    x = Dense(5,activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
+
+    x = BatchNormalization()(x)
+
+    #x = Dropout(dropout)(x)
+
+
     output = tf.keras.layers.Dense(5,activation=activation,activity_regularizer=regularizer,kernel_regularizer=regularizer,bias_regularizer=regularizer,kernel_initializer=initializer,bias_initializer=initializer)(x)
 
 
@@ -52,6 +67,6 @@ def dense_model():
     optimizer = tf.keras.optimizers.Adam(learning_rate=network_args.network['lr'],amsgrad=True)
 
     lstm_model.compile(
-        loss=assymetric_loss, optimizer=optimizer, metrics=[metric_signs_close])
+        loss=metric_loss, optimizer=optimizer, metrics=[metric_signs_close])
 
     return lstm_model

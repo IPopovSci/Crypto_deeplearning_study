@@ -22,7 +22,7 @@ def train_model():
     lstm_model = create_model()
 
 
-    history_lstm = lstm_model.fit(x=trim_dataset(x_t, batch_size),y=trim_dataset(y_t,batch_size), epochs=1000,
+    history_lstm = lstm_model.fit(x=trim_dataset(x_t, batch_size),y=trim_dataset(y_t,batch_size), epochs=3000,
                                   verbose=1, batch_size=batch_size,
                                   shuffle=False, validation_data=(trim_dataset(x_val, batch_size),
                                                                   trim_dataset(y_val, batch_size)),

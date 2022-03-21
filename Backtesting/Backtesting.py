@@ -4,6 +4,8 @@ from tensorflow.python.ops import array_ops
 from tensorflow.python.ops import math_ops
 from scipy.stats import spearmanr,kendalltau
 
+import os
+
 def correct_signs(y_true,y_pred):
     try:
         y_true_sign = np.sign(y_true[:,3])
@@ -20,22 +22,21 @@ def correct_signs(y_true,y_pred):
 
 
 def information_coefficient(y_true,y_pred):
-    coef_r, p = spearmanr(y_true, y_pred)
-    print('Spearmans correlation coefficient: %.3f' % coef_r)
+    coef_r, p_r = spearmanr(y_true, y_pred)
     alpha = 0.05
-    if p > alpha:
-        print('Samples are uncorrelated (fail to reject H0) p=%.3f' % p)
-    else:
-        print('Samples are correlated (reject H0) p=%.3f' % p)
+    if p_r < alpha:
+        print('Samples are correlated (reject H0) p=%.3f' % p_r)
+        print('Spearmans correlation coefficient: %.3f' % coef_r)
 
     coef, p = kendalltau(y_true, y_pred)
-    print('Kendall correlation coefficient: %.3f' % coef)
+
     # interpret the significance
     alpha = 0.05
-    if p > alpha:
-        print('Samples are uncorrelated (fail to reject H0) p=%.3f' % p)
-    else:
+    if p < alpha:
         print('Samples are correlated (reject H0) p=%.3f' % p)
+        print('Kendall correlation coefficient: %.3f' % coef)
+
+    return coef_r,p_r
 
 
 

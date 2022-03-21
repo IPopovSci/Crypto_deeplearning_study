@@ -21,7 +21,7 @@ Accepts training, validation and testing data
 y_type is a switch: "close" will grab only the closing price, 'ohclv' will grab OHCLV data, 'testing' grabs only the first feature'''
 
 
-def x_y_split(x_train, x_validation, x_test,y_type = 'ohlcv'):
+def x_y_split(x_train, x_validation, x_test):
 
     '''converting pandas to numpy'''
     x_train = x_train.to_numpy()
@@ -38,6 +38,11 @@ def x_y_split(x_train, x_validation, x_test,y_type = 'ohlcv'):
               :5]
     y_test_t = x_test[:, :5]
     y_validation_t = x_validation[:, :5]
+
+    #Drops the targets from the x values
+    x_train = x_train[:,5:]
+    x_validation = x_validation[:, 5:]
+    x_test = x_test[:, 5:]
 
 
     # print(y_train_t.shape,y_validation_t.shape,y_test_t.shape)

@@ -23,8 +23,8 @@ class PipelineArgs:
             'test_size': 0.05,
             'time_steps': 1,
             'batch_size': 128,
-            'data_lag': 12,
-            'ta': True,
+            'data_lag': [48,24,12,4,1],
+            'ta': False,
             'pca': True,
             'initial_training': True,
             'expand_dims': False, #This setting will add a dimension of 1 at the end of the data, required for some models

@@ -1,6 +1,6 @@
 from Data_Processing.get_data import scv_data, cryptowatch_data
 from Data_Processing.ta_feature_add import add_ta
-from Data_Processing.Detrending import row_difference
+from Data_Processing.create_lags import lagged_returns
 from Data_Processing.data_split import train_test_split_custom, x_y_split
 from Data_Processing.data_scaling import SS_transform, min_max_transform
 from Data_Processing.PCA import pca_reduction
@@ -31,7 +31,7 @@ def pipeline(pipeline_args):
         history = add_ta(history)  # The columns names can be acessed from network_config 'train_cols'
 
     '''Step 3: Detrend the data'''
-    history = row_difference(history)
+    history = lagged_returns(history,pipeline_args.args['data_lag'])
 
     '''Any sort of denoising, such is wavelet or fourier can go here'''
 

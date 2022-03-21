@@ -27,19 +27,35 @@ Inputs: dataset (Pandas), ta (True/False)
 Outputs: Pandas Dataframe'''
 '''Medium article discussion: Do covariants need to be stationary? Do we take the percent changes of ta features as well?'''
 
-def row_difference(df):
+def lagged_returns(df,lags):
+    pd.set_option('display.max_columns', None)
 
-    cols = ['open','high','low','close','volume']
+    lags = lags
 
-    df[cols] = df[cols].pct_change(axis=0)
 
-    df_diff = df.iloc[1:, :]  # this drops the first row (For avoiding N/A)
+    #cols = ['open','high','low','close','volume']
+
+    #print(df.head(n=30))
+    for lag in lags:
+
+        df[f'return_{lag}h'] = df['close'].pct_change(lag,axis=0)
+
+    #print(df.head(n=30))
+
+    for t in lags:
+        df[f'target_{t}h'] = df[f'return_{t}h'].shift(-t)
+        df = df[[f'target_{t}h'] + [col for col in df.columns if col != f'target_{t}h']] #Puts the return columns up front, for easier grabbing later
+
+    print(df.head(n=30))
+
+
+    #df_diff = df.iloc[1:, :]  # this drops the first row (For avoiding N/A)
     '''Debug options'''
     # pd.set_option('max_columns', None)
 
     # print(df_diff.head(n=30))
 
-    return df_diff
+    return df
 
 
 # invert differenced forecast #Second element (Value) is diff[i], first one is data[i]
