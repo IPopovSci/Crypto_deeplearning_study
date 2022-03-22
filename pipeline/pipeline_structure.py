@@ -12,7 +12,6 @@ from utility import structure_create
 
 load_dotenv()
 
-
 '''Pipeline function
 
 This function obtains, augments, cleans and separates the data required for the neural network.
@@ -37,48 +36,58 @@ def pipeline():
         history = add_ta(history)  # The columns names can be acessed from network_config 'train_cols'
 
     '''Step 3: Detrend the data'''
-    history = lagged_returns(history,pipeline_args.args['data_lag'])
+    history = lagged_returns(history, pipeline_args.args['data_lag'])
 
     '''Any sort of denoising, such is wavelet or fourier can go here'''
 
     '''Step 4: Split data into training/testing'''
 
-    x_train, x_validation, x_test = train_test_split_custom(history,pipeline_args.args['train_size'],pipeline_args.args['test_size'])
-
-
+    x_train, x_validation, x_test = train_test_split_custom(history, pipeline_args.args['train_size'],
+                                                            pipeline_args.args['test_size'])
 
     '''Step 5: SS Transform'''
     if pipeline_args.args['mode'] == 'training':
         x_train, x_validation, x_test, y_train, y_validation, y_test = x_y_split(x_train, x_validation, x_test)
     elif pipeline_args.args['mode'] == 'prediction':
-        x_train, x_validation, x_test, y_train, y_validation, y_test = x_y_split(x_train, x_validation, history) #This is a somewhat dirty workaround, this way during the predictions test always gets full data
+        x_train, x_validation, x_test, y_train, y_validation, y_test = x_y_split(x_train, x_validation,
+                                                                                 history)  # This is a somewhat dirty workaround, this way during the predictions test always gets full data
 
     '''Step 6: Split data into x and y'''
 
     x_train, x_validation, x_test, _, _, _, SS_scaler = SS_transform(x_train, x_validation,
-                                                                                           x_test, y_train,
-                                                                                           y_validation, y_test,
-                                                                                           pipeline_args.args[
-                                                                                               'mode'],pipeline_args.args['interval'],pipeline_args.args['ticker'],
-                                                                                           SS_path=os.getenv('ss_path'))
+                                                                     x_test, y_train,
+                                                                     y_validation, y_test,
+                                                                     pipeline_args.args[
+                                                                         'mode'], pipeline_args.args['interval'],
+                                                                     pipeline_args.args['ticker'],
+                                                                     SS_path=os.getenv('ss_path'))
     '''Step 7: PCA'''
     if pipeline_args.args['pca'] == True:
         x_train, x_validation, x_test = pca_reduction(x_train, x_validation, x_test)
 
     '''Step 8: Min-max scaler (-1 to 1 for sigmoid)'''
     x_train, x_validation, x_test, _, _, _, mm_scaler_y = min_max_transform(x_train, x_validation,
-                                                                                                  x_test, y_train,
-                                                                                                  y_validation, y_test,
-                                                                                                  pipeline_args.args[
-                                                                                                      'mode'],pipeline_args.args['interval'],pipeline_args.args['ticker'],
-                                                                                                  os.getenv('mm_path'))
+                                                                            x_test, y_train,
+                                                                            y_validation, y_test,
+                                                                            pipeline_args.args[
+                                                                                'mode'], pipeline_args.args['interval'],
+                                                                            pipeline_args.args['ticker'],
+                                                                            os.getenv('mm_path'))
     '''Step 9: Create time-series data'''
 
     size = len(x_train)
-    if pipeline_args.args['mode'] == 'training': #This is to prevent errors during predictions due to timesteps
-        x_train, y_train = build_timeseries(x_train, y_train,pipeline_args.args['time_steps'],pipeline_args.args['batch_size'],expand_dims=pipeline_args.args['expand_dims'],data_lag = pipeline_args.args['data_lag'])
+    if pipeline_args.args['mode'] == 'training':  # This is to prevent errors during predictions due to timesteps
+        x_train, y_train = build_timeseries(x_train, y_train, pipeline_args.args['time_steps'],
+                                            pipeline_args.args['batch_size'],
+                                            expand_dims=pipeline_args.args['expand_dims'],
+                                            data_lag=pipeline_args.args['data_lag'])
 
-        x_validation, y_validation = build_timeseries(x_validation, y_validation,pipeline_args.args['time_steps'],pipeline_args.args['batch_size'],expand_dims=pipeline_args.args['expand_dims'],data_lag = pipeline_args.args['data_lag'])
-    x_test, y_test = build_timeseries(x_test, y_test,pipeline_args.args['time_steps'],pipeline_args.args['batch_size'],expand_dims=pipeline_args.args['expand_dims'],data_lag = pipeline_args.args['data_lag'])
+        x_validation, y_validation = build_timeseries(x_validation, y_validation, pipeline_args.args['time_steps'],
+                                                      pipeline_args.args['batch_size'],
+                                                      expand_dims=pipeline_args.args['expand_dims'],
+                                                      data_lag=pipeline_args.args['data_lag'])
+    x_test, y_test = build_timeseries(x_test, y_test, pipeline_args.args['time_steps'],
+                                      pipeline_args.args['batch_size'], expand_dims=pipeline_args.args['expand_dims'],
+                                      data_lag=pipeline_args.args['data_lag'])
 
     return x_train, y_train, x_validation, y_validation, x_test, y_test, size

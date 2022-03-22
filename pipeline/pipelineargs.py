@@ -19,19 +19,19 @@ class PipelineArgs:
             PipelineArgs.__instance = self
 
         self.args = {
-            'ticker': 'btcusd', #ethusd,bnbusdt
+            'ticker': 'btcusd',  # ethusd,bnbusdt
             'mode': 'training',
             'interval': '1h',
             'train_size': 0.95,
             'test_size': 0.05,
-            'time_steps': 5,
+            'time_steps': 1,
             'batch_size': 128,
-            'data_lag': [48,24,12,4,1],
+            'data_lag': [48, 24, 12, 4, 1],
             'ta': True,
             'pca': True,
             'initial_training': True,
-            'expand_dims': False, #This setting will add a dimension of 1 at the end of the data, required for some models
+            'expand_dims': False,
+            # This setting will add a dimension of 1 at the end of the data, required for some models
             'mm_y_path': None,
             'ss_y_path': None,
         }
-

@@ -12,6 +12,10 @@ import os
 load_dotenv()
 pipeline_args = PipelineArgs.get_instance()
 
+'''Function that calculates the amount of equal signs between y_true and y_pred
+Accepts: y_true,y_pred.
+Returns: Print out of the information.'''
+
 def correct_signs(y_true,y_pred):
     if pipeline_args.args['expand_dims'] == False:
         y_pred = y_pred[:,-1,:]
@@ -46,6 +50,7 @@ def correct_signs(y_true,y_pred):
 def information_coefficient(y_true,y_pred,verbose=True):
     coef_r, p_r = spearmanr(y_true, y_pred)
     alpha = 0.05
+
     if verbose:
         if p_r < alpha:
             print('Samples are correlated (reject H0) p=%.3f' % p_r)
@@ -55,11 +60,6 @@ def information_coefficient(y_true,y_pred,verbose=True):
             print('Spearmans correlation coefficient: %.3f' % coef_r)
 
     return coef_r,p_r
-
-#information_coefficient(-1,1)
-#Make function that takes 5 lags every day and plots a graph of spearman correlation for all 5 (with mean)
-# Make a graph that generates 5 subplots with lags and prices
-
 
 def ic_coef(y_true,y_pred):
     if pipeline_args.args['expand_dims'] == False:

@@ -20,44 +20,35 @@ def test_stationarity(timeseries):
     print(dfoutput)
 
 
-'''Creates a new dataset filled with the differences of values of each day
-This will make the data stationary (Use the above test to check), as well
-as easier to work with for neural Networks
+'''Creates lagged returns to be used as both features and targets.
+Targets are shifted back to avoid data-leaks.
 Inputs: dataset (Pandas), ta (True/False)
 Outputs: Pandas Dataframe'''
-'''Medium article discussion: Do covariants need to be stationary? Do we take the percent changes of ta features as well?'''
 
-def lagged_returns(df,lags):
+
+def lagged_returns(df, lags):
     pd.set_option('display.max_columns', None)
 
     lags = lags
 
+    # cols = ['open','high','low','close','volume']
 
-    #cols = ['open','high','low','close','volume']
-
-    #print(df.head(n=30))
+    # print(df.head(n=30))
     for lag in lags:
+        df[f'return_{lag}h'] = df['close'].pct_change(lag, axis=0)
 
-        df[f'return_{lag}h'] = df['close'].pct_change(lag,axis=0)
-
-    #print(df.head(n=30))
+    # print(df.head(n=30))
 
     for t in lags:
         df[f'target_{t}h'] = df[f'return_{t}h'].shift(-t)
-        df = df[[f'target_{t}h'] + [col for col in df.columns if col != f'target_{t}h']] #Puts the return columns up front, for easier grabbing later
+        df = df[[f'target_{t}h'] + [col for col in df.columns if
+                                    col != f'target_{t}h']]  # Puts the return columns up front, for easier grabbing later
 
     print(df.head(n=30))
 
-
-    #df_diff = df.iloc[1:, :]  # this drops the first row (For avoiding N/A)
     '''Debug options'''
     # pd.set_option('max_columns', None)
 
     # print(df_diff.head(n=30))
 
     return df
-
-
-# invert differenced forecast #Second element (Value) is diff[i], first one is data[i]
-def inverse_difference(last_ob, value):
-    return value + last_ob

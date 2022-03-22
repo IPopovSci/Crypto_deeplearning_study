@@ -47,6 +47,10 @@ def ohlcv_abs(y_true, y_pred):
 
     return loss
 
+'''Assymetric loss based on absolute value loss
+Checks if the product of signs of true and pred is below 0,
+if it is, applies a penalty (alpha).
+Otherwise acts as a normal absolute value test'''
 
 def assymetric_loss(y_true, y_pred):
     if pipeline_args.args['expand_dims'] == False:
@@ -60,9 +64,9 @@ def assymetric_loss(y_true, y_pred):
     return K.mean(loss, axis=-1)
 
 
-'''Combined cosine similarity and MSE loss
-CS loss is squared to put a higher emphasis on the correct direction'''
 
+'''Combined losses
+Multiplication of several losses above'''
 
 def ohlcv_combined(y_true, y_pred):
     loss = (ohlcv_mse(y_true, y_pred) * (ohlcv_cosine_similarity(y_true, y_pred)))
@@ -79,7 +83,7 @@ def metric_loss(y_true, y_pred):
     loss = ohlcv_combined(y_true, y_pred) * assymetric_loss(y_true, y_pred)
     return loss
 
-
+'''Metric that compares how many signs are correct between true and pred values'''
 def metric_signs_close(y_true, y_pred):
     if pipeline_args.args['expand_dims'] == False:
         y_pred = y_pred[:, -1, :]  # Because Dense predictions will have timesteps

@@ -7,9 +7,10 @@ import tensorflow as tf
 from pipeline.pipelineargs import PipelineArgs
 from dotenv import load_dotenv
 from Networks.network_config import NetworkParams
-from Networks.losses_metrics import ohlcv_combined,metric_signs_close,ohlcv_cosine_similarity,ohlcv_mse,assymetric_loss,assymetric_combined,metric_loss
+from Networks.losses_metrics import ohlcv_combined, metric_signs_close, ohlcv_cosine_similarity, ohlcv_mse, \
+    assymetric_loss, assymetric_combined, metric_loss
 from Backtesting.Backtesting import correct_signs, ic_coef
-from plotting import plot_results_v2,plot_ic
+from plotting import plot_results_v2, plot_ic
 
 load_dotenv()
 
@@ -21,20 +22,24 @@ batch_size = pipeline_args.args['batch_size']
 time_steps = pipeline_args.args['time_steps']
 pipeline_args.args['mode'] = 'prediction'
 
-x_t, y_t, x_val, y_val, x_test_t, y_test_t,size = pipeline()
-
-
+x_t, y_t, x_val, y_val, x_test_t, y_test_t, size = pipeline()
 
 '''Function to predict using existing model
 Accepts: string model filename.
 Returns: numpy array with predictions.'''
 
-def predict(model_name='Default'):
 
-    saved_model = load_model(filepath=(os.getenv('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}\\'+ model_name),
-                             custom_objects={'metric_loss':metric_loss,'assymetric_combined':assymetric_combined,'assymetric_loss':assymetric_loss,'metric_signs_close':metric_signs_close,'SeqSelfAttention': SeqSelfAttention,'ohlcv_combined':ohlcv_combined,'ohlcv_cosine_similarity':ohlcv_cosine_similarity,'ohlcv_mse':ohlcv_mse})
+def predict(model_name='Default'):
+    saved_model = load_model(filepath=(os.getenv(
+        'model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}\\' + model_name),
+                             custom_objects={'metric_loss': metric_loss, 'assymetric_combined': assymetric_combined,
+                                             'assymetric_loss': assymetric_loss,
+                                             'metric_signs_close': metric_signs_close,
+                                             'SeqSelfAttention': SeqSelfAttention, 'ohlcv_combined': ohlcv_combined,
+                                             'ohlcv_cosine_similarity': ohlcv_cosine_similarity,
+                                             'ohlcv_mse': ohlcv_mse})
     saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00000005),
-                        loss= ohlcv_combined,metrics=metric_signs_close)
+                        loss=ohlcv_combined, metrics=metric_signs_close)
 
     y_pred = saved_model.predict(trim_dataset(x_test_t[:], batch_size), batch_size=batch_size)
 
@@ -42,12 +47,12 @@ def predict(model_name='Default'):
 
     return y_pred
 
-y_pred = predict('1.0251_0.3663_48.7946.h5')
-#y_pred = predict('0.9603_0.2321_51.1719.h5')
 
-ic_coef(y_test_t,y_pred)
-correct_signs(y_test_t,y_pred)
+y_pred = predict('0.9372_0.4464_51.3281.h5')
+
+ic_coef(y_test_t, y_pred)
+correct_signs(y_test_t, y_pred)
 if pipeline_args.args['expand_dims'] == False:
     y_pred = y_pred[:, -1, :]
-plot_results_v2(y_test_t,y_pred)
-plot_ic(y_test_t,y_pred)
+plot_results_v2(y_test_t, y_pred, no_mean=True)
+plot_ic(y_test_t, y_pred)

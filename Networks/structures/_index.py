@@ -2,6 +2,7 @@ from Networks.structures.dense_model import dense_model
 from Networks.structures.lstm_model import lstm_att_model
 from Networks.structures.conv1d_model import conv1d_model
 from Networks.structures.conv1d_lstm_model import convlstm_model
+from Networks.structures.conv2d import conv2d_model
 from Networks.network_config import  NetworkParams
 import hashlib
 import binascii
@@ -9,6 +10,9 @@ import binascii
 
 params = NetworkParams.get_instance()
 
+'''Function that creates a model based on model_type parameter.
+Accepts: model_type parameter (string).
+Returns: keras model object.'''
 def create_model(model_type=params.network['model_type']):
     if model_type == 'dense':
         model = dense_model()
@@ -18,8 +22,10 @@ def create_model(model_type=params.network['model_type']):
         model = conv1d_model()
     elif model_type == 'convlstm':
         model = convlstm_model()
+    elif model_type == 'conv2d':
+        model = conv2d_model()
     else:
-        print('No suitable model. Avaliable models: dense,lstm,conv1d,convlstm')
+        print('No suitable model. Avaliable models: dense,lstm,conv1d,convlstm,conv2d')
 
     return model
 
