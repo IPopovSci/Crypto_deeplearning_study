@@ -8,6 +8,20 @@ from dotenv import load_dotenv
 from Networks.network_config import NetworkParams
 import pandas as pd
 
+from pathlib import Path
+from time import time
+import datetime
+
+import numpy as np
+import pandas as pd
+import pandas_datareader.data as web
+from utility import scale
+from scipy.stats import spearmanr
+
+import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
+import seaborn as sns
+
 import os
 load_dotenv()
 pipeline_args = PipelineArgs.get_instance()
@@ -68,6 +82,37 @@ def ic_coef(y_true,y_pred):
     for i in range(5):
         print(f'{pipeline_args.args["data_lag"][-i-1]}h lag spearman statistics:')
         information_coefficient(y_true[:,i],y_pred[:,i])
+
+def vectorized_backtest(y_true,y_pred):
+
+    y_true = pd.Series(y_true)
+    #y_true = y_true.iloc[::12]
+    y_pred = pd.Series(y_pred)
+    #y_pred = y_pred.iloc[::12]
+    #ok so long signals = 1, short signals = -1
+
+
+
+    long_signals = pd.Series(np.where(y_pred>0,1,0))
+    short_signals = pd.Series(np.where(y_pred<0,-1,0))
+
+    print(long_signals.iloc[-1])
+    print(short_signals.iloc[-1])
+    long_returns = long_signals.mul(y_true)
+
+
+    short_returns = short_signals.mul(y_true)
+    # print(short_returns.shape)
+
+    strategy = long_returns.add(short_returns)
+    # print(strategy.shape)
+    strategy_cum = (1+strategy).cumprod() - 1
+    y_true_cum = (1+y_true).cumprod() - 1
+
+    plt.plot(strategy_cum)
+    plt.plot(y_true_cum)
+    plt.show()
+
 
 
 

@@ -44,7 +44,7 @@ def lagged_returns(df, lags):
         df = df[[f'target_{t}h'] + [col for col in df.columns if
                                     col != f'target_{t}h']]  # Puts the return columns up front, for easier grabbing later
 
-    print(df.head(n=30))
+    print(df.tail(n=30))
 
     '''Debug options'''
     # pd.set_option('max_columns', None)

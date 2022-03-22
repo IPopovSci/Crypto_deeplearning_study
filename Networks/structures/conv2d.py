@@ -39,6 +39,8 @@ def conv2d_model():
                bias_initializer=initializer, bias_regularizer=regularizer, activity_regularizer=regularizer,
                activation=activation, padding='same')(x)
 
+    x = AlphaDropout(dropout)(x)
+
     x = Flatten()(x)
 
     x = AlphaDropout(dropout)(x)
