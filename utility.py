@@ -98,3 +98,9 @@ def remove_mean(data):
 
     data = sc_x.fit_transform(data)
     return data
+
+def remove_std(data):
+    sc_x = StandardScaler(with_mean=False)
+
+    data = sc_x.fit_transform(data)
+    return data

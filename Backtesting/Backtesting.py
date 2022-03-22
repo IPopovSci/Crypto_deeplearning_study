@@ -17,8 +17,8 @@ Accepts: y_true,y_pred.
 Returns: Print out of the information.'''
 
 def correct_signs(y_true,y_pred):
-    if pipeline_args.args['expand_dims'] == False:
-        y_pred = y_pred[:,-1,:]
+    # if pipeline_args.args['expand_dims'] == False:
+    #     y_pred = y_pred[:,-1,:]
     y_total = np.empty(5)
     y_total_mean = np.empty(5)
     y_pred_mean = y_pred - np.mean(y_pred,axis=0)
@@ -62,8 +62,8 @@ def information_coefficient(y_true,y_pred,verbose=True):
     return coef_r,p_r
 
 def ic_coef(y_true,y_pred):
-    if pipeline_args.args['expand_dims'] == False:
-        y_pred = y_pred[:,-1,:]
+    # if pipeline_args.args['expand_dims'] == False:
+    #     y_pred = y_pred[:,-1,:]
 
     for i in range(5):
         print(f'{pipeline_args.args["data_lag"][-i-1]}h lag spearman statistics:')

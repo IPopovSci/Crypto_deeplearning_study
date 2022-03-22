@@ -79,15 +79,15 @@ def pipeline():
     if pipeline_args.args['mode'] == 'training':  # This is to prevent errors during predictions due to timesteps
         x_train, y_train = build_timeseries(x_train, y_train, pipeline_args.args['time_steps'],
                                             pipeline_args.args['batch_size'],
-                                            expand_dims=pipeline_args.args['expand_dims'],
-                                            data_lag=pipeline_args.args['data_lag'])
+                                            expand_dims=pipeline_args.args['expand_dims']
+                                           )
 
         x_validation, y_validation = build_timeseries(x_validation, y_validation, pipeline_args.args['time_steps'],
                                                       pipeline_args.args['batch_size'],
-                                                      expand_dims=pipeline_args.args['expand_dims'],
-                                                      data_lag=pipeline_args.args['data_lag'])
+                                                      expand_dims=pipeline_args.args['expand_dims']
+                                                      )
     x_test, y_test = build_timeseries(x_test, y_test, pipeline_args.args['time_steps'],
-                                      pipeline_args.args['batch_size'], expand_dims=pipeline_args.args['expand_dims'],
-                                      data_lag=pipeline_args.args['data_lag'])
+                                      pipeline_args.args['batch_size'], expand_dims=pipeline_args.args['expand_dims']
+                                      )
 
     return x_train, y_train, x_validation, y_validation, x_test, y_test, size

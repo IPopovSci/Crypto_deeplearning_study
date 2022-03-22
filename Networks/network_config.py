@@ -21,7 +21,7 @@ class NetworkParams:
         self.data = {
         }
         self.network = {
-            'model_type': 'dense',
+            'model_type': 'convlstm',
             'epochs': 256,
             'dropout': 0.3,
             'l1_reg': 0.0005,

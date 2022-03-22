@@ -11,6 +11,8 @@ from Networks.losses_metrics import ohlcv_combined, metric_signs_close, ohlcv_co
     assymetric_loss, assymetric_combined, metric_loss
 from Backtesting.Backtesting import correct_signs, ic_coef
 from plotting import plot_results_v2, plot_ic
+from Backtesting.pyfolio import pyfolio_rolling_returns
+from utility import remove_mean,remove_std
 
 load_dotenv()
 
@@ -48,11 +50,17 @@ def predict(model_name='Default'):
     return y_pred
 
 
-y_pred = predict('0.9372_0.4464_51.3281.h5')
+y_pred = predict('0.9559_6.7297_53.0357.h5')
+
+if pipeline_args.args['expand_dims'] == False:
+    y_pred = y_pred[:, -1, :]
+
+y_pred_mean = remove_mean(y_pred)
 
 ic_coef(y_test_t, y_pred)
 correct_signs(y_test_t, y_pred)
-if pipeline_args.args['expand_dims'] == False:
-    y_pred = y_pred[:, -1, :]
+
 plot_results_v2(y_test_t, y_pred, no_mean=True)
-plot_ic(y_test_t, y_pred)
+
+pyfolio_rolling_returns(y_test_t[:, 2], y_pred_mean[:, 2])
+
