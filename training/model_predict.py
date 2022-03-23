@@ -25,8 +25,6 @@ batch_size = pipeline_args.args['batch_size']
 time_steps = pipeline_args.args['time_steps']
 pipeline_args.args['mode'] = 'prediction'
 
-x_t, y_t, x_val, y_val, x_test_t, y_test_t, size = pipeline()
-
 '''Function to predict using existing model
 Accepts: string model filename.
 Returns: numpy array with predictions.'''
@@ -51,19 +49,3 @@ def predict(model_name='Default'):
     saved_model.summary()
 
     return y_pred
-
-
-y_pred = predict('0.9590_0.2845_50.3795.h5')
-
-if pipeline_args.args['expand_dims'] == False:
-    y_pred = y_pred[:, -1, :]
-
-y_pred_mean = remove_mean(y_pred)
-
-# ic_coef(y_test_t, y_pred)
-#correct_signs(y_test_t, y_pred)
-#
-# plot_results_v2(y_test_t, y_pred, no_mean=True)
-#
-# pyfolio_rolling_returns(y_test_t[:, 2],50* y_pred_mean[:, 2])
-vectorized_backtest(y_test_t,y_pred_mean)
