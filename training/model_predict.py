@@ -53,17 +53,17 @@ def predict(model_name='Default'):
     return y_pred
 
 
-y_pred = predict('candidate2.h5')
+y_pred = predict('0.9590_0.2845_50.3795.h5')
 
 if pipeline_args.args['expand_dims'] == False:
     y_pred = y_pred[:, -1, :]
 
 y_pred_mean = remove_mean(y_pred)
 
-ic_coef(y_test_t, y_pred)
-correct_signs(y_test_t, y_pred)
+# ic_coef(y_test_t, y_pred)
+#correct_signs(y_test_t, y_pred)
 #
 # plot_results_v2(y_test_t, y_pred, no_mean=True)
 #
 # pyfolio_rolling_returns(y_test_t[:, 2],50* y_pred_mean[:, 2])
-vectorized_backtest(y_test_t[:,0],y_pred_mean[:,3])
+vectorized_backtest(y_test_t,y_pred_mean)
