@@ -25,6 +25,8 @@ batch_size = pipeline_args.args['batch_size']
 time_steps = pipeline_args.args['time_steps']
 pipeline_args.args['mode'] = 'prediction'
 
+x_t, y_t, x_val, y_val, x_test_t, y_test_t, size = pipeline()
+
 '''Function to predict using existing model
 Accepts: string model filename.
 Returns: numpy array with predictions.'''
