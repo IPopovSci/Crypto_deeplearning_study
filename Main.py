@@ -19,10 +19,11 @@ batch_size = pipeline_args.args['batch_size']
 time_steps = pipeline_args.args['time_steps']
 
 pipeline_args.args['mode'] = 'prediction' #training or prediction
-pipeline_args.args['time_steps'] = '15' #1 for dense
+pipeline_args.args['time_steps'] = 15 #1 for dense
 network_args.network["model_type"] = 'lstm'
+print(network_args.network["model_type"])
 
-if network_args.network["model_type"] == 'conv2d' or 'convlstm':
+if network_args.network["model_type"] == 'conv2d' or network_args.network["model_type"] == 'convlstm':
     pipeline_args.args['expand_dims'] = True
 
 
@@ -30,15 +31,18 @@ if network_args.network["model_type"] == 'conv2d' or 'convlstm':
 x_t, y_t, x_val, y_val, x_test_t, y_test_t, size = pipeline()
 
 if pipeline_args.args['mode'] == 'training':
-    model_train.train_model()
+    model_train.train_model(x_t, y_t, x_val, y_val)
 else:
-    y_pred = model_predict.predict('0.9944_1.5356_50.9710.h5')
+    y_pred = model_predict.predict(x_test_t, y_test_t,'0.9586_0.5283_49.7879.h5')
     #if you want pretty graphs and some backtests:
+
     if pipeline_args.args['expand_dims'] == False:
         y_pred = y_pred[:, -1, :]
+
     y_pred_mean = remove_mean(y_pred)
 
+
     ic_coef(y_test_t, y_pred)
-    plot_results_v2(y_test_t, y_pred, no_mean=True)
+    #plot_results_v2(y_test_t, y_pred, no_mean=True)
     vectorized_backtest(y_test_t, y_pred_mean)
 

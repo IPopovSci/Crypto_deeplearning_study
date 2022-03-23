@@ -23,16 +23,14 @@ network_args = NetworkParams.get_instance()
 
 batch_size = pipeline_args.args['batch_size']
 time_steps = pipeline_args.args['time_steps']
-pipeline_args.args['mode'] = 'prediction'
 
-x_t, y_t, x_val, y_val, x_test_t, y_test_t, size = pipeline()
 
 '''Function to predict using existing model
 Accepts: string model filename.
 Returns: numpy array with predictions.'''
 
 
-def predict(model_name='Default'):
+def predict(x_test_t, y_test_t,model_name='Default'):
     saved_model = load_model(filepath=(os.getenv(
         'model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}\\' + model_name),
                              custom_objects={'metric_loss': metric_loss, 'assymetric_combined': assymetric_combined,
@@ -44,7 +42,6 @@ def predict(model_name='Default'):
     saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00000005),
                         loss=ohlcv_combined, metrics=metric_signs_close)
 
-    y_pred = saved_model.predict(trim_dataset(x_test_t[:], batch_size), batch_size=batch_size)
 
     y_pred = saved_model.predict(trim_dataset(x_test_t[:], batch_size), batch_size=batch_size)
 
