@@ -83,6 +83,15 @@ def ic_coef(y_true,y_pred):
         print(f'{pipeline_args.args["data_lag"][-i-1]}h lag spearman statistics:')
         information_coefficient(y_true[:,i],y_pred[:,i])
 
+'''Function that performs basic vectorized backtest.
+
+Lag adjusts true and pred arrays based on data_lag arguments.
+This way, if lag is 12 hours, it is assumed the asset was bought//short every 12 hours, not every hour.
+The values are shifted so that the last point corresponds to last point in the array.
+Spearmann analysis is shown for lag-adjusted arrays.
+Plots 5 time lags strategy performance vs the underlying buy and hold strategy.
+Accepts: 5 dimensional y_true and y_pred numpy arrays.'''
+
 def vectorized_backtest(y_true_input,y_pred_input):
     #ic_coef(y_true_input,y_pred_input)
 
