@@ -91,9 +91,13 @@ def vectorized_backtest(y_true_input,y_pred_input):
         y_pred = y_pred_input[:,i]
         lag = pipeline_args.args["data_lag"][-i-1]
         y_true = pd.Series(y_true)
-        y_true = y_true.iloc[::lag]
+
+        shift = len(y_true) % lag
+
+
+        y_true = y_true.iloc[shift::lag]
         y_pred = pd.Series(y_pred)
-        y_pred = y_pred.iloc[::lag]
+        y_pred = y_pred.iloc[shift::lag]
 
         coef_r, p_r = spearmanr(y_true, y_pred)
         #information_coefficient(y_true, y_pred)
