@@ -20,8 +20,7 @@ time_steps = pipeline_args.args['time_steps']
 
 pipeline_args.args['mode'] = 'prediction' #training or prediction
 pipeline_args.args['time_steps'] = 15 #1 for dense
-network_args.network["model_type"] = 'lstm'
-print(network_args.network["model_type"])
+network_args.network["model_type"] = 'convlstm'
 
 if network_args.network["model_type"] == 'conv2d' or network_args.network["model_type"] == 'convlstm':
     pipeline_args.args['expand_dims'] = True
@@ -31,9 +30,12 @@ if network_args.network["model_type"] == 'conv2d' or network_args.network["model
 x_t, y_t, x_val, y_val, x_test_t, y_test_t, size = pipeline()
 
 if pipeline_args.args['mode'] == 'training':
-    model_train.train_model(x_t, y_t, x_val, y_val)
+    model_train.train_model(x_t, y_t, x_val, y_val,network_args.network["model_type"])
 else:
-    y_pred = model_predict.predict(x_test_t, y_test_t,'0.9586_0.5283_49.7879.h5')
+    y_pred = model_predict.predict(x_test_t, y_test_t,'122448_ts15.h5')
+    '12h:----+'
+    '24h:----+'
+    '48h:+--+-'
     #if you want pretty graphs and some backtests:
 
     if pipeline_args.args['expand_dims'] == False:

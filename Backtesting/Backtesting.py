@@ -101,17 +101,23 @@ def vectorized_backtest(y_true_input,y_pred_input):
         lag = pipeline_args.args["data_lag"][-i-1]
         y_true = pd.Series(y_true)
 
-        shift = len(y_true) % lag
+
+        if lag != 1:
+            shift = len(y_true) % lag - 1
+            if 1>shift:
+                shift = 0
+        else:
+            shift = 1
 
 
         y_true = y_true.iloc[shift::lag]
+
         y_pred = pd.Series(y_pred)
         y_pred = y_pred.iloc[shift::lag]
 
         coef_r, p_r = spearmanr(y_true, y_pred)
-        #information_coefficient(y_true, y_pred)
-        if p_r > 0.05:
-            print(f'{lag} lag is not statistically correlated')
+        # if p_r > 0.05:
+        #     print(f'{lag} lag is not statistically correlated')
         if coef_r < 0:
             #print(f'inverse! for {lag}lag')
             y_pred = -1*y_pred

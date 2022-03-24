@@ -25,16 +25,16 @@ def dense_model():
 
     activation = 'selu'
 
-    x = Dense(50, activation=activation, activity_regularizer=regularizer, kernel_regularizer=regularizer,
-              bias_regularizer=regularizer, kernel_initializer=initializer, bias_initializer=initializer)(input)
-
     x = Dense(25, activation=activation, activity_regularizer=regularizer, kernel_regularizer=regularizer,
-              bias_regularizer=regularizer, kernel_initializer=initializer, bias_initializer=initializer)(x)
+              bias_regularizer=regularizer, kernel_initializer=initializer, bias_initializer=initializer)(input)
 
     x = Dense(15, activation=activation, activity_regularizer=regularizer, kernel_regularizer=regularizer,
               bias_regularizer=regularizer, kernel_initializer=initializer, bias_initializer=initializer)(x)
 
     x = Dense(10, activation=activation, activity_regularizer=regularizer, kernel_regularizer=regularizer,
+              bias_regularizer=regularizer, kernel_initializer=initializer, bias_initializer=initializer)(x)
+
+    x = Dense(5, activation=activation, activity_regularizer=regularizer, kernel_regularizer=regularizer,
               bias_regularizer=regularizer, kernel_initializer=initializer, bias_initializer=initializer)(x)
 
     output = tf.keras.layers.Dense(5, activation='linear', activity_regularizer=regularizer,
