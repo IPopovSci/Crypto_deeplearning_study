@@ -104,8 +104,8 @@ def vectorized_backtest(y_true_input,y_pred_input):
 
         if lag != 1:
             shift = len(y_true) % lag - 1
-            if 1>shift:
-                shift = 0
+            if shift < 1:
+                shift = len(y_true) % lag
         else:
             shift = 1
 

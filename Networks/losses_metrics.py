@@ -80,7 +80,22 @@ def assymetric_combined(y_true, y_pred):
 
 
 def metric_loss(y_true, y_pred):
-    loss = ohlcv_combined(y_true, y_pred) * assymetric_loss(y_true, y_pred)
+    loss = ohlcv_combined(y_true, y_pred) + assymetric_loss(y_true, y_pred)
+    return loss
+
+# y_true = [0.01,-0.02,0,0.01,-0.01,0.03]
+# y_pred = [-1.,1.,1.,-2.,1.,-1.]
+#Use softsign as final activation for this one
+def metric_profit_ratio(y_true,y_pred):
+    if pipeline_args.args['expand_dims'] == False:
+        y_pred = y_pred[:, -1, :]
+
+    ratio = tf.math.divide_no_nan(y_pred,y_true)
+    loss = K.switch(K.greater_equal(K.abs(ratio),1.), tf.math.divide_no_nan(1.,ratio), ratio)
+    return K.mean(-loss+1.,axis=-1)
+
+def profit_ratio_mse(y_true,y_pred):
+    loss = metric_profit_ratio(y_true,y_pred) + metric_loss(y_true,y_pred)
     return loss
 
 '''Metric that compares how many signs are correct between true and pred values'''
