@@ -11,6 +11,7 @@ from Networks.callbacks import callbacks
 from keras_self_attention import SeqSelfAttention
 from Networks.network_config import NetworkParams
 import os
+import tensorflow as tf
 
 load_dotenv()
 
@@ -50,6 +51,9 @@ def continue_training(x_t, y_t, x_val, y_val,model_name='Default'):
                                              'profit_ratio_mse': profit_ratio_mse,
                                              'profit_ratio_cosine':profit_ratio_cosine,
                                              'profit_ratio_assymetric':profit_ratio_assymetric})
+
+    # saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=network_args.network['lr'],amsgrad = True),
+    #                     loss=profit_ratio_assymetric, metrics=[metric_signs_close, ohlcv_cosine_similarity, ohlcv_mse])
 
     history_lstm = saved_model.fit(x=trim_dataset(x_t, batch_size), y=trim_dataset(y_t, batch_size), epochs=3000,
                                   verbose=1, batch_size=batch_size,

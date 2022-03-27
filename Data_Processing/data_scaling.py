@@ -16,7 +16,7 @@ pipeline_args = PipelineArgs.get_instance()
 
 def SS_transform(x_train, x_validation, x_test, y_train, y_validation, y_test, mode='training', interval='1h',
                  ticker='ethusdt', SS_path=[]):
-    if mode == 'prediction':
+    if mode == 'prediction' or mode == 'continue':
         sc_x = joblib.load(SS_path + f'\{interval}' + f'\\{ticker}' + "\ss.x")
         sc_y = joblib.load(SS_path + f'\{interval}' + f'\\{ticker}' + "\ss.y")
 
@@ -70,7 +70,7 @@ Returns: transformed train,validation,test sets as well as the scaler object.
 def min_max_transform(x_train, x_validation, x_test, y_train, y_validation, y_test, mode='training', interval='1h',
                       ticker='ethusdt',
                       MM_path=[]):
-    if mode == 'prediction':
+    if mode == 'prediction' or mode == 'continue':
         mm_x = joblib.load(MM_path + f'\{interval}' + f'\\{ticker}' + "\mm.x")
         mm_y = joblib.load(MM_path + f'\{interval}' + f'\\{ticker}' + "\mm.y")
 

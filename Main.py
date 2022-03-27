@@ -21,6 +21,7 @@ time_steps = pipeline_args.args['time_steps']
 #pipeline_args.args['mode'] = 'training' #training or prediction
 #pipeline_args.args['mode'] = 'prediction' #training or prediction
 pipeline_args.args['mode'] = 'continue' #training or prediction
+
 pipeline_args.args['time_steps'] = 50 #1 for dense
 network_args.network["model_type"] = 'conv2d'
 
