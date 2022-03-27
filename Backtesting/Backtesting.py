@@ -100,20 +100,7 @@ def vectorized_backtest(y_true_input,y_pred_input):
         y_pred = y_pred_input[:,i]
         lag = pipeline_args.args["data_lag"][-i-1]
         y_true = pd.Series(y_true)
-
-
-        if lag != 1:
-            shift = len(y_true) % lag
-            if shift < 1:
-                shift = len(y_true) % lag
-        else:
-            shift = 1
-
-
-        y_true = y_true.iloc[shift::lag]
-
-        y_pred = pd.Series(y_pred)
-        y_pred = y_pred.iloc[shift::lag]
+        #print(y_true)
 
         coef_r, p_r = spearmanr(y_true, y_pred)
         # if p_r > 0.05:
@@ -121,8 +108,25 @@ def vectorized_backtest(y_true_input,y_pred_input):
         if coef_r < 0:
             #print(f'inverse! for {lag}lag')
             y_pred = -1*y_pred
+        #print(coef_r)
+
+        if lag != 1:
+            shift = len(y_true) % lag - 1
+            if shift < 0:
+                shift = len(y_true) % lag + lag - 1
+        else:
+            shift = 1
 
 
+        y_true = y_true.iloc[shift::lag]
+
+
+        y_pred = pd.Series(y_pred)
+        y_pred = y_pred.iloc[shift::lag]
+
+
+
+        #print(y_pred)
 
 
 
