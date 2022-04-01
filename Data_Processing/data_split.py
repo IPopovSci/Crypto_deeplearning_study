@@ -39,6 +39,4 @@ def x_y_split(x_train, x_validation, x_test):
     x_validation = x_validation[:, 5:]
     x_test = x_test[:, 5:]
 
-    # print(y_train_t.shape,y_validation_t.shape,y_test_t.shape)
-
     return x_train, x_validation, x_test, y_train_t, y_validation_t, y_test_t

@@ -76,8 +76,6 @@ def information_coefficient(y_true,y_pred,verbose=True):
     return coef_r,p_r
 
 def ic_coef(y_true,y_pred):
-    # if pipeline_args.args['expand_dims'] == False:
-    #     y_pred = y_pred[:,-1,:]
 
     for i in range(5):
         print(f'{pipeline_args.args["data_lag"][-i-1]}h lag spearman statistics:')
@@ -96,37 +94,29 @@ def vectorized_backtest(y_true_input,y_pred_input):
     #ic_coef(y_true_input,y_pred_input)
 
     for i in range(0,5):
-        y_true = y_true_input[:,i]
+        y_true = y_true_input[:, 0]
+
+
         y_pred = y_pred_input[:,i]
         lag = pipeline_args.args["data_lag"][-i-1]
+        lag_store = lag
         y_true = pd.Series(y_true)
         #print(y_true)
 
-        coef_r, p_r = spearmanr(y_true, y_pred)
+        coef_r, p_r = spearmanr(y_true_input[:,i], y_pred)
         # if p_r > 0.05:
         #     print(f'{lag} lag is not statistically correlated')
+        # print(p_r)
+        # print(coef_r)
+
         if coef_r < 0:
-            #print(f'inverse! for {lag}lag')
+            print(f'inverse! for {lag}lag')
             y_pred = -1*y_pred
-        #print(coef_r)
-
-        if lag != 1:
-            shift = len(y_true) % lag - 1
-            if shift < 0:
-                shift = len(y_true) % lag + lag - 1
-        else:
-            shift = 1
 
 
-        y_true = y_true.iloc[shift::lag]
 
 
         y_pred = pd.Series(y_pred)
-        y_pred = y_pred.iloc[shift::lag]
-
-
-
-        #print(y_pred)
 
 
 
@@ -138,16 +128,20 @@ def vectorized_backtest(y_true_input,y_pred_input):
 
         short_returns = short_signals.mul(y_true)
 
-        print(f'for {lag} the latest long signal is:',long_signals.iloc[-1],'short signal:',short_signals.iloc[-1])
+        print(f'for {lag_store} the latest long signal is:',long_signals.iloc[-1],'short signal:',short_signals.iloc[-1])
 
         strategy = long_returns.add(short_returns)
     # print(strategy.shape)
         strategy_cum = (1+strategy).cumprod() - 1
-        y_true_cum = (1+y_true).cumprod() - 1
+        y_true_cum = (1 + y_true).cumprod() - 1
+
+        strategy_cum_rolling = strategy_cum.rolling(lag).mean()
+        y_true_cum_rolling = y_true_cum.rolling(lag).mean()
+
 
         ax = plt.subplot(5, 1, i + 1)
-        ax.plot(strategy_cum, label='Strategy performance')
-        ax.plot(y_true_cum, label='Real performance')
+        ax.plot(strategy_cum_rolling, label='Strategy performance')
+        ax.plot(y_true_cum_rolling, label='Real performance')
 
         plt.title(f'{pipeline_args.args["data_lag"][-i - 1]} hours lag returns')
         ax.legend()

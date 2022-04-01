@@ -90,7 +90,7 @@ def assymetric_combined(y_true, y_pred):
     return loss
 
 def assymetric_mse_combined(y_true,y_pred):
-    loss = assymetric_loss_mse(y_true,y_pred) * ohlcv_cosine_similarity(y_true,y_pred)
+    loss = assymetric_loss_mse(y_true,y_pred) + ohlcv_cosine_similarity(y_true,y_pred)
     return loss
 
 def metric_loss(y_true, y_pred):
@@ -114,7 +114,7 @@ def profit_ratio_cosine(y_true,y_pred):
     loss = metric_profit_ratio(y_true,y_pred) * ohlcv_cosine_similarity(y_true,y_pred)
     return loss
 def profit_ratio_assymetric(y_true,y_pred):
-    loss = metric_profit_ratio(y_true,y_pred) * assymetric_mse_combined(y_true,y_pred)
+    loss = metric_profit_ratio(y_true,y_pred) + assymetric_loss_mse(y_true,y_pred) + ohlcv_cosine_similarity(y_true,y_pred)
     return loss
 
 '''Metric that compares how many signs are correct between true and pred values'''

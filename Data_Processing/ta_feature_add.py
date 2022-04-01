@@ -9,9 +9,8 @@ Returns: Dataframe
 
 
 def add_ta(ticker_data):
-    df = ticker_data  # Load Data In
 
-    df = ta.add_all_ta_features(df, open=f"open", high=f"high", low=f"low", close=f"close", volume=f"volume",
+    df = ta.add_all_ta_features(ticker_data, open=f"open", high=f"high", low=f"low", close=f"close", volume=f"volume",
                                 fillna=True, vectorized=False)  # Add all the ta!
 
     return df

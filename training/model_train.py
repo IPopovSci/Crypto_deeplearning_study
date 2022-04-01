@@ -1,5 +1,4 @@
 from dotenv import load_dotenv
-from tensorflow.keras.callbacks import ModelCheckpoint
 from pipeline.pipelineargs import PipelineArgs
 from Data_Processing.data_trim import trim_dataset
 from pipeline.pipeline_structure import pipeline
@@ -11,7 +10,6 @@ from Networks.callbacks import callbacks
 from keras_self_attention import SeqSelfAttention
 from Networks.network_config import NetworkParams
 import os
-import tensorflow as tf
 
 load_dotenv()
 
@@ -32,7 +30,7 @@ Performs fitting of x data on the model using the .fit method'''
 def train_model(x_t, y_t, x_val, y_val,model_type = network_args.network["model_type"]):
     model = create_model(model_type)
 
-    history = model.fit(x=trim_dataset(x_t, batch_size), y=trim_dataset(y_t, batch_size), epochs=3000,
+    history = model.fit(x=trim_dataset(x_t, batch_size), y=trim_dataset(y_t, batch_size), epochs=300000,
                                   verbose=1, batch_size=batch_size,
                                   shuffle=False, validation_data=(trim_dataset(x_val, batch_size),
                                                                   trim_dataset(y_val, batch_size)),
@@ -52,10 +50,10 @@ def continue_training(x_t, y_t, x_val, y_val,model_name='Default'):
                                              'profit_ratio_cosine':profit_ratio_cosine,
                                              'profit_ratio_assymetric':profit_ratio_assymetric})
 
-    # saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=network_args.network['lr'],amsgrad = True),
+    # saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00001,amsgrad = True),
     #                     loss=profit_ratio_assymetric, metrics=[metric_signs_close, ohlcv_cosine_similarity, ohlcv_mse])
 
-    history_lstm = saved_model.fit(x=trim_dataset(x_t, batch_size), y=trim_dataset(y_t, batch_size), epochs=3000,
+    history_lstm = saved_model.fit(x=trim_dataset(x_t, batch_size), y=trim_dataset(y_t, batch_size), epochs=30000,
                                   verbose=1, batch_size=batch_size,
                                   shuffle=False, validation_data=(trim_dataset(x_val, batch_size),
                                                                   trim_dataset(y_val, batch_size)),

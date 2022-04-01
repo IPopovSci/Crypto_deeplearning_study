@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from tensorflow.keras.layers import Dense, Input, LSTM
+from tensorflow.keras.layers import Dense, Input, LSTM,LayerNormalization
 
 from pipeline.pipelineargs import PipelineArgs
 from Networks.network_config import NetworkParams
@@ -16,37 +16,41 @@ def lstm_att_model():
 
     input = Input(batch_shape=(batch_size, time_steps, num_features))
 
-    regularizer = tf.keras.regularizers.l1_l2(l1=network_args.network['l1_reg'], l2=network_args.network['l2_reg'])
-    initializer = tf.keras.initializers.LecunNormal()
+    regularizer = None#tf.keras.regularizers.l1_l2(l1=network_args.network['l1_reg'], l2=network_args.network['l2_reg'])
+    initializer = tf.keras.initializers.glorot_uniform()
     dropout = network_args.network['dropout']
 
-    activation = 'selu'
 
-    x = LSTM(int(50), return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer,
-             bias_initializer=initializer, activity_regularizer=regularizer, kernel_regularizer=regularizer,
-             bias_regularizer=regularizer)(input)
+    activation = tf.keras.activations.swish
 
+    x = LSTM(int(60), return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer)(input)
 
-    x = LSTM(int(25), return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer,
-             bias_initializer=initializer, activity_regularizer=regularizer, kernel_regularizer=regularizer,
-             bias_regularizer=regularizer)(x)
+    x = LayerNormalization()(x)
 
-    x = Dense(10, activation=activation, kernel_initializer=initializer, bias_initializer=initializer,
-              activity_regularizer=regularizer, kernel_regularizer=regularizer, bias_regularizer=regularizer)(
-        x)
+    x = LSTM(int(35), return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer)(x)
 
-    x = Dense(5, activation=activation, activity_regularizer=regularizer, kernel_regularizer=regularizer,
-              bias_regularizer=regularizer, kernel_initializer=initializer, bias_initializer=initializer)(
-        x)
+    x = LayerNormalization()(x)
+    x = LSTM(int(20), return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer)(x)
 
-    output = tf.keras.layers.Dense(5, activation='linear', kernel_initializer=initializer,
-                                   bias_initializer=initializer)(x)
+    x = LayerNormalization()(x)
+
+    x = LSTM(int(10), return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer)(x)
+
+    x = LayerNormalization()(x)
+
+    x = Dense(10, activation=activation, kernel_initializer=initializer,
+              activity_regularizer=regularizer)(x)
+
+    x = LayerNormalization()(x)
+
+    output = tf.keras.layers.Dense(5, activation='softsign',
+                                   kernel_initializer=initializer)(x)
 
     lstm_model = tf.keras.Model(inputs=input, outputs=output)
 
     optimizer = tf.keras.optimizers.Adam(learning_rate=network_args.network['lr'], amsgrad=True)
 
     lstm_model.compile(
-        loss=metric_loss, optimizer=optimizer, metrics=[metric_signs_close, ohlcv_cosine_similarity])
+        loss=profit_ratio_assymetric, optimizer=optimizer, metrics=[metric_signs_close, ohlcv_cosine_similarity, ohlcv_mse,metric_profit_ratio])
 
     return lstm_model

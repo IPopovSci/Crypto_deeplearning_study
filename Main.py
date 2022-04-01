@@ -18,11 +18,11 @@ network_args = NetworkParams.get_instance()
 batch_size = pipeline_args.args['batch_size']
 time_steps = pipeline_args.args['time_steps']
 
-#pipeline_args.args['mode'] = 'training' #training or prediction
+pipeline_args.args['mode'] ='training' #training or prediction
 #pipeline_args.args['mode'] = 'prediction' #training or prediction
-pipeline_args.args['mode'] = 'continue' #training or prediction
+#pipeline_args.args['mode'] = 'continue' #training or prediction
 
-pipeline_args.args['time_steps'] = 50 #1 for dense
+pipeline_args.args['time_steps'] = 20 #1 for dense
 network_args.network["model_type"] = 'conv2d'
 
 if network_args.network["model_type"] == 'conv2d' or network_args.network["model_type"] == 'convlstm':
@@ -33,10 +33,10 @@ if network_args.network["model_type"] == 'conv2d' or network_args.network["model
 x_t, y_t, x_val, y_val, x_test_t, y_test_t, size = pipeline()
 
 if pipeline_args.args['mode'] == 'training':
-    model_train.train_model(x_t, y_t, x_val, y_val,network_args.network["model_type"])
+    model_train.train_model(x_t, y_t, x_val, y_val, network_args.network["model_type"])
 elif pipeline_args.args['mode'] == 'prediction':
-    y_pred = model_predict.predict(x_test_t, y_test_t,'0.9814_153.2496_50.3460.h5')
-    print(y_pred)
+    y_pred = model_predict.predict(x_test_t, y_test_t, '1.0618_6.7685_48.5826goodnonoise.h5')
+
     '12h:-'
     '24h:+'
     '48h:++-'
@@ -47,10 +47,14 @@ elif pipeline_args.args['mode'] == 'prediction':
 
     y_pred_mean = remove_mean(y_pred)
 
+    #y_pred_mean = 0.1 * y_pred_mean
+    print(y_pred[-1])
+
 
     ic_coef(y_test_t, y_pred)
     plot_results_v2(y_test_t, y_pred, no_mean=False)
+    correct_signs(y_test_t,y_pred)
     vectorized_backtest(y_test_t, y_pred)
 else:
-    model_train.continue_training(x_t, y_t, x_val, y_val,'0.9814_153.2496_50.3460.h5')
+    model_train.continue_training(x_t, y_t, x_val, y_val, '0.9889_3.0701_51.4174noise005good.h5')
 

@@ -88,7 +88,7 @@ def cryptowatch_data(pair, periods):
     hist = cw.markets.get(f"BINANCE:{pair}", ohlc=True, periods=[f'{periods}'])
 
     hist_list = getattr(hist, f'of_{periods}')  # Calling a method on a class to get the desired interval
-    # print(hist_list)
+
     col = ['time', 'Open', 'High', 'Low', 'Close', 'volume_a',
            'Volume']  # Volume is the volume in USDT in this case, volume_a is the volume in first currency (Currently using volume_a)
     df = pd.DataFrame(hist_list, columns=col)
@@ -99,7 +99,6 @@ def cryptowatch_data(pair, periods):
 
     df['time'] = pd.to_datetime(df['time'], unit='s').dt.strftime('%Y-%m-%dT%H:%M:%SZ')  # Unix to datetime conversion
     df.set_index('time', inplace=True)
-    # df.to_csv(f'{path}\\{filename}_cryptowatch.csv')
 
     return df
 

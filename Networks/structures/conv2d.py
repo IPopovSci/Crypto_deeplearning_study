@@ -25,45 +25,43 @@ def conv2d_model():
 
     activation = tf.keras.activations.swish
 
-    x = Conv2D(kernel_size=[3, 3], filters=32, kernel_initializer=initializer, kernel_regularizer=regularizer,
-               bias_initializer=initializer, bias_regularizer=regularizer, activity_regularizer=regularizer,
+    #x = GaussianNoise(0.005)(input)
+
+    x = Conv2D(kernel_size=[3, 3], filters=32, kernel_initializer=initializer, kernel_regularizer=regularizer, bias_regularizer=regularizer, activity_regularizer=regularizer,
                activation=activation, padding='same')(input)
 
-    x = BatchNormalization()(x)
-
-    x = Conv2D(kernel_size=[3, 3], filters=64, kernel_initializer=initializer, kernel_regularizer=regularizer,
-               bias_initializer=initializer, bias_regularizer=regularizer, activity_regularizer=regularizer,
-               activation=activation, padding='same')(x)
-
-    x = BatchNormalization()(x)
+    #x = BatchNormalization()(x)
 
     x = MaxPooling2D(pool_size=(2, 2), activity_regularizer=regularizer)(x)
 
-    x = Conv2D(kernel_size=[3, 3], filters=64, kernel_initializer=initializer, kernel_regularizer=regularizer,
-               bias_initializer=initializer, bias_regularizer=regularizer, activity_regularizer=regularizer,
+    x = BatchNormalization()(x)
+
+
+    x = Conv2D(kernel_size=[3, 3], filters=64, kernel_initializer=initializer, kernel_regularizer=regularizer
+               , bias_regularizer=regularizer, activity_regularizer=regularizer,
                activation=activation, padding='same')(x)
 
-    #x = BatchNormalization()(x)
+    x = MaxPooling2D(pool_size=(2, 2), activity_regularizer=regularizer)(x)
 
     x = Flatten()(x)
 
     x = BatchNormalization()(x)
 
     x = Dense(128, activation=activation, activity_regularizer=regularizer, kernel_regularizer=regularizer,
-              bias_regularizer=regularizer, kernel_initializer=initializer, bias_initializer=initializer)(
+              bias_regularizer=regularizer, kernel_initializer=initializer)(
         x)
 
     x = BatchNormalization()(x)
 
-    output = tf.keras.layers.Dense(5, activation='linear', activity_regularizer=regularizer,
+    output = tf.keras.layers.Dense(5, activation='softsign', activity_regularizer=regularizer,
                                    kernel_regularizer=regularizer, bias_regularizer=regularizer,
-                                   kernel_initializer=initializer, bias_initializer=initializer)(x)
+                                   kernel_initializer=initializer)(x)
 
     lstm_model = tf.keras.Model(inputs=input, outputs=output)
 
     optimizer = tf.keras.optimizers.Adam(learning_rate=network_args.network['lr'], amsgrad=True)
 
     lstm_model.compile(
-        loss=profit_ratio_assymetric, optimizer=optimizer, metrics=[metric_signs_close, ohlcv_cosine_similarity, ohlcv_mse])
+        loss=profit_ratio_assymetric, optimizer=optimizer, metrics=[metric_signs_close, ohlcv_cosine_similarity, ohlcv_mse,metric_profit_ratio])
 
     return lstm_model
