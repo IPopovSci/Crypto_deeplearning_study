@@ -70,21 +70,21 @@ If required folders do not exist, creates folders for standard scaler, min-max s
 def structure_create():
     # Check and create folders for scalers if they don't exist
     if not os.path.exists(
-            os.getenv('ss_path') + f'\{pipeline_args.args["interval"]}' + f'\\{pipeline_args.args["ticker"]}'):
-        os.makedirs(os.getenv('ss_path') + f'\{pipeline_args.args["interval"]}' + f'\\{pipeline_args.args["ticker"]}',
+            os.getenv('ss_path') + f'/{pipeline_args.args["interval"]}' + f'/{pipeline_args.args["ticker"]}'):
+        os.makedirs(os.getenv('ss_path') + f'/{pipeline_args.args["interval"]}' + f'/{pipeline_args.args["ticker"]}',
                     mode=0o777)
 
     if not os.path.exists(
-            os.getenv('mm_path') + f'\{pipeline_args.args["interval"]}' + f'\\{pipeline_args.args["ticker"]}'):
-        os.makedirs(os.getenv('mm_path') + f'\{pipeline_args.args["interval"]}' + f'\\{pipeline_args.args["ticker"]}',
+            os.getenv('mm_path') + f'/{pipeline_args.args["interval"]}' + f'/{pipeline_args.args["ticker"]}'):
+        os.makedirs(os.getenv('mm_path') + f'/{pipeline_args.args["interval"]}' + f'/{pipeline_args.args["ticker"]}',
                     mode=0o777)
 
     # Check and create folders for model saving
 
     if not os.path.exists(os.getenv(
-            'model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}'):
+            'model_path') + f'/{pipeline_args.args["interval"]}/{pipeline_args.args["ticker"]}/{network_args.network["model_type"]}'):
         os.makedirs(os.getenv(
-            'model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}',
+            'model_path') + f'/{pipeline_args.args["interval"]}/{pipeline_args.args["ticker"]}/{network_args.network["model_type"]}',
                     mode=0o777)
 
 

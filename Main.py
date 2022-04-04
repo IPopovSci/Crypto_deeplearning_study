@@ -13,11 +13,11 @@ import os
 
 load_dotenv()
 
-# print(sys.path)
-os.environ['mm_path'] = f'{sys.path[1]}/scalers'
-os.environ['ss_path'] = f'{sys.path[1]}/scalers'
-os.environ['model_path'] = f'{sys.path[1]}/models'
-os.environ['data_path'] = f'{sys.path[1]}/data'
+print(sys.path)
+os.environ['mm_path'] = f'{sys.path[0]}/scalers'
+os.environ['ss_path'] = f'{sys.path[0]}/scalers'
+os.environ['model_path'] = f'{sys.path[0]}/models'
+os.environ['data_path'] = f'{sys.path[0]}/data'
 
 
 

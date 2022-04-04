@@ -6,7 +6,7 @@ from keras.layers.convolutional_recurrent import ConvLSTM1D
 
 from pipeline.pipelineargs import PipelineArgs
 from Networks.network_config import NetworkParams
-from Networks.losses_metrics import ohlcv_mse, ohlcv_cosine_similarity, metric_signs_close, ohlcv_combined
+from Networks.losses_metrics import ohlcv_mse, ohlcv_cosine_similarity, metric_signs_close, ohlcv_combined,profit_ratio_assymetric
 
 pipeline_args = PipelineArgs.get_instance()
 network_args = NetworkParams.get_instance()

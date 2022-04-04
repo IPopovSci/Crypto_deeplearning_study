@@ -11,7 +11,6 @@ from Networks.losses_metrics import ohlcv_combined, metric_signs_close, ohlcv_co
     assymetric_loss, assymetric_combined, metric_loss,metric_profit_ratio,profit_ratio_mse, profit_ratio_cosine,profit_ratio_assymetric
 from Backtesting.Backtesting import correct_signs, ic_coef
 from plotting import plot_results_v2, plot_ic
-from Backtesting.pyfolio import pyfolio_rolling_returns
 from utility import remove_mean,remove_std
 from Backtesting.Backtesting import vectorized_backtest
 
@@ -32,7 +31,7 @@ Returns: numpy array with predictions.'''
 
 def predict(x_test_t, y_test_t,model_name='Default'):
     saved_model = load_model(filepath=(os.getenv(
-        'model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}\\' + model_name),
+        'model_path') + f'/{pipeline_args.args["interval"]}/{pipeline_args.args["ticker"]}/{network_args.network["model_type"]}/' + model_name),
                              custom_objects={'metric_loss': metric_loss, 'assymetric_combined': assymetric_combined,
                                              'assymetric_loss': assymetric_loss,
                                              'metric_signs_close': metric_signs_close,

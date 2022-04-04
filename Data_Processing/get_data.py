@@ -56,7 +56,7 @@ def aux_data(df_main, aux_ticker_list, start_date):
 def scv_data(ticker, path, interval):
     col = ['time', 'open', 'high', 'low', 'close', 'volume']
     # df = pd.read_csv(f'C:\\Users\\Ivan\\PycharmProjects\\MlFinancialAnal\\data\datasets\\{pair}\\{pair}.csv')
-    df = pd.read_csv(f'{path}\{interval}\{ticker}.csv')
+    df = pd.read_csv(f'{path}/{interval}/{ticker}.csv')
     df = df[col]
 
     try:

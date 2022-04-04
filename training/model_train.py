@@ -38,7 +38,7 @@ def train_model(x_t, y_t, x_val, y_val,model_type = network_args.network["model_
 
 def continue_training(x_t, y_t, x_val, y_val,model_name='Default'):
     saved_model = load_model(filepath=(os.getenv(
-        'model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}\\' + model_name),
+        'model_path') + f'/{pipeline_args.args["interval"]}/{pipeline_args.args["ticker"]}/{network_args.network["model_type"]}/' + model_name),
                              custom_objects={'metric_loss': metric_loss, 'assymetric_combined': assymetric_combined,
                                              'assymetric_loss': assymetric_loss,
                                              'metric_signs_close': metric_signs_close,
