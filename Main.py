@@ -1,6 +1,6 @@
 
 from pipeline.pipeline_structure import pipeline
-
+import sys
 from pipeline.pipelineargs import PipelineArgs
 from dotenv import load_dotenv
 from Networks.network_config import NetworkParams
@@ -9,8 +9,17 @@ from plotting import plot_results_v2, plot_ic
 from utility import remove_mean,remove_std
 from Backtesting.Backtesting import vectorized_backtest
 from training import model_train,model_predict
+import os
 
 load_dotenv()
+
+# print(sys.path)
+os.environ['mm_path'] = f'{sys.path[1]}/scalers'
+os.environ['ss_path'] = f'{sys.path[1]}/scalers'
+os.environ['model_path'] = f'{sys.path[1]}/models'
+os.environ['data_path'] = f'{sys.path[1]}/data'
+
+
 
 pipeline_args = PipelineArgs.get_instance()
 network_args = NetworkParams.get_instance()
@@ -18,8 +27,8 @@ network_args = NetworkParams.get_instance()
 batch_size = pipeline_args.args['batch_size']
 time_steps = pipeline_args.args['time_steps']
 
-pipeline_args.args['mode'] ='training' #training or prediction
-#pipeline_args.args['mode'] = 'prediction' #training or prediction
+#pipeline_args.args['mode'] ='training' #training or prediction
+pipeline_args.args['mode'] = 'prediction' #training or prediction
 #pipeline_args.args['mode'] = 'continue' #training or prediction
 
 pipeline_args.args['time_steps'] = 20 #1 for dense
@@ -46,12 +55,13 @@ elif pipeline_args.args['mode'] == 'prediction':
         y_pred = y_pred[:, -1, :]
 
     y_pred_mean = remove_mean(y_pred)
+    y_test_t_mean = remove_mean(y_test_t)
 
     #y_pred_mean = 0.1 * y_pred_mean
     print(y_pred[-1])
 
 
-    ic_coef(y_test_t, y_pred)
+    ic_coef(y_test_t, y_pred_mean)
     plot_results_v2(y_test_t, y_pred, no_mean=False)
     correct_signs(y_test_t,y_pred)
     vectorized_backtest(y_test_t, y_pred)
