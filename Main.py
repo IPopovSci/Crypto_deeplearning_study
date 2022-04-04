@@ -13,26 +13,27 @@ import os
 
 load_dotenv()
 
-print(sys.path)
 os.environ['mm_path'] = f'{sys.path[0]}/scalers'
 os.environ['ss_path'] = f'{sys.path[0]}/scalers'
 os.environ['model_path'] = f'{sys.path[0]}/models'
-os.environ['data_path'] = f'{sys.path[0]}/data'
+os.environ['data_path'] = f'{sys.path[0]}/Data'
 
 
 
 pipeline_args = PipelineArgs.get_instance()
 network_args = NetworkParams.get_instance()
 
-batch_size = pipeline_args.args['batch_size']
-time_steps = pipeline_args.args['time_steps']
+batch_size = os.environ['batch_size']
+time_steps = os.environ['time_steps']
 
-#pipeline_args.args['mode'] ='training' #training or prediction
-pipeline_args.args['mode'] = 'prediction' #training or prediction
+pipeline_args.args['mode'] =os.environ['mode'] #training or prediction
+#pipeline_args.args['mode'] = 'prediction' #training or prediction
 #pipeline_args.args['mode'] = 'continue' #training or prediction
 
-pipeline_args.args['time_steps'] = 20 #1 for dense
-network_args.network["model_type"] = 'conv2d'
+pipeline_args.args['time_steps'] = int(time_steps) #1 for dense
+network_args.network["model_type"] = os.environ['model_type']
+print(time_steps)
+model_load_name = os.environ['model_load_name']
 
 if network_args.network["model_type"] == 'conv2d' or network_args.network["model_type"] == 'convlstm':
     pipeline_args.args['expand_dims'] = True
@@ -44,7 +45,7 @@ x_t, y_t, x_val, y_val, x_test_t, y_test_t, size = pipeline()
 if pipeline_args.args['mode'] == 'training':
     model_train.train_model(x_t, y_t, x_val, y_val, network_args.network["model_type"])
 elif pipeline_args.args['mode'] == 'prediction':
-    y_pred = model_predict.predict(x_test_t, y_test_t, '1.0618_6.7685_48.5826goodnonoise.h5')
+    y_pred = model_predict.predict(x_test_t, y_test_t, f'{model_load_name}')
 
     '12h:-'
     '24h:+'
@@ -66,5 +67,5 @@ elif pipeline_args.args['mode'] == 'prediction':
     correct_signs(y_test_t,y_pred)
     vectorized_backtest(y_test_t, y_pred)
 else:
-    model_train.continue_training(x_t, y_t, x_val, y_val, '0.9889_3.0701_51.4174noise005good.h5')
+    model_train.continue_training(x_t, y_t, x_val, y_val, f'{model_load_name}')
 

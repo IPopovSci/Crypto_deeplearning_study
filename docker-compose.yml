@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  app:
+    image: mlfinancial
+    working_dir: /app
+    volumes:
+      - ./:/app
+    environment:
+        batch_size: 128
+        time_steps: 20
+        mode: training
+        model_type: dense

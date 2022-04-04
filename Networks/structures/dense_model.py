@@ -6,7 +6,7 @@ from tensorflow.keras.layers import Dense, Input, GaussianNoise, AlphaDropout, D
 from pipeline.pipelineargs import PipelineArgs
 from Networks.network_config import NetworkParams
 from Networks.losses_metrics import ohlcv_mse, ohlcv_cosine_similarity, metric_signs_close, ohlcv_combined, \
-    assymetric_loss, assymetric_combined, metric_loss
+    assymetric_loss, assymetric_combined, metric_loss, profit_ratio_assymetric,metric_profit_ratio
 
 pipeline_args = PipelineArgs.get_instance()
 network_args = NetworkParams.get_instance()
