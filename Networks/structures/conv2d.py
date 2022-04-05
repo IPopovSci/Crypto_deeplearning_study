@@ -7,9 +7,19 @@ from pipeline.pipelineargs import PipelineArgs
 from Networks.network_config import NetworkParams
 from Networks.losses_metrics import ohlcv_mse, ohlcv_cosine_similarity, metric_signs_close, ohlcv_combined, \
     assymetric_loss, assymetric_combined, metric_loss, profit_ratio_cosine,profit_ratio_assymetric,metric_profit_ratio
+from Networks.custom_activation import cyclemoid
+from keras.layers import Activation
+from keras.utils.generic_utils import get_custom_objects
+
 
 pipeline_args = PipelineArgs.get_instance()
 network_args = NetworkParams.get_instance()
+
+
+
+get_custom_objects().update({'cyclemoid': Activation(cyclemoid)})
+
+
 
 
 def conv2d_model():
@@ -23,7 +33,7 @@ def conv2d_model():
     initializer = tf.keras.initializers.glorot_uniform()
     dropout = network_args.network['dropout']
 
-    activation = tf.keras.activations.swish
+    activation = 'cyclemoid'
 
     #x = GaussianNoise(0.005)(input)
 
@@ -31,6 +41,13 @@ def conv2d_model():
                activation=activation, padding='same')(input)
 
     #x = BatchNormalization()(x)
+
+
+
+    x = BatchNormalization()(x)
+
+    x = Conv2D(kernel_size=[3, 3], filters=32, kernel_initializer=initializer, kernel_regularizer=regularizer, bias_regularizer=regularizer, activity_regularizer=regularizer,
+               activation=activation, padding='same')(x)
 
     x = MaxPooling2D(pool_size=(2, 2), activity_regularizer=regularizer)(x)
 

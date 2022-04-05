@@ -13,6 +13,7 @@ from Backtesting.Backtesting import correct_signs, ic_coef
 from plotting import plot_results_v2, plot_ic
 from utility import remove_mean,remove_std
 from Backtesting.Backtesting import vectorized_backtest
+from Networks.custom_activation import cyclemoid
 
 load_dotenv()
 
@@ -41,11 +42,13 @@ def predict(x_test_t, y_test_t,model_name='Default'):
                                              'metric_profit_ratio': metric_profit_ratio,
                                              'profit_ratio_mse': profit_ratio_mse,
                                              'profit_ratio_cosine':profit_ratio_cosine,
-                                             'profit_ratio_assymetric':profit_ratio_assymetric})
+                                             'profit_ratio_assymetric':profit_ratio_assymetric,
+                                             'cyclemoid':cyclemoid})
     saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00000005),
                         loss=ohlcv_combined, metrics=metric_signs_close)
 
 
+    y_pred = saved_model.predict(trim_dataset(x_test_t[:], batch_size), batch_size=batch_size)
     y_pred = saved_model.predict(trim_dataset(x_test_t[:], batch_size), batch_size=batch_size)
 
     saved_model.summary()
