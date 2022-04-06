@@ -27,28 +27,15 @@ Outputs: Pandas Dataframe'''
 
 
 def lagged_returns(df, lags):
-    pd.set_option('display.max_columns', None)
 
-    lags = lags
 
-    # cols = ['open','high','low','close','volume']
-
-    # print(df.head(n=30))
     for lag in lags:
         df[f'return_{lag}h'] = df['close'].pct_change(lag, axis=0)
 
-    # print(df.head(n=30))
 
     for t in lags:
         df[f'target_{t}h'] = df[f'return_{t}h'].shift(-t)
         df = df[[f'target_{t}h'] + [col for col in df.columns if
                                     col != f'target_{t}h']]  # Puts the return columns up front, for easier grabbing later
-
-    print(df.tail(n=30))
-
-    '''Debug options'''
-    # pd.set_option('max_columns', None)
-
-    # print(df_diff.head(n=30))
 
     return df

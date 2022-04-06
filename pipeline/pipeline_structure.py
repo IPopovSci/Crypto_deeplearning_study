@@ -24,7 +24,7 @@ def pipeline():
     structure_create()
     pipeline_args = PipelineArgs.get_instance()
     '''Step 1: Get Data'''
-    if pipeline_args.args['mode'] == 'training':
+    if pipeline_args.args['mode'] == 'training' or pipeline_args.args['mode'] == 'continue':
         history = scv_data(pipeline_args.args['ticker'], os.getenv('data_path'), pipeline_args.args['interval'])
     elif pipeline_args.args['mode'] == 'prediction':
         history = cryptowatch_data(pipeline_args.args['ticker'], pipeline_args.args['interval'])
@@ -46,7 +46,7 @@ def pipeline():
                                                             pipeline_args.args['test_size'])
 
     '''Step 5: SS Transform'''
-    if pipeline_args.args['mode'] == 'training':
+    if pipeline_args.args['mode'] == 'training' or pipeline_args.args['mode'] == 'continue':
         x_train, x_validation, x_test, y_train, y_validation, y_test = x_y_split(x_train, x_validation, x_test)
     elif pipeline_args.args['mode'] == 'prediction':
         x_train, x_validation, x_test, y_train, y_validation, y_test = x_y_split(x_train, x_validation,
@@ -76,7 +76,7 @@ def pipeline():
     '''Step 9: Create time-series data'''
 
     size = len(x_train)
-    if pipeline_args.args['mode'] == 'training':  # This is to prevent errors during predictions due to timesteps
+    if pipeline_args.args['mode'] == 'training' or pipeline_args.args['mode'] == 'continue':  # This is to prevent errors during predictions due to timesteps
         x_train, y_train = build_timeseries(x_train, y_train, pipeline_args.args['time_steps'],
                                             pipeline_args.args['batch_size'],
                                             expand_dims=pipeline_args.args['expand_dims']

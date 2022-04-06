@@ -21,7 +21,7 @@ def cryptowatch_data_save_to_csv(pair, periods, save_to_csv=True):
     df['time'] = pd.to_datetime(df['time'], unit='s')  # Unix to datetime conversion
     df.set_index('time', inplace=True)
     if save_to_csv==True:
-        df.to_csv(f'F:\MM\historical_data\\bnbusdt\{now}.csv')
+        df.to_csv(f'F:/MM/historical_data/bnbusdt/{now}.csv')
 
     return df
 

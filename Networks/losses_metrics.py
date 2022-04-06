@@ -63,6 +63,17 @@ def assymetric_loss(y_true, y_pred):
                     )
     return K.mean(loss, axis=-1)
 
+def assymetric_loss_mse(y_true, y_pred):
+    if pipeline_args.args['expand_dims'] == False:
+        y_pred = y_pred[:, -1, :]  # Because Dense predictions will have timesteps
+
+    alpha = 100.
+    loss = K.switch(K.less(y_true * y_pred, 0),
+                    K.square(alpha * y_pred) + K.square(y_pred - K.sign(y_pred) * y_true),
+                    K.square(y_pred - y_true)
+                    )
+    return K.mean(loss, axis=-1)
+
 
 
 '''Combined losses
@@ -78,9 +89,32 @@ def assymetric_combined(y_true, y_pred):
     loss = assymetric_loss(y_true, y_pred) * ohlcv_cosine_similarity(y_true, y_pred)
     return loss
 
+def assymetric_mse_combined(y_true,y_pred):
+    loss = assymetric_loss_mse(y_true,y_pred) + ohlcv_cosine_similarity(y_true,y_pred)
+    return loss
 
 def metric_loss(y_true, y_pred):
     loss = ohlcv_combined(y_true, y_pred) * assymetric_loss(y_true, y_pred)
+    return loss
+
+
+
+def metric_profit_ratio(y_true,y_pred):
+    if pipeline_args.args['expand_dims'] == False:
+        y_pred = y_pred[:, -1, :]
+
+    ratio = tf.math.divide_no_nan(y_pred,y_true)
+    loss = K.switch(K.greater_equal(K.abs(ratio),1.), tf.math.divide_no_nan(1.,ratio), ratio)
+    return K.mean(-loss+1.,axis=-1)
+
+def profit_ratio_mse(y_true,y_pred):
+    loss = metric_profit_ratio(y_true,y_pred) * ohlcv_cosine_similarity(y_true,y_pred) * ohlcv_mse(y_true,y_pred)
+    return loss
+def profit_ratio_cosine(y_true,y_pred):
+    loss = metric_profit_ratio(y_true,y_pred) * ohlcv_cosine_similarity(y_true,y_pred)
+    return loss
+def profit_ratio_assymetric(y_true,y_pred):
+    loss = metric_profit_ratio(y_true,y_pred) + assymetric_loss_mse(y_true,y_pred) + ohlcv_cosine_similarity(y_true,y_pred)
     return loss
 
 '''Metric that compares how many signs are correct between true and pred values'''

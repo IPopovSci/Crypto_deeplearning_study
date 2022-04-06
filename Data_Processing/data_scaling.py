@@ -16,9 +16,9 @@ pipeline_args = PipelineArgs.get_instance()
 
 def SS_transform(x_train, x_validation, x_test, y_train, y_validation, y_test, mode='training', interval='1h',
                  ticker='ethusdt', SS_path=[]):
-    if mode == 'prediction':
-        sc_x = joblib.load(SS_path + f'\{interval}' + f'\\{ticker}' + "\ss.x")
-        sc_y = joblib.load(SS_path + f'\{interval}' + f'\\{ticker}' + "\ss.y")
+    if mode == 'prediction' or mode == 'continue':
+        sc_x = joblib.load(SS_path + f'/{interval}' + f'/{ticker}' + "/ss.x")
+        sc_y = joblib.load(SS_path + f'/{interval}' + f'/{ticker}' + "/ss.y")
 
         x_train_ss = sc_x.transform(x_train)
 
@@ -48,14 +48,14 @@ def SS_transform(x_train, x_validation, x_test, y_train, y_validation, y_test, m
 
         y_test_ss = sc_y.transform(y_test)
 
-        if not os.path.exists(SS_path + f'\{interval}' + f'\\{ticker}'):
-            os.makedirs(SS_path + f'\{interval}' + f'\\{ticker}', mode=0o777)
+        if not os.path.exists(SS_path + f'/{interval}' + f'/{ticker}'):
+            os.makedirs(SS_path + f'/{interval}' + f'/{ticker}', mode=0o777)
 
-        joblib.dump(sc_x, SS_path + f'\{interval}' + f'\\{ticker}' + "\ss.x")
-        joblib.dump(sc_y, SS_path + f'\{interval}' + f'\\{ticker}' + "\ss.y")
+        joblib.dump(sc_x, SS_path + f'/{interval}' + f'/{ticker}' + "/ss.x")
+        joblib.dump(sc_y, SS_path + f'/{interval}' + f'/{ticker}' + "/ss.y")
 
-    pipeline_args.args['ss_x_path'] = SS_path + f'\{interval}' + f'\\{ticker}' + "\ss.x"
-    pipeline_args.args['ss_y_path'] = SS_path + f'\{interval}' + f'\\{ticker}' + "\ss.y"
+    pipeline_args.args['ss_x_path'] = SS_path + f'/{interval}' + f'/{ticker}' + "/ss.x"
+    pipeline_args.args['ss_y_path'] = SS_path + f'/{interval}' + f'/{ticker}' + "/ss.y"
 
     return x_train_ss, x_validation_ss, x_test_ss, y_train_ss, y_validation_ss, y_test_ss, sc_y
 
@@ -70,9 +70,9 @@ Returns: transformed train,validation,test sets as well as the scaler object.
 def min_max_transform(x_train, x_validation, x_test, y_train, y_validation, y_test, mode='training', interval='1h',
                       ticker='ethusdt',
                       MM_path=[]):
-    if mode == 'prediction':
-        mm_x = joblib.load(MM_path + f'\{interval}' + f'\\{ticker}' + "\mm.x")
-        mm_y = joblib.load(MM_path + f'\{interval}' + f'\\{ticker}' + "\mm.y")
+    if mode == 'prediction' or mode == 'continue':
+        mm_x = joblib.load(MM_path + f'/{interval}' + f'/{ticker}' + "/mm.x")
+        mm_y = joblib.load(MM_path + f'/{interval}' + f'/{ticker}' + "/mm.y")
 
         x_train = mm_x.transform(x_train)
 
@@ -104,13 +104,13 @@ def min_max_transform(x_train, x_validation, x_test, y_train, y_validation, y_te
 
         y_test = mm_y.transform(y_test)
 
-        if not os.path.exists(MM_path + f'\{interval}' + f'\\{ticker}'):
-            os.makedirs(MM_path + f'\{interval}' + f'\\{ticker}\\', mode=0o777)
+        if not os.path.exists(MM_path + f'/{interval}' + f'/{ticker}'):
+            os.makedirs(MM_path + f'/{interval}' + f'/{ticker}/', mode=0o777)
 
-        joblib.dump(mm_x, MM_path + f'\{interval}' + f'\\{ticker}' + "\mm.x")
-        joblib.dump(mm_y, MM_path + f'\{interval}' + f'\\{ticker}' + "\mm.y")
+        joblib.dump(mm_x, MM_path + f'/{interval}' + f'/{ticker}' + "/mm.x")
+        joblib.dump(mm_y, MM_path + f'/{interval}' + f'/{ticker}' + "/mm.y")
 
-    pipeline_args.args['mm_x_path'] = MM_path + f'\{interval}' + f'\\{ticker}' + "\mm.x"
-    pipeline_args.args['mm_y_path'] = MM_path + f'\{interval}' + f'\\{ticker}' + "\mm.y"
+    pipeline_args.args['mm_x_path'] = MM_path + f'/{interval}' + f'/{ticker}' + "/mm.x"
+    pipeline_args.args['mm_y_path'] = MM_path + f'/{interval}' + f'/{ticker}' + "/mm.y"
 
     return x_train, x_validation, x_test, y_train, y_validation, y_test, mm_y

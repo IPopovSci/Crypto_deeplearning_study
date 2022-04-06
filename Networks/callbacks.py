@@ -23,7 +23,7 @@ def callbacks():
     #hash_folder_create()
 
     mcp = ModelCheckpoint(
-        os.path.join(os.getenv('model_path') + f'\{pipeline_args.args["interval"]}\{pipeline_args.args["ticker"]}\{network_args.network["model_type"]}',
+        os.path.join(os.getenv('model_path') + f'/{pipeline_args.args["interval"]}/{pipeline_args.args["ticker"]}/{network_args.network["model_type"]}',
                      "{val_ohlcv_cosine_similarity:.4f}_{val_loss:.4f}_{val_metric_signs_close:.4f}.h5"),
         monitor=network_args.callbacks['monitor'], verbose=3,
         save_best_only=True, save_weights_only=False, mode=network_args.callbacks['mode'], period=1)

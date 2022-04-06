@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  app:
+    image: mlfinancial
+    working_dir: /app
+    volumes:
+      - ./:/app
+    environment:
+        batch_size: 128
+        time_steps: 20
+        mode: training
+        model_type: conv2d
+        model_load_name: 0.9889_3.0701_51.4174noise005good.h5
+        use_docker: True
