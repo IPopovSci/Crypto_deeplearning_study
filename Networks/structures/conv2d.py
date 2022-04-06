@@ -33,7 +33,7 @@ def conv2d_model():
     initializer = tf.keras.initializers.glorot_uniform()
     dropout = network_args.network['dropout']
 
-    activation = 'cyclemoid'
+    activation = tf.keras.activations.swish
 
     #x = GaussianNoise(0.005)(input)
 

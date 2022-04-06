@@ -1,12 +1,12 @@
 import tensorflow as tf
 
 from tensorflow.keras.layers import Input, LayerNormalization, Conv2D, \
-    Flatten, MaxPooling2D
+    Flatten, MaxPooling2D,Dense
 from keras.layers.convolutional_recurrent import ConvLSTM1D
 
 from pipeline.pipelineargs import PipelineArgs
 from Networks.network_config import NetworkParams
-from Networks.losses_metrics import ohlcv_mse, ohlcv_cosine_similarity, metric_signs_close, ohlcv_combined,profit_ratio_assymetric
+from Networks.losses_metrics import ohlcv_mse, ohlcv_cosine_similarity, metric_signs_close, ohlcv_combined,profit_ratio_assymetric,metric_profit_ratio
 
 pipeline_args = PipelineArgs.get_instance()
 network_args = NetworkParams.get_instance()
@@ -30,7 +30,7 @@ def convlstm_model():
     #            bias_initializer=initializer, bias_regularizer=regularizer, activity_regularizer=regularizer,
     #            activation=activation, padding='same')(input)
 
-    x = ConvLSTM1D(64, stateful=False, kernel_size=3, bias_regularizer=regularizer,
+    x = ConvLSTM1D(64, stateful=True, kernel_size=3, bias_regularizer=regularizer,
                    activity_regularizer=regularizer, recurrent_regularizer=regularizer,
                    recurrent_initializer=initializer, activation=activation, kernel_initializer=initializer,
                    kernel_regularizer=regularizer, return_sequences=True, padding='same')(input)
@@ -39,11 +39,13 @@ def convlstm_model():
     #                activity_regularizer=regularizer, recurrent_regularizer=regularizer,
     #                recurrent_initializer=initializer, activation=activation, kernel_initializer=initializer,
     #                kernel_regularizer=regularizer, return_sequences=True, padding='same')(x)
-    #
-    # x = ConvLSTM1D(64, stateful=False, kernel_size=3, bias_regularizer=regularizer,
-    #                activity_regularizer=regularizer, recurrent_regularizer=regularizer,
-    #                recurrent_initializer=initializer, activation=activation, kernel_initializer=initializer,
-    #                kernel_regularizer=regularizer, return_sequences=True, padding='same')(x)
+
+    x = LayerNormalization()(x)
+    # #
+    x = ConvLSTM1D(64, stateful=True, kernel_size=3, bias_regularizer=regularizer,
+                   activity_regularizer=regularizer, recurrent_regularizer=regularizer,
+                   recurrent_initializer=initializer, activation=activation, kernel_initializer=initializer,
+                   kernel_regularizer=regularizer, return_sequences=True, padding='same')(x)
 
     x = LayerNormalization()(x)
 
@@ -72,6 +74,13 @@ def convlstm_model():
     x = Flatten()(x)
 
     x = LayerNormalization()(x)
+
+    x = Dense(128, activation=activation, activity_regularizer=regularizer, kernel_regularizer=regularizer,
+              bias_regularizer=regularizer, kernel_initializer=initializer)(
+        x)
+
+    x = LayerNormalization()(x)
+
 
     output = tf.keras.layers.Dense(5, activation='softsign', activity_regularizer=regularizer,
                                    kernel_regularizer=regularizer, bias_regularizer=regularizer,

@@ -1,4 +1,3 @@
-from pipeline.pipeline_structure import pipeline
 from Data_Processing.data_trim import trim_dataset
 from tensorflow.keras.models import load_model
 import os
@@ -9,11 +8,8 @@ from dotenv import load_dotenv
 from Networks.network_config import NetworkParams
 from Networks.losses_metrics import ohlcv_combined, metric_signs_close, ohlcv_cosine_similarity, ohlcv_mse, \
     assymetric_loss, assymetric_combined, metric_loss,metric_profit_ratio,profit_ratio_mse, profit_ratio_cosine,profit_ratio_assymetric
-from Backtesting.Backtesting import correct_signs, ic_coef
-from plotting import plot_results_v2, plot_ic
-from utility import remove_mean,remove_std
-from Backtesting.Backtesting import vectorized_backtest
 from Networks.custom_activation import cyclemoid
+from keras.layers import Activation
 
 load_dotenv()
 
@@ -43,7 +39,8 @@ def predict(x_test_t, y_test_t,model_name='Default'):
                                              'profit_ratio_mse': profit_ratio_mse,
                                              'profit_ratio_cosine':profit_ratio_cosine,
                                              'profit_ratio_assymetric':profit_ratio_assymetric,
-                                             'cyclemoid':cyclemoid})
+                                             'cyclemoid':cyclemoid,
+                                             'Activation':Activation})
     saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00000005),
                         loss=ohlcv_combined, metrics=metric_signs_close)
 

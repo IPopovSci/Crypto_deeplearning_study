@@ -1,30 +1,19 @@
-import numpy as np
-from tensorflow.python.framework import ops
-from tensorflow.python.ops import array_ops
-from tensorflow.python.ops import math_ops
-from scipy.stats import spearmanr,kendalltau
 from pipeline.pipelineargs import PipelineArgs
 from dotenv import load_dotenv
-from Networks.network_config import NetworkParams
-import pandas as pd
-
-from pathlib import Path
-from time import time
-import datetime
-
 import numpy as np
 import pandas as pd
-import pandas_datareader.data as web
-from utility import scale
-from scipy.stats import spearmanr
-
-import matplotlib.pyplot as plt
-from matplotlib.ticker import FuncFormatter
-import seaborn as sns
-
+from plotting import plot_results_v2
 import os
+from Networks.network_config import NetworkParams
+from scipy.stats import spearmanr
+from utility import remove_mean, remove_std
+import matplotlib.pyplot as plt
+
+
+
 load_dotenv()
 pipeline_args = PipelineArgs.get_instance()
+network_args = NetworkParams.get_instance()
 
 '''Function that calculates the amount of equal signs between y_true and y_pred
 Accepts: y_true,y_pred.
@@ -91,7 +80,6 @@ Plots 5 time lags strategy performance vs the underlying buy and hold strategy.
 Accepts: 5 dimensional y_true and y_pred numpy arrays.'''
 
 def vectorized_backtest(y_true_input,y_pred_input):
-    #ic_coef(y_true_input,y_pred_input)
 
     for i in range(0,5):
         y_true = y_true_input[:, 0]
@@ -104,10 +92,6 @@ def vectorized_backtest(y_true_input,y_pred_input):
         #print(y_true)
 
         coef_r, p_r = spearmanr(y_true_input[:,i], y_pred)
-        # if p_r > 0.05:
-        #     print(f'{lag} lag is not statistically correlated')
-        # print(p_r)
-        # print(coef_r)
 
         if coef_r < 0:
             print(f'inverse! for {lag}lag')
@@ -131,7 +115,6 @@ def vectorized_backtest(y_true_input,y_pred_input):
         print(f'for {lag_store} the latest long signal is:',long_signals.iloc[-1],'short signal:',short_signals.iloc[-1])
 
         strategy = long_returns.add(short_returns)
-    # print(strategy.shape)
         strategy_cum = (1+strategy).cumprod() - 1
         y_true_cum = (1 + y_true).cumprod() - 1
 
@@ -145,9 +128,27 @@ def vectorized_backtest(y_true_input,y_pred_input):
 
         plt.title(f'{pipeline_args.args["data_lag"][-i - 1]} hours lag returns')
         ax.legend()
+
+    path = os.getenv("model_path")
+    model_load_name = os.environ['model_load_name']
+    plt.savefig(f'{path}/{pipeline_args.args["interval"]}/{pipeline_args.args["ticker"]}/{network_args.network["model_type"]}/{model_load_name}_backtest.png')
     plt.show()
 
+def backtest_total(y_true,y_pred,plot_mean=True,backtest_mean=False):
+    if pipeline_args.args['expand_dims'] == False:
+        y_pred = y_pred[:, -1, :]
 
+    y_pred_mean = remove_mean(y_pred)
+
+    print(y_pred[-1])
+
+    ic_coef(y_true, y_pred_mean)
+    plot_results_v2(y_true, y_pred, no_mean=plot_mean)
+    correct_signs(y_true, y_pred)
+    if backtest_mean:
+        vectorized_backtest(y_true, y_pred_mean)
+    else:
+        vectorized_backtest(y_true, y_pred)
 
 
 

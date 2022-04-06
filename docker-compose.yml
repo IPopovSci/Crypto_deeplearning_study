@@ -12,4 +12,4 @@ services:
         mode: training
         model_type: conv2d
         model_load_name: 0.9889_3.0701_51.4174noise005good.h5
-        
+        use_docker: True
