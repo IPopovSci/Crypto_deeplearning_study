@@ -20,22 +20,14 @@ network_args = NetworkParams.get_instance()
 use_docker = str(os.environ['use_docker'])
 print(use_docker)
 
-if use_docker == 'true':
-    pipeline_args.args['batch_size'] = int(os.environ['batch_size'])
-    pipeline_args.args['mode'] = os.environ['mode']  # training or prediction
-    pipeline_args.args['time_steps'] = int(os.environ['time_steps'])  # 1 for dense
-    network_args.network["model_type"] = os.environ['model_type']
-    model_load_name = os.environ['model_load_name']
-    pipeline_args.args['ticker'] = os.environ['ticker']
-    pipeline_args.args['interval'] = os.environ['interval']
 
-elif use_docker == 'false':
-    pipeline_args.args['batch_size'] = 128
-    pipeline_args.args['time_steps'] = 20
-    pipeline_args.args['mode'] = 'prediction'  # training or prediction
-    network_args.network["model_type"] = 'conv2d'
-    model_load_name = 'conv2d_model.h5'
-    os.environ['model_load_name'] = model_load_name
+pipeline_args.args['batch_size'] = int(os.environ['batch_size'])
+pipeline_args.args['mode'] = os.environ['mode']  # training or prediction
+pipeline_args.args['time_steps'] = int(os.environ['time_steps'])  # 1 for dense
+network_args.network["model_type"] = os.environ['model_type']
+model_load_name = os.environ['model_load_name']
+pipeline_args.args['ticker'] = os.environ['ticker']
+pipeline_args.args['interval'] = os.environ['interval']
 
 if network_args.network["model_type"] == 'conv2d' or network_args.network["model_type"] == 'convlstm':
     pipeline_args.args['expand_dims'] = True
