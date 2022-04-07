@@ -51,7 +51,7 @@ You can build the docker image by running
 $ docker build -t name .
 ```
 Note: Currently image is setup with a bind-mount. If you would like to use a named volume, create one, and change the volumes: parameter in docker-compose.yml
-
+And add Copy . into DockerFile, to copy the project onto the image
 After this you can launch the app via
 ```
 $ docker-compose up -d
