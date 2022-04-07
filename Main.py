@@ -17,10 +17,6 @@ os.environ['data_path'] = f'{sys.path[0]}/Data'
 pipeline_args = PipelineArgs.get_instance()
 network_args = NetworkParams.get_instance()
 
-use_docker = str(os.environ['use_docker'])
-print(use_docker)
-
-
 pipeline_args.args['batch_size'] = int(os.environ['batch_size'])
 pipeline_args.args['mode'] = os.environ['mode']  # training or prediction
 pipeline_args.args['time_steps'] = int(os.environ['time_steps'])  # 1 for dense
