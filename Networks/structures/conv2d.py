@@ -40,7 +40,7 @@ def conv2d_model():
     x = Conv2D(kernel_size=[3, 3], filters=32, kernel_initializer=initializer, kernel_regularizer=regularizer, bias_regularizer=regularizer, activity_regularizer=regularizer,
                activation=activation, padding='same')(input)
 
-    #x = BatchNormalization()(x)
+    x = MaxPooling2D(pool_size=(2, 2), activity_regularizer=regularizer)(x)
 
 
 
@@ -54,7 +54,7 @@ def conv2d_model():
     x = BatchNormalization()(x)
 
 
-    x = Conv2D(kernel_size=[3, 3], filters=64, kernel_initializer=initializer, kernel_regularizer=regularizer
+    x = Conv2D(kernel_size=[3, 3], filters=32, kernel_initializer=initializer, kernel_regularizer=regularizer
                , bias_regularizer=regularizer, activity_regularizer=regularizer,
                activation=activation, padding='same')(x)
 

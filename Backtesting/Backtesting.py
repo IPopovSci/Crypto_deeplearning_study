@@ -142,7 +142,7 @@ def backtest_total(y_true,y_pred,plot_mean=True,backtest_mean=False):
 
     print(y_pred[-1])
 
-    ic_coef(y_true, y_pred_mean)
+    ic_coef(y_true, y_pred)
     plot_results_v2(y_true, y_pred, no_mean=plot_mean)
     correct_signs(y_true, y_pred)
     if backtest_mean:

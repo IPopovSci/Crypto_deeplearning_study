@@ -26,7 +26,7 @@ Accepts: string model filename.
 Returns: numpy array with predictions.'''
 
 
-def predict(x_test_t, y_test_t,model_name='Default'):
+def predict(x_test_t,model_name='Default'):
     saved_model = load_model(filepath=(os.getenv(
         'model_path') + f'/{pipeline_args.args["interval"]}/{pipeline_args.args["ticker"]}/{network_args.network["model_type"]}/' + model_name),
                              custom_objects={'metric_loss': metric_loss, 'assymetric_combined': assymetric_combined,
