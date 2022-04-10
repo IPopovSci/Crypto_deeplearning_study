@@ -8,6 +8,7 @@ from Networks.network_config import NetworkParams
 from scipy.stats import spearmanr
 from utility import remove_mean, remove_std
 import matplotlib.pyplot as plt
+from training.model_predict import predict
 
 
 

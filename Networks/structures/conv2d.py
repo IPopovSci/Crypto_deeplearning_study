@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 from tensorflow.keras.layers import Dense, Input, GaussianNoise, Conv1D, MaxPooling1D, Flatten, BatchNormalization, \
-    Dropout, Conv2D, MaxPooling2D, LSTM, AlphaDropout
+    Dropout, Conv2D, MaxPooling2D, LSTM, AlphaDropout,DepthwiseConv2D,SeparableConv2D,LocallyConnected2D,TimeDistributed
 
 from pipeline.pipelineargs import PipelineArgs
 from Networks.network_config import NetworkParams
@@ -10,7 +10,8 @@ from Networks.losses_metrics import ohlcv_mse, ohlcv_cosine_similarity, metric_s
 from Networks.custom_activation import cyclemoid
 from keras.layers import Activation
 from keras.utils.generic_utils import get_custom_objects
-
+from keras_self_attention import SeqSelfAttention
+from Networks.custom_activation import l_swish
 
 pipeline_args = PipelineArgs.get_instance()
 network_args = NetworkParams.get_instance()
@@ -33,42 +34,77 @@ def conv2d_model():
     initializer = tf.keras.initializers.glorot_uniform()
     dropout = network_args.network['dropout']
 
-    activation = tf.keras.activations.swish
+    activation = None#tf.keras.activations.swish
 
     #x = GaussianNoise(0.005)(input)
 
     x = Conv2D(kernel_size=[3, 3], filters=32, kernel_initializer=initializer, kernel_regularizer=regularizer, bias_regularizer=regularizer, activity_regularizer=regularizer,
-               activation=activation, padding='same')(input)
+               activation=activation, padding='same',implementation=1)(input)
+
+
+
+    x = l_swish()(x)
+
+    x = BatchNormalization()(x)
+
+
 
     x = MaxPooling2D(pool_size=(2, 2), activity_regularizer=regularizer)(x)
 
 
-
-    x = BatchNormalization()(x)
-
-    x = Conv2D(kernel_size=[3, 3], filters=32, kernel_initializer=initializer, kernel_regularizer=regularizer, bias_regularizer=regularizer, activity_regularizer=regularizer,
-               activation=activation, padding='same')(x)
-
-    x = MaxPooling2D(pool_size=(2, 2), activity_regularizer=regularizer)(x)
-
-    x = BatchNormalization()(x)
+    # x = DepthwiseConv2D(kernel_size=[3, 3],depth_multiplier=3, kernel_initializer=initializer, kernel_regularizer=regularizer, bias_regularizer=regularizer, activity_regularizer=regularizer,
+    #            activation=activation, padding='same')(x)
+    #
+    # x = MaxPooling2D(pool_size=(2, 2), activity_regularizer=regularizer)(x)
+    #
+    # x = BatchNormalization()(x)
 
 
     x = Conv2D(kernel_size=[3, 3], filters=32, kernel_initializer=initializer, kernel_regularizer=regularizer
                , bias_regularizer=regularizer, activity_regularizer=regularizer,
                activation=activation, padding='same')(x)
 
+
+
+
+    x = l_swish()(x)
+
+    x = BatchNormalization()(x)
+
+
     x = MaxPooling2D(pool_size=(2, 2), activity_regularizer=regularizer)(x)
+
+
+    x = Conv2D(kernel_size=[3, 3],filters=32, kernel_initializer=initializer, kernel_regularizer=regularizer, bias_regularizer=regularizer, activity_regularizer=regularizer,
+               activation=activation, padding='same')(x)
+
+
+
+    x = l_swish()(x)
+
+    x = BatchNormalization()(x)
+
+
+    x = MaxPooling2D(pool_size=(2, 2), activity_regularizer=regularizer)(x)
+
+
 
     x = Flatten()(x)
 
     x = BatchNormalization()(x)
 
+
     x = Dense(128, activation=activation, activity_regularizer=regularizer, kernel_regularizer=regularizer,
               bias_regularizer=regularizer, kernel_initializer=initializer)(
         x)
 
+
+
+    x = l_swish()(x)
+
     x = BatchNormalization()(x)
+
+
 
     output = tf.keras.layers.Dense(5, activation='softsign', activity_regularizer=regularizer,
                                    kernel_regularizer=regularizer, bias_regularizer=regularizer,

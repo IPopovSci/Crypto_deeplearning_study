@@ -9,6 +9,8 @@ from Networks.structures._index import create_model
 from Networks.callbacks import callbacks
 from keras_self_attention import SeqSelfAttention
 from Networks.network_config import NetworkParams
+from Networks.custom_activation import cyclemoid
+from Networks.custom_activation import l_swish
 import os
 
 load_dotenv()
@@ -48,7 +50,8 @@ def continue_training(x_t, y_t, x_val, y_val,model_name='Default'):
                                              'metric_profit_ratio': metric_profit_ratio,
                                              'profit_ratio_mse': profit_ratio_mse,
                                              'profit_ratio_cosine':profit_ratio_cosine,
-                                             'profit_ratio_assymetric':profit_ratio_assymetric})
+                                             'profit_ratio_assymetric':profit_ratio_assymetric,
+                                             'l_swish':l_swish})
 
     # saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00001,amsgrad = True),
     #                     loss=profit_ratio_assymetric, metrics=[metric_signs_close, ohlcv_cosine_similarity, ohlcv_mse])
