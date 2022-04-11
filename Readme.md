@@ -44,12 +44,13 @@ model_type: A model to use. Currently supports: Dense, Conv1d, Conv2d, lstm, Con
 model_load_name: If using prediction or continue, specifies which model will be acted upon.
 ticker: Crypto ticker to use. If using training, make sure the csv is in data/interval/ticker location, in OHLCV format.
 interval: The data interval to use.
+cryptowatch_key: the api key for cryptowatch api to grab data
 ```
 
 
 You can build the docker image by running
 ```
-$ docker build -t name .
+$ docker build -t mlfinancial .
 ```
 Note: Currently the image is setup with a bind-mount. If you would like to use a named volume, create one, and change the volumes parameter in docker-compose.yml
 You will also need to add 'Copy .' line to Dockerfile in order to copy the project onto the image
