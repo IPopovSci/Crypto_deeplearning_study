@@ -39,6 +39,3 @@ def build_timeseries(x_t, y_t, TIME_STEPS, batch_size, expand_dims=False):
     print("length of time-series - outputs", y.shape)
 
     return x, y
-
-
-'++-----++++-+--+---'

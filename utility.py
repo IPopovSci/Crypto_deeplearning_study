@@ -98,14 +98,11 @@ def remove_mean(data):
 
     data = sc_x.fit_transform(data)
     return data
-
+'''Removes standard deviation from data
+accepts: data
+returns: data with removed standard deviation'''
 def remove_std(data):
     sc_x = StandardScaler(with_mean=False)
 
     data = sc_x.fit_transform(data)
     return data
-
-def scale(y_true,y_pred):
-    scale = max(y_true)/max(y_pred)
-    y_pred = scale * y_pred
-    return y_pred

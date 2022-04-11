@@ -16,7 +16,6 @@ Returns: graphical plot of 5 predictions'''
 
 
 def plot_results_v2(y_true, y_pred, no_mean=True):
-
     if no_mean:
         y_pred = remove_mean(y_pred)
     for i in range(5):
@@ -32,25 +31,3 @@ def plot_results_v2(y_true, y_pred, no_mean=True):
     plt.savefig(
         f'{path}/{pipeline_args.args["interval"]}/{pipeline_args.args["ticker"]}/{network_args.network["model_type"]}/{model_load_name}_graph.png')
     plt.show()
-
-
-'''This function plots the information coefficient
-Currently not very useful due to lack of investment universe'''
-
-
-# def plot_ic(y_true, y_pred):
-#     coef_list = []
-#     p_r_list = []
-#     for i in range(len(y_true)):
-#         coef, p_r = information_coefficient(y_true[i], y_pred[i], verbose=False)
-#         coef_list.append(coef)
-#         p_r_list.append(p_r)
-#
-#     mean_coef = np.mean(coef_list[:-1])
-#     mean_p_r = np.mean(p_r_list[:-1])
-#
-#     plt.figure(figsize=(12, 6))
-#     plt.plot(coef_list)
-#     plt.axhline(y=mean_coef, color='r', linestyle='-')
-#     plt.axhline(y=mean_p_r, color='y', linestyle='-')
-#     plt.show()

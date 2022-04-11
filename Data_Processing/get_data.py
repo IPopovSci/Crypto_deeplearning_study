@@ -4,6 +4,11 @@ from datetime import datetime
 import cryptowatch as cw
 from coinapi_rest_v1.restapi import CoinAPIv1
 import datetime
+from pipeline.pipelineargs import PipelineArgs
+from Networks.network_config import NetworkParams
+
+pipeline_args = PipelineArgs.get_instance()
+network_args = NetworkParams.get_instance()
 
 '''This module is for grabbing stock information from Yahoo Finance or other sources
 Ticker_data grabs specific ticker, vix_data will grab only vix data and rename its columns so its easier to differentiate down the line'''
@@ -61,23 +66,21 @@ def scv_data(ticker, path, interval):
 
     try:
         df['time'] = pd.to_datetime(df['time'], unit='ms')  # Unix to datetime conversion
-    except:
+    except:  # todo: catch specific exception
         print('No need to convert to datetime')
 
     df.set_index('time', inplace=True)
-    # print(df.head())
 
     return df
 
 
-'''Get data from cryptowatch API'''
-'''private key: x4p1k7VvUiRdd+5JLmE5SOm3P1cM/ZQyjPTE61lp
+'''Get data from cryptowatch API
 periods can be: 1m,5m,4h,1d and other (see api docs)
 One thousand data points only'''
 
 
 def cryptowatch_data(pair, periods):
-    cw.api_key = 'LZKL7ULRG322Z0793KU3'
+    cw.api_key = pipeline_args.args['cryptowatch_key']
 
     # Sometimes data from Kaggle has different pair differentiator, need to implement custom swaps.
     if pair == 'btcusd':
@@ -103,22 +106,23 @@ def cryptowatch_data(pair, periods):
     return df
 
 
-# cryptowatch_data('bnbusdt','5m')
+
 
 '''Coinapi history grab - only 100 requests/day but 10000 points
 Use for transfer learning step 1, then apply real world with cryptowatch api
-useless for bnb-usd, has no data on it (It says it does but returns empty array)'''
+useless for bnb-usd, has no data on it (It says it does but returns empty array)
+This function is not finished, nor is it used, if you want to use it modify it'''
 
 
-def coinapi_data(path, filename, mode):
-    api = CoinAPIv1('7E9EEDF3-DDEA-4176-8046-7BD4BFFE1670')
+def coinapi_data(mode):
+    api = CoinAPIv1('your_key_here')
     starting_date = datetime.date(2022, 1, 16).isoformat()
 
     if mode == 'historical':
         ohlcv_historical = api.ohlcv_historical_data('BINANCE_SPOT_BNB_USDT',
                                                      {'period_id': '1MIN', 'time_start': starting_date,
                                                       'limit': '100000'})
-    if mode == 'book':
+    elif mode == 'book':
         ohlcv_historical = api.orderbooks_historical_data('BINANCE_SPOT_BNB_USDT',
                                                           {'period_id': '5MIN', 'time_start': starting_date,
                                                            'limit': '100000'})
@@ -134,16 +138,3 @@ def coinapi_data(path, filename, mode):
               inplace=True)
 
     df.set_index('time', inplace=True)
-
-    # df.to_csv(f'{path}\\{filename}_coinapi_book.csv')  # saves to csv
-
-
-def testing_data(n):
-    x = dummy_timeseries(n)
-
-    x = x.T
-
-    print(x.shape)
-
-    x = pd.DataFrame(x)
-    return x
