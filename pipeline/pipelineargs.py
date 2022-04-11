@@ -34,4 +34,5 @@ class PipelineArgs:
             # This setting will add a dimension of 1 at the end of the data, required for some models
             'mm_y_path': None,
             'ss_y_path': None,
+            'cryptowatch_key':None,
         }
