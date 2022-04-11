@@ -5,7 +5,7 @@ ENV APP_HOME /app
 WORKDIR $APP_HOME
 COPY environment.yml $APP_HOME
 
-#---------------- Prepare the envirennment
+#---------------- Prepare the environment
 RUN conda update --name base conda &&\
     conda env create --name env --file environment.yml
 

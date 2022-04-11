@@ -26,11 +26,11 @@ class NetworkParams:
             'dropout': 0.3,
             'l1_reg': 0.0005,
             'l2_reg': 0.0005,
-            'lr': 0.001}
+            'lr': 0.1}
         self.callbacks = {
             'monitor': 'val_loss',
             'mode': 'min',
             'es_patience': 750,
-            'rlr_factor': 0.5,
-            'rlr_patience': 50,
+            'rlr_factor': 0.25,
+            'rlr_patience': 2,
         }

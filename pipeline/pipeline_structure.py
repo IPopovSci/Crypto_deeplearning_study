@@ -28,7 +28,8 @@ def pipeline():
         history = scv_data(pipeline_args.args['ticker'], os.getenv('data_path'), pipeline_args.args['interval'])
     elif pipeline_args.args['mode'] == 'prediction':
         history = cryptowatch_data(pipeline_args.args['ticker'], pipeline_args.args['interval'])
-
+    else:
+        print('Wrong mode! Currently supported modes: training,prediction,continue')
     '''Any additional feature extractors can go here'''
 
     '''Step 2: Apply TA Analysis'''
@@ -51,7 +52,6 @@ def pipeline():
     elif pipeline_args.args['mode'] == 'prediction':
         x_train, x_validation, x_test, y_train, y_validation, y_test = x_y_split(x_train, x_validation,
                                                                                  history)  # This is a somewhat dirty workaround, this way during the predictions test always gets full data
-
     '''Step 6: Split data into x and y'''
 
     x_train, x_validation, x_test, _, _, _, SS_scaler = SS_transform(x_train, x_validation,

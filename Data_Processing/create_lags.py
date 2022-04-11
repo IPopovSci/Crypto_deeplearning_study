@@ -1,7 +1,5 @@
 import pandas as pd
 from statsmodels.tsa.stattools import adfuller
-
-# settings
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -27,11 +25,8 @@ Outputs: Pandas Dataframe'''
 
 
 def lagged_returns(df, lags):
-
-
     for lag in lags:
         df[f'return_{lag}h'] = df['close'].pct_change(lag, axis=0)
-
 
     for t in lags:
         df[f'target_{t}h'] = df[f'return_{t}h'].shift(-t)

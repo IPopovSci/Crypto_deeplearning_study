@@ -53,6 +53,8 @@ def SS_transform(x_train, x_validation, x_test, y_train, y_validation, y_test, m
 
         joblib.dump(sc_x, SS_path + f'/{interval}' + f'/{ticker}' + "/ss.x")
         joblib.dump(sc_y, SS_path + f'/{interval}' + f'/{ticker}' + "/ss.y")
+    else:
+        print('Wrong mode for scaling! Supported modes: training,prediction or continue.')
 
     pipeline_args.args['ss_x_path'] = SS_path + f'/{interval}' + f'/{ticker}' + "/ss.x"
     pipeline_args.args['ss_y_path'] = SS_path + f'/{interval}' + f'/{ticker}' + "/ss.y"
@@ -104,11 +106,17 @@ def min_max_transform(x_train, x_validation, x_test, y_train, y_validation, y_te
 
         y_test = mm_y.transform(y_test)
 
+
+
         if not os.path.exists(MM_path + f'/{interval}' + f'/{ticker}'):
             os.makedirs(MM_path + f'/{interval}' + f'/{ticker}/', mode=0o777)
 
+
         joblib.dump(mm_x, MM_path + f'/{interval}' + f'/{ticker}' + "/mm.x")
         joblib.dump(mm_y, MM_path + f'/{interval}' + f'/{ticker}' + "/mm.y")
+    else:
+        print('Wrong mode for scaling! Supported modes: training,prediction or continue.')
+
 
     pipeline_args.args['mm_x_path'] = MM_path + f'/{interval}' + f'/{ticker}' + "/mm.x"
     pipeline_args.args['mm_y_path'] = MM_path + f'/{interval}' + f'/{ticker}' + "/mm.y"
