@@ -5,7 +5,7 @@ A python project based on quantative approach of predicting returns of financial
 ## Table of contents
 
 * [Introduction](#Introduction)
-* [Technologies and libraries](#Technologies and libraries)
+* [Technologies](#Technologies)
 * [Setup](#setup)
 * [Features](#features)
 * [Author](#Author)
