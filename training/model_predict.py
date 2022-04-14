@@ -47,7 +47,7 @@ def predict(x_test_t, model_name='Default'):
     saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00000005),
                         loss=ohlcv_combined, metrics=metric_signs_close)
 
-    y_pred = saved_model.predict(trim_dataset(x_test_t[:], batch_size), batch_size=batch_size)
+    y_pred = saved_model.predict(trim_dataset(x_test_t[:], pipeline_args.args['batch_size']), batch_size=pipeline_args.args['batch_size'])
 
     saved_model.summary()
 

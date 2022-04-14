@@ -146,5 +146,5 @@ def metric_signs_close(y_true, y_pred):
     metric = math_ops.divide(math_ops.abs(math_ops.subtract(y_true_sign, y_pred_sign)), 2.)
 
     return math_ops.multiply(
-        math_ops.divide(math_ops.subtract(float(batch_size), K.sum(metric) / 5), float(batch_size)),
+        math_ops.divide(math_ops.subtract(float(pipeline_args.args['batch_size']), K.sum(metric) / 5), float(pipeline_args.args['batch_size'])),
         100.)

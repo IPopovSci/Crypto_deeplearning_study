@@ -43,7 +43,7 @@ elif pipeline_args.args['mode'] == 'prediction':
     y_pred = model_predict.predict(x_test_t[:], f'{model_load_name}')
     backtest_total(trim_dataset(y_test_t[:], pipeline_args.args['batch_size']), y_pred, plot_mean=False,
                    backtest_mean=True)
-elif pipeline_args.args['continue'] == 'continue':
+elif pipeline_args.args['mode'] == 'continue':
     model_train.continue_training(x_t, y_t, x_val, y_val, f'{model_load_name}')
 else:
     print('Wrong mode! Currently supported modes are: training,prediction,continue')

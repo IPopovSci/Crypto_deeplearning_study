@@ -13,6 +13,7 @@ from Networks.losses_metrics import ohlcv_combined, metric_signs_close, ohlcv_co
 from Networks.network_config import NetworkParams
 from Networks.structures.index import create_model
 from pipeline.pipelineargs import PipelineArgs
+from keras import backend as K
 
 load_dotenv()
 
@@ -33,7 +34,7 @@ def train_model(x_t, y_t, x_val, y_val, model_type=network_args.network["model_t
     model = create_model(model_type)
 
     history = model.fit(x=trim_dataset(x_t, batch_size), y=trim_dataset(y_t, batch_size), epochs=300000,
-                        verbose=1, batch_size=batch_size,
+                        verbose=1, batch_size=pipeline_args.args['batch_size'],
                         shuffle=False, validation_data=(trim_dataset(x_val, batch_size),
                                                         trim_dataset(y_val, batch_size)),
                         callbacks=callbacks())
@@ -58,8 +59,10 @@ def continue_training(x_t, y_t, x_val, y_val, model_name='Default'):
                                              'p_swish': p_swish,
                                              'p_softsign':p_softsign})
 
-    history = saved_model.fit(x=trim_dataset(x_t, batch_size), y=trim_dataset(y_t, batch_size), epochs=30000,
-                              verbose=1, batch_size=batch_size,
-                              shuffle=False, validation_data=(trim_dataset(x_val, batch_size),
-                                                              trim_dataset(y_val, batch_size)),
+    K.set_value(saved_model.optimizer.learning_rate, 0.01) #Use this if you want to set a new learning rate for the model
+
+    history = saved_model.fit(x=trim_dataset(x_t, pipeline_args.args['batch_size']), y=trim_dataset(y_t, pipeline_args.args['batch_size']), epochs=30000,
+                              verbose=1, batch_size=pipeline_args.args['batch_size'],
+                              shuffle=False, validation_data=(trim_dataset(x_val, pipeline_args.args['batch_size']),
+                                                              trim_dataset(y_val, pipeline_args.args['batch_size'])),
                               callbacks=callbacks())
