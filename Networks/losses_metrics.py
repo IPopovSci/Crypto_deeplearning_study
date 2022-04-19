@@ -77,8 +77,8 @@ def assymetric_loss_mse(y_true, y_pred):
 
     alpha = 100.
     loss = K.switch(K.less(y_true * y_pred, 0),
-                    K.square(alpha * y_pred) + K.square(y_pred - K.sign(y_pred) * y_true),
-                    K.square(y_pred - y_true)
+                    alpha * y_pred**2 + K.square(y_true-y_pred),
+                    K.square(y_true-y_pred)
                     )
     return K.mean(loss, axis=-1)
 
@@ -128,8 +128,7 @@ def profit_ratio_cosine(y_true, y_pred):
 
 
 def profit_ratio_assymetric(y_true, y_pred):
-    loss = metric_profit_ratio(y_true, y_pred) + assymetric_loss_mse(y_true, y_pred) + ohlcv_cosine_similarity(y_true,
-                                                                                                               y_pred)
+    loss = assymetric_loss_mse(y_true, y_pred)+ metric_profit_ratio(y_true, y_pred) + ohlcv_cosine_similarity(y_true,y_pred) #
     return loss
 
 
@@ -146,5 +145,5 @@ def metric_signs_close(y_true, y_pred):
     metric = math_ops.divide(math_ops.abs(math_ops.subtract(y_true_sign, y_pred_sign)), 2.)
 
     return math_ops.multiply(
-        math_ops.divide(math_ops.subtract(float(batch_size), K.sum(metric) / 5), float(batch_size)),
+        math_ops.divide(math_ops.subtract(float(pipeline_args.args['batch_size']), K.sum(metric) / 5), float(pipeline_args.args['batch_size'])),
         100.)

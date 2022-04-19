@@ -60,7 +60,7 @@ class p_swish(Layer):
     """
 
     def __init__(self,
-                 alpha_initializer='zeros',
+                 alpha_initializer='ones',
                  alpha_regularizer=None,
                  alpha_constraint=None,
                  shared_axes=None,
@@ -144,7 +144,7 @@ class p_softsign(Layer):
     """
 
     def __init__(self,
-                 alpha_initializer='zeros',
+                 alpha_initializer='ones',
                  alpha_regularizer=None,
                  alpha_constraint=None,
                  shared_axes=None,
@@ -183,7 +183,7 @@ class p_softsign(Layer):
         self.built = True
 
     def call(self, inputs):
-        act = tf.keras.activations.softsign(self.alpha * inputs)
+        act = inputs / (1 + self.alpha*tf.math.abs(inputs))
         return act
 
     def get_config(self):

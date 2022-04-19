@@ -23,25 +23,28 @@ get_custom_objects().update({'cyclemoid': Activation(cyclemoid)})
 Contains the structure of the model inside, along with optimizer.'''
 def conv2d_model():
     batch_size = pipeline_args.args['batch_size']
+    print(batch_size)
     time_steps = pipeline_args.args['time_steps']
     num_features = pipeline_args.args['num_features']
 
     input = Input(shape=(time_steps, num_features, 1), batch_size=batch_size)
 
-    regularizer = tf.keras.regularizers.l1_l2(l1=network_args.network['l1_reg'], l2=network_args.network['l2_reg'])
+    regularizer = None#tf.keras.regularizers.l1_l2(l1=network_args.network['l1_reg'], l2=network_args.network['l2_reg'])
     initializer = tf.keras.initializers.glorot_uniform()
 
-    activation = None  # tf.keras.activations.swish
+    activation = 'linear'  # tf.keras.activations.swish
 
-    # x = GaussianNoise(0.005)(input) #Use this as first layer for gaussian noise
+    #x = GaussianNoise(0.001)(input) #Use this as first layer for gaussian noise
 
     x = Conv2D(kernel_size=[3, 3], filters=64, kernel_initializer=initializer, kernel_regularizer=regularizer,
                bias_regularizer=regularizer, activity_regularizer=regularizer,
-               activation=activation, padding='same', implementation=1)(input)
+               activation=activation, padding='same')(input)
 
-    x = BatchNormalization()(x)
+
 
     x = p_swish()(x)
+
+    x = BatchNormalization()(x)
 
 
 
@@ -51,9 +54,11 @@ def conv2d_model():
                , bias_regularizer=regularizer, activity_regularizer=regularizer,
                activation=activation, padding='same')(x)
 
-    x = BatchNormalization()(x)
+
 
     x = p_swish()(x)
+
+    x = BatchNormalization()(x)
 
 
 
@@ -63,43 +68,36 @@ def conv2d_model():
                bias_regularizer=regularizer, activity_regularizer=regularizer,
                activation=activation, padding='same')(x)
 
-    x = BatchNormalization()(x)
+
 
     x = p_swish()(x)
+
+    #x = BatchNormalization()(x)
 
 
 
     x = MaxPooling2D(pool_size=(2, 2), activity_regularizer=regularizer)(x)
 
-    x = TimeDistributed(Dense(128, activation=activation, activity_regularizer=regularizer, kernel_regularizer=regularizer,
-              bias_regularizer=regularizer, kernel_initializer=initializer))(
-        x)
-
-    x = BatchNormalization()(x)
-
-    x = p_swish()(x)
-
     x = Flatten()(x)
 
-
+    x = BatchNormalization()(x)
 
     x = Dense(128, activation=activation, activity_regularizer=regularizer, kernel_regularizer=regularizer,
               bias_regularizer=regularizer, kernel_initializer=initializer)(
         x)
 
-    x = BatchNormalization()(x)
-
     x = p_swish()(x)
 
+    x = BatchNormalization()(x)
 
 
-    x = tf.keras.layers.Dense(5, activation=None, activity_regularizer=regularizer,
+
+    output = tf.keras.layers.Dense(5, activation=activation, activity_regularizer=regularizer,
                                    kernel_regularizer=regularizer, bias_regularizer=regularizer,
                                    kernel_initializer=initializer)(x)
 
-    x = BatchNormalization()(x)
+    output = p_softsign()(output)
 
-    output = p_softsign()(x)
 
     lstm_model = tf.keras.Model(inputs=input, outputs=output)
 

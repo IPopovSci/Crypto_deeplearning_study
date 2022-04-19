@@ -8,11 +8,11 @@ services:
       - ./:/app
     environment:
         batch_size: 128
-        time_steps: 48
+        time_steps: 5
         mode: training
-        model_type: conv2d
-        model_load_name: 0.9405_8.7345_52.7232.h5
-        use_docker: true
+        model_type: lstm
+        model_load_name: 1.0103_3.1973_50.5134.h5
+        ensemble: average
         ticker: btcusd
         interval: 1h
         cryptowatch_key: 'your key here'
