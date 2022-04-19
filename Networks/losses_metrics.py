@@ -77,8 +77,8 @@ def assymetric_loss_mse(y_true, y_pred):
 
     alpha = 100.
     loss = K.switch(K.less(y_true * y_pred, 0),
-                    K.square(alpha * y_pred) + K.square(y_pred - K.sign(y_pred) * y_true),
-                    K.square(y_pred - y_true)
+                    alpha * y_pred**2 + K.square(y_true-y_pred),
+                    K.square(y_true-y_pred)
                     )
     return K.mean(loss, axis=-1)
 
@@ -128,8 +128,7 @@ def profit_ratio_cosine(y_true, y_pred):
 
 
 def profit_ratio_assymetric(y_true, y_pred):
-    loss = metric_profit_ratio(y_true, y_pred) + assymetric_loss_mse(y_true, y_pred) + ohlcv_cosine_similarity(y_true,
-                                                                                                               y_pred)
+    loss = assymetric_loss_mse(y_true, y_pred)+ metric_profit_ratio(y_true, y_pred) + ohlcv_cosine_similarity(y_true,y_pred) #
     return loss
 
 

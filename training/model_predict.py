@@ -8,10 +8,14 @@ from dotenv import load_dotenv
 from Networks.network_config import NetworkParams
 from Networks.losses_metrics import ohlcv_combined, metric_signs_close, ohlcv_cosine_similarity, ohlcv_mse, \
     assymetric_loss, assymetric_combined, metric_loss, metric_profit_ratio, profit_ratio_mse, profit_ratio_cosine, \
-    profit_ratio_assymetric
+    profit_ratio_assymetric,assymetric_loss_mse
 from Networks.custom_activation import cyclemoid
 from Networks.custom_activation import p_swish,p_softsign
 from keras.layers import Activation
+import glob
+import numpy as np
+from utility import remove_mean
+from scipy.stats import spearmanr
 
 load_dotenv()
 
@@ -43,7 +47,8 @@ def predict(x_test_t, model_name='Default'):
                                              'cyclemoid': cyclemoid,
                                              'Activation': Activation,
                                              'p_swish': p_swish,
-                                             'p_softsign':p_softsign})
+                                             'p_softsign':p_softsign,
+                                             'assymetric_loss_mse':assymetric_loss_mse})
     saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00000005),
                         loss=ohlcv_combined, metrics=metric_signs_close)
 
@@ -52,3 +57,76 @@ def predict(x_test_t, model_name='Default'):
     saved_model.summary()
 
     return y_pred
+
+#Fix the slash directions on this one
+def predict_average_ensembly(x_test_t,y_test_t):
+
+
+    filepath = os.getenv('model_path') + f'/{pipeline_args.args["interval"]}/{pipeline_args.args["ticker"]}/ensembly_average/'
+
+    all_models = os.path.join(filepath, '*.h5')
+
+    all_models_list = glob.glob(all_models)
+
+    pred_store = np.zeros([len(trim_dataset(x_test_t, pipeline_args.args['batch_size'])), 5])
+
+    mean_count = np.full([len(trim_dataset(x_test_t, pipeline_args.args['batch_size'])), 5],len(all_models_list)) #To find average accurately, need to track how many models we use
+
+
+    for model in all_models_list:
+
+        model_name = model.split('ensemble/')[0]  # Grab just the name of the csv for saving purposes
+
+        saved_model = load_model(filepath=model_name,
+                                 custom_objects={'metric_loss': metric_loss, 'assymetric_combined': assymetric_combined,
+                                                 'assymetric_loss': assymetric_loss,
+                                                 'metric_signs_close': metric_signs_close,
+                                                 'SeqSelfAttention': SeqSelfAttention, 'ohlcv_combined': ohlcv_combined,
+                                                 'ohlcv_cosine_similarity': ohlcv_cosine_similarity,
+                                                 'ohlcv_mse': ohlcv_mse,
+                                                 'metric_profit_ratio': metric_profit_ratio,
+                                                 'profit_ratio_mse': profit_ratio_mse,
+                                                 'profit_ratio_cosine': profit_ratio_cosine,
+                                                 'profit_ratio_assymetric': profit_ratio_assymetric,
+                                                 'cyclemoid': cyclemoid,
+                                                 'Activation': Activation,
+                                                 'p_swish': p_swish,
+                                                 'p_softsign':p_softsign,
+                                                 'assymetric_loss_mse':assymetric_loss_mse})
+        # saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00000005),
+        #                     loss=ohlcv_combined, metrics=metric_signs_close)
+
+
+        print(f'predicting on model {model_name}')
+        y_pred = saved_model.predict(trim_dataset(x_test_t[:], pipeline_args.args['batch_size']), batch_size=pipeline_args.args['batch_size'])
+
+        try:
+            y_pred = y_pred[:, -1, :]
+        except:
+            ''
+
+        #Weighting by correlation, and inversion of negative
+        for i in range(0,5):
+
+            y_pred_coll = y_pred[:,i]
+
+            coef_r, p_r = spearmanr(y_test_t[:, i], y_pred_coll)
+
+
+
+            if coef_r < 0: #This will inverse models that are inversely-correlated
+                y_pred_coll = -1 * y_pred_coll
+
+                y_pred[:,i] = y_pred_coll
+
+            if p_r > 0.051: #This will drop samples that are not well correlated
+                y_pred_coll = 0
+                y_pred[:, i] = y_pred_coll
+
+                mean_count[:,i] -= 1 #since we won't be using this lag in this model, get rid it from average calc
+        #print(mean_count)
+
+        pred_store = pred_store + y_pred
+
+    return pred_store / mean_count
+

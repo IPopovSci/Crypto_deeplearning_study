@@ -4,6 +4,7 @@ from pipeline.pipelineargs import PipelineArgs
 from dotenv import load_dotenv
 from Networks.network_config import NetworkParams
 from training import model_train, model_predict
+from training.model_predict import predict_average_ensembly
 from Backtesting.Backtesting import backtest_total
 from Data_Processing.data_trim import trim_dataset
 import os
@@ -40,8 +41,12 @@ x_t, y_t, x_val, y_val, x_test_t, y_test_t, size = pipeline()
 if pipeline_args.args['mode'] == 'training':
     model_train.train_model(x_t, y_t, x_val, y_val, network_args.network["model_type"])
 elif pipeline_args.args['mode'] == 'prediction':
-    y_pred = model_predict.predict(x_test_t[:], f'{model_load_name}')
-    backtest_total(trim_dataset(y_test_t[:], pipeline_args.args['batch_size']), y_pred, plot_mean=False,
+    if os.environ['ensemble'] == 'average':
+        y_pred = predict_average_ensembly(x_test_t[:],y_test_t[:])
+    else:
+        y_pred = model_predict.predict(x_test_t[:], f'{model_load_name}')
+
+    backtest_total(trim_dataset(y_test_t[:], pipeline_args.args['batch_size']), y_pred, plot_mean=True,
                    backtest_mean=True)
 elif pipeline_args.args['mode'] == 'continue':
     model_train.continue_training(x_t, y_t, x_val, y_val, f'{model_load_name}')
