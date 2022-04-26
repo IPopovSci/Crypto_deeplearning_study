@@ -7,6 +7,7 @@ from pipeline.pipelineargs import PipelineArgs
 from Networks.network_config import NetworkParams
 from Networks.losses_metrics import ohlcv_mse, ohlcv_cosine_similarity, metric_signs_close, ohlcv_combined, \
     assymetric_loss, assymetric_combined, metric_loss, profit_ratio_assymetric, metric_profit_ratio
+from Networks.custom_activation import p_swish,p_softsign
 
 pipeline_args = PipelineArgs.get_instance()
 network_args = NetworkParams.get_instance()
@@ -25,20 +26,29 @@ def dense_model():
     initializer = tf.keras.initializers.glorot_uniform()
     bias_initializer = tf.keras.initializers.Zeros
 
-    activation = tf.keras.activations.swish
+    activation = 'linear'#tf.keras.activations.swish
 
     # x = GaussianNoise(0.05)(input)
 
-    x = Dense(65, activation=activation, activity_regularizer=regularizer,
+    x = Dense(512, activation=activation, activity_regularizer=regularizer,
               kernel_regularizer=regularizer,
               bias_regularizer=regularizer, kernel_initializer=initializer, bias_initializer=bias_initializer)(input)
 
     x = BatchNormalization()(x)
 
+    x = Dense(256, activation=activation, activity_regularizer=regularizer,
+              kernel_regularizer=regularizer,
+              bias_regularizer=regularizer, kernel_initializer=initializer, bias_initializer=bias_initializer)(x)
+
+    x = BatchNormalization()(x)
+
+
 
     output = tf.keras.layers.Dense(5, activation='softsign', activity_regularizer=regularizer,
                                    kernel_regularizer=regularizer, bias_regularizer=regularizer,
                                    kernel_initializer=initializer, bias_initializer=bias_initializer)(x)
+
+    #output = p_softsign()(output)
 
     lstm_model = tf.keras.Model(inputs=input, outputs=output)
 

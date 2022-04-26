@@ -7,6 +7,7 @@ from pipeline.pipelineargs import PipelineArgs
 from Networks.network_config import NetworkParams
 from Networks.losses_metrics import ohlcv_mse, ohlcv_cosine_similarity, metric_signs_close, ohlcv_combined, \
     assymetric_loss, assymetric_combined, metric_loss,profit_ratio_assymetric,metric_profit_ratio
+from Networks.custom_activation import p_swish,p_softsign
 
 pipeline_args = PipelineArgs.get_instance()
 network_args = NetworkParams.get_instance()
@@ -26,12 +27,22 @@ def conv1d_model():
 
     activation = tf.keras.activations.swish
 
-    # noise = GaussianNoise(0.05)(input) # Use this layer if you wish to apply gaussian noise to input
-    x = Conv1D(kernel_size=5, filters=128, kernel_initializer=initializer, kernel_regularizer=regularizer,
+    noise = GaussianNoise(0.1)(input) # Use this layer if you wish to apply gaussian noise to input
+    x = Conv1D(kernel_size=27, filters=64, kernel_initializer=initializer, kernel_regularizer=regularizer,
                bias_regularizer=regularizer, activity_regularizer=regularizer,
-               activation=activation, padding='same')(input)
+               activation=activation, padding='same')(noise)
 
     x = BatchNormalization()(x)
+
+    #x = p_swish()(x)
+
+    x = Conv1D(kernel_size=9, filters=128, kernel_initializer=initializer, kernel_regularizer=regularizer,
+               bias_regularizer=regularizer, activity_regularizer=regularizer,
+               activation=activation, padding='same')(x)
+
+    x = BatchNormalization()(x)
+
+    #x = p_swish()(x)
 
     x = Conv1D(kernel_size=3, filters=128, kernel_initializer=initializer, kernel_regularizer=regularizer,
                bias_regularizer=regularizer, activity_regularizer=regularizer,
@@ -39,19 +50,17 @@ def conv1d_model():
 
     x = BatchNormalization()(x)
 
-    x = Conv1D(kernel_size=3, filters=128, kernel_initializer=initializer, kernel_regularizer=regularizer,
-               bias_regularizer=regularizer, activity_regularizer=regularizer,
-               activation=activation, padding='same')(x)
+    #x = p_swish()(x)
 
-    x = BatchNormalization()(x)
-
-    x = Dense(128, activation=activation, activity_regularizer=regularizer, kernel_regularizer=regularizer,
+    x = Dense(256, activation=activation, activity_regularizer=regularizer, kernel_regularizer=regularizer,
               bias_regularizer=regularizer, kernel_initializer=initializer)(
         x)
 
     x = BatchNormalization()(x)
 
-    output = tf.keras.layers.Dense(5, activation='softsign', activity_regularizer=regularizer,
+    #x = p_swish()(x)
+
+    output = tf.keras.layers.Dense(5, activation='linear', activity_regularizer=regularizer,
                                    kernel_regularizer=regularizer, bias_regularizer=regularizer,
                                    kernel_initializer=initializer)(x)
 

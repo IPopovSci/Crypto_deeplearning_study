@@ -24,13 +24,13 @@ class NetworkParams:
             'model_type': 'conv2d',
             'epochs': 256,
             'dropout': 0.3,
-            'l1_reg': 0.0005,
-            'l2_reg': 0.0005,
-            'lr': 0.1}
+            'l1_reg': 0.05,
+            'l2_reg': 0.05,
+            'lr': 0.001}
         self.callbacks = {
             'monitor': 'val_loss',
             'mode': 'min',
             'es_patience': 750,
-            'rlr_factor': 0.25,
-            'rlr_patience': 2,
+            'rlr_factor': 0.5,
+            'rlr_patience': 15,
         }
