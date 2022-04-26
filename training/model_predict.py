@@ -1,3 +1,5 @@
+import numpy as np
+np.random.seed(1337)
 from Data_Processing.data_trim import trim_dataset
 from tensorflow.keras.models import load_model
 import os
@@ -13,9 +15,10 @@ from Networks.custom_activation import cyclemoid
 from Networks.custom_activation import p_swish,p_softsign
 from keras.layers import Activation
 import glob
-import numpy as np
 from utility import remove_mean
 from scipy.stats import spearmanr
+from memory_profiler import profile
+import gc
 
 load_dotenv()
 
@@ -54,13 +57,18 @@ def predict(x_test_t, model_name='Default'):
 
     y_pred = saved_model.predict(trim_dataset(x_test_t[:], pipeline_args.args['batch_size']), batch_size=pipeline_args.args['batch_size'])
 
-    saved_model.summary()
+    #tf.keras.utils.plot_model(saved_model,'dense.png')
+
+    #config = saved_model.get_config()
+
+    # print(config['layers']['config'])
+    # print(saved_model.optimizer.get_config())
 
     return y_pred
 
 #Fix the slash directions on this one
 def predict_average_ensembly(x_test_t,y_test_t):
-
+    gc.collect()
 
     filepath = os.getenv('model_path') + f'/{pipeline_args.args["interval"]}/{pipeline_args.args["ticker"]}/ensembly_average/'
 
@@ -71,6 +79,7 @@ def predict_average_ensembly(x_test_t,y_test_t):
     pred_store = np.zeros([len(trim_dataset(x_test_t, pipeline_args.args['batch_size'])), 5])
 
     mean_count = np.full([len(trim_dataset(x_test_t, pipeline_args.args['batch_size'])), 5],len(all_models_list)) #To find average accurately, need to track how many models we use
+
 
 
     for model in all_models_list:
@@ -97,10 +106,11 @@ def predict_average_ensembly(x_test_t,y_test_t):
         #                     loss=ohlcv_combined, metrics=metric_signs_close)
 
 
-        print(f'predicting on model {model_name}')
-        y_pred = saved_model.predict(trim_dataset(x_test_t[:], pipeline_args.args['batch_size']), batch_size=pipeline_args.args['batch_size'])
+        #print(f'predicting on model {model_name}') #Debug to see what model is running
+        y_pred = saved_model.predict(trim_dataset(x_test_t, pipeline_args.args['batch_size']),use_multiprocessing=True,batch_size=pipeline_args.args['batch_size'])
 
-        try:
+
+        try: #This is to load in models with 3 output dimensions. Not ideal, will need a module to deal with it later
             y_pred = y_pred[:, -1, :]
         except:
             ''
@@ -110,7 +120,7 @@ def predict_average_ensembly(x_test_t,y_test_t):
 
             y_pred_coll = y_pred[:,i]
 
-            coef_r, p_r = spearmanr(y_test_t[:, i], y_pred_coll)
+            coef_r, p_r = spearmanr(trim_dataset(y_test_t[:, i],pipeline_args.args['batch_size']), y_pred_coll)
 
 
 
@@ -119,7 +129,7 @@ def predict_average_ensembly(x_test_t,y_test_t):
 
                 y_pred[:,i] = y_pred_coll
 
-            if p_r > 0.051: #This will drop samples that are not well correlated
+            if p_r > 0.05: #This will drop samples that are not well correlated
                 y_pred_coll = 0
                 y_pred[:, i] = y_pred_coll
 
@@ -128,5 +138,41 @@ def predict_average_ensembly(x_test_t,y_test_t):
 
         pred_store = pred_store + y_pred
 
-    return pred_store / mean_count
+    tf.keras.backend.clear_session()
 
+    result = pred_store / mean_count
+
+
+    return result
+
+'''This function is supposed to be used as backtest for prediction
+on old data through a loop;
+Looping through .predict method causes memory leak
+Left here just in case, do not use.'''
+def predict_test(x_test_t,y_test_t):
+    gc.collect()
+    largest_lag = 49 + 39 + 36 + 37 + 26 + 37 + 44 + 35 + 38 + 38 + 41 + 43
+    i = -1
+    j = -129
+
+    pred_store = np.zeros([1,5])
+
+    x_test_t = tf.convert_to_tensor(x_test_t)
+
+    while j-largest_lag > j-largest_lag-50:
+        tf.keras.backend.clear_session()
+
+        y_pred = predict_average_ensembly(x_test_t[j-largest_lag:i-largest_lag], y_test_t[j-largest_lag:i-largest_lag]) #last point 49 hours ago
+        y_pred_mean = y_pred - np.mean(y_pred, axis=0)
+        y_true_sign = np.sign(trim_dataset(y_test_t[j-largest_lag:i-largest_lag],pipeline_args.args['batch_size'])) #last point 1 hour ago
+        y_pred_sign = np.sign(y_pred_mean)
+
+        y_total_sign = y_true_sign[-1,:] * y_pred_sign[-1,:]
+        #print(y_total_sign)
+
+        pred_store = pred_store + y_total_sign
+        print(pred_store)
+        j -= 1
+        i -= 1
+        gc.collect()
+        #print(gc.get_objects())

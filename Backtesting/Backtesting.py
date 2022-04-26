@@ -119,7 +119,7 @@ def vectorized_backtest(y_true_input, y_pred_input):
         lag_store = lag
 
         coef_r, p_r = spearmanr(y_true_input[:, i], y_pred)
-        if not os.environ['ensemble'] == 'average':
+        if os.environ['ensemble'] != 'average':
             if coef_r < 0:  # we only need this when not doing ensembly (ensembly will flip auto)
                 print(f'inverse! for {lag}lag')
                 y_pred = -1 * y_pred

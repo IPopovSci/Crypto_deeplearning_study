@@ -1,11 +1,12 @@
 import tensorflow as tf
 
-from tensorflow.keras.layers import Dense, Input, LSTM, LayerNormalization
+from tensorflow.keras.layers import Dense, Input, LSTM, LayerNormalization,GaussianNoise,Bidirectional,Dropout
 
 from pipeline.pipelineargs import PipelineArgs
 from Networks.network_config import NetworkParams
 from Networks.losses_metrics import ohlcv_cosine_similarity, metric_signs_close, metric_loss, profit_ratio_assymetric, \
-    ohlcv_mse, metric_profit_ratio
+    ohlcv_mse, metric_profit_ratio,profit_ratio_cosine,assymetric_loss_mse
+from Networks.custom_activation import p_swish,p_softsign
 
 pipeline_args = PipelineArgs.get_instance()
 network_args = NetworkParams.get_instance()
@@ -24,33 +25,57 @@ def lstm_att_model():
 
     activation = tf.keras.activations.swish
 
-    x = LSTM(int(60), return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer)(
+    # x = GaussianNoise(0.5)(input)
+
+    x = LSTM(int(64), return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer)(
         input)
 
-    x = LayerNormalization()(x)
-
-    x = LSTM(int(35), return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer)(x)
-
-    x = LayerNormalization()(x)
-    x = LSTM(int(20), return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer)(x)
+    #x = p_swish()(x)
 
     x = LayerNormalization()(x)
 
-    x = LSTM(int(10), return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer)(x)
 
-    x = LayerNormalization()(x)
-
-    x = Dense(10, activation=activation, kernel_initializer=initializer,
+    # #
+    # x = LSTM(int(64),dropout=0.2,recurrent_dropout=0.2, return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer)(x)
+    # #
+    # # #x = p_swish()(x)
+    # #
+    # x = LayerNormalization()(x)
+    # #
+    # #
+    # x = LSTM(int(32),dropout=0.2,recurrent_dropout=0.2, return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer)(x)
+    #
+    # #x = p_swish()(x)
+    #
+    # x = LayerNormalization()(x)
+    #
+    #
+    #
+    # x = LSTM(int(16), return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer)(x)
+    #
+    # x = p_swish()(x)
+    #
+    # x = LayerNormalization()(x)
+    #
+    #
+    #
+    x = Dense(512, activation=activation, kernel_initializer=initializer,
               activity_regularizer=regularizer)(x)
-
+    # # #
+    # # # #x = p_swish()(x)
+    # # #
     x = LayerNormalization()(x)
 
-    output = tf.keras.layers.Dense(5, activation='softsign',
+
+
+    output = tf.keras.layers.Dense(5, activation='linear',
                                    kernel_initializer=initializer)(x)
+
+    #output = p_softsign()(output)
 
     lstm_model = tf.keras.Model(inputs=input, outputs=output)
 
-    optimizer = tf.keras.optimizers.Adam(learning_rate=network_args.network['lr'], amsgrad=True)
+    optimizer = tf.keras.optimizers.Adam(learning_rate=network_args.network['lr'])
 
     lstm_model.compile(
         loss=profit_ratio_assymetric, optimizer=optimizer,
