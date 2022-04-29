@@ -12,6 +12,7 @@ from training.model_predict import predict_average_ensembly,predict_test
 from Backtesting.Backtesting import backtest_total
 from Data_Processing.data_trim import trim_dataset
 import os
+from Data_Processing import resample_data
 
 load_dotenv()
 
@@ -43,6 +44,9 @@ if network_args.network["model_type"] == 'conv2d' or network_args.network["model
 x_t, y_t, x_val, y_val, x_test_t, y_test_t, size = pipeline()
 
 # Execute based on mode
+if pipeline_args.args['mode'] == 'data_resample':
+    resample_data(os.environ['interval_from'],os.environ['interval_to'])
+    sys.exit('Resampling complete')
 if pipeline_args.args['mode'] == 'training':
     model_train.train_model(x_t, y_t, x_val, y_val, network_args.network["model_type"])
 elif pipeline_args.args['mode'] == 'prediction':
