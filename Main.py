@@ -43,6 +43,7 @@ if network_args.network["model_type"] == 'conv2d' or network_args.network["model
 # Create required data (training, validation, testing)
 x_t, y_t, x_val, y_val, x_test_t, y_test_t, size = pipeline()
 
+
 # Execute based on mode
 if pipeline_args.args['mode'] == 'data_resample':
     resample_data(os.environ['interval_from'],os.environ['interval_to'])
