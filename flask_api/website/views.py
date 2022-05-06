@@ -10,39 +10,60 @@ from Networks.network_config import NetworkParams
 import os
 import pathlib
 from pathlib import Path
-import json
+from training import model_train, model_predict
+from pipeline.pipeline_structure import pipeline
+import sqlite3
+from sqlite3 import Error
 
 load_dotenv()
 
 #Write an init that initializes those + creates folders mb for api later
 # Defining directories to use ( TODO: Wrap this into a function + folder creation)
-os.environ['mm_path'] = f'{sys.path[0]}/scalers'
-os.environ['ss_path'] = f'{sys.path[0]}/scalers'
-os.environ['model_path'] = f'{sys.path[0]}/models'
-os.environ['data_path'] = f'{sys.path[0]}/Data'
+os.environ['mm_path'] = f'{Path(sys.path[0]).parent}/scalers'
+os.environ['ss_path'] = f'{Path(sys.path[0]).parent}/scalers'
+os.environ['model_path'] = f'{Path(sys.path[0]).parent}/models'
+os.environ['data_path'] = f'{Path(sys.path[0]).parent}/Data'
 
 pipeline_args = PipelineArgs.get_instance()
 network_args = NetworkParams.get_instance()
-
+db_path = f'{Path(sys.path[0]).parents[1]}/sql/model_params.sqlite'
+print(db_path)
 # Defining internal variables
 pipeline_args.args['batch_size'] = int(os.environ['batch_size'])
-pipeline_args.args['mode'] = os.environ['mode']  # training or prediction
+pipeline_args.args['mode'] = 'prediction'  # training or prediction
 pipeline_args.args['time_steps'] = int(os.environ['time_steps'])  # 1 for dense
 network_args.network["model_type"] = os.environ['model_type']
 model_load_name = os.environ['model_load_name']
 pipeline_args.args['ticker'] = os.environ['ticker']
 pipeline_args.args['interval'] = os.environ['interval']
 pipeline_args.args['cryptowatch_key'] = os.environ['cryptowatch_key']
+os.environ['TF_DETERMINISTIC_OPS'] = '1'
 
 
 
 
 views = Blueprint('views',__name__)
-model_path = Path(os.environ['model_path']).parents[1] / 'models'
-root = Path(os.environ['model_path']).parents[1] / 'models'
+model_path = Path(os.environ['model_path']).parents[0] / 'models'
+root = Path(os.environ['model_path']).parents[0] / 'models'
 intervals = [f.name for f in os.scandir(model_path) if f.is_dir()] #so we get intervals
 tickers = {}
 model_types = []
+
+
+def create_connection(path):
+    connection = None
+    try:
+        connection = sqlite3.connect(path)
+        print("Connection to SQLite DB successful")
+    except Error as e:
+        print(f"The error '{e}' occurred")
+
+    return connection
+
+connection = create_connection(db_path)
+
+cursor_obj = connection.cursor() #cursor object is used to execute sql commands
+
 
 def get_folder_layer(path):
     my_dict = {}
@@ -73,13 +94,28 @@ def process_data():
     #print('process data triggered')
     selected_interval = request.args.get('selected_interval', type=str)
     #print('interval selected')
-    selected_ticker = request.args.get('selected_ticker', type=str)
-    selected_model_type = request.args.get('selected_model_type', type=str)
-    selected_model = request.args.get('selected_model',type=str)
-    #print('button works')
-    # process the two selected values here and return the response; here we just create a dummy string
 
-    return jsonify(random_text="you selected {} and {} and {} and {}".format(selected_interval, selected_ticker,selected_model_type,selected_model))
+    pipeline_args.args['interval'] = selected_interval
+
+    selected_ticker = request.args.get('selected_ticker', type=str)
+
+    pipeline_args.args['ticker'] = selected_ticker
+
+    selected_model_type = request.args.get('selected_model_type', type=str)
+
+    network_args.network["model_type"] = selected_model_type
+
+
+    selected_model = request.args.get('selected_model',type=str)
+
+
+    model_load_name = selected_model
+
+    x_t, y_t, x_val, y_val, x_test_t, y_test_t, size = pipeline()
+
+    y_pred = model_predict.predict(x_test_t[:-1], f'{model_load_name}')
+
+    return jsonify(random_text="preds for today are {}".format(y_pred[-1,-1,:]))
 
 
 
