@@ -47,46 +47,52 @@ def initial_folder_parse():
     for root, dirs, files in os.walk(filepath, topdown=True):
 
         for name in files:
-            if name.endswith('.h5'):
+            valid_models_types = ['conv1d', 'conv2d', 'convlstm', 'dense', 'lstm']
+            final_folder = root.split('\\')[-1]
+            #print(final_folder)
+            if name.endswith('.h5') and final_folder in valid_models_types:
                 # print(os.path.join(root, name))
                 model_name = name
                 #Converting this to pathlib results in some sort of problem with model load
-                final_folder = root.split('\\')[-1]
 
-                interval = root.split('\\')[-2]
-                ticker = root.split('\\')[-3]
+                #print(final_folder)
 
-                valid_models_types = ['conv1d', 'conv2d', 'convlstm', 'dense', 'lstm']
+                ticker = root.split('\\')[-2]
+
+                interval = root.split('\\')[-3]
+
+
                 ensemble_models_types = ['ensembly_average']
 
-                if final_folder in valid_models_types:
-                    type = final_folder
 
-                    model_full_path = Path(filepath, ticker, interval, final_folder, model_name)
-                    # print(os.path.abspath(model_full_path))
-                    # print(os.listdir(model_full_path))
-                    saved_model = load_model(filepath=model_full_path, custom_objects=custom_objects)
-                    config = saved_model.get_config()
+                type = final_folder
 
-                    # print(config['layers'][1])
+                model_full_path = Path(filepath, interval, ticker, final_folder, model_name)
+                # print(os.path.abspath(model_full_path))
+                # print(os.listdir(model_full_path))
+                saved_model = load_model(filepath=model_full_path, custom_objects=custom_objects)
+                #print(model_full_path)
+                config = saved_model.get_config()
 
-                    depth = len(config['layers'])
+                # print(config['layers'][1])
 
-                    input_shape = config['layers'][0]['config']['batch_input_shape']
+                depth = len(config['layers'])
 
-                    optimizer = saved_model.optimizer.get_config()
-                    optimizer_type = optimizer['name']
-                    learning_rate = optimizer['learning_rate']
-                    b1 = optimizer['beta_1']
-                    b2 = optimizer['beta_2']
-                    epsilon = optimizer['epsilon']
-                    amsgrad = optimizer['amsgrad']
-                    decay = optimizer['decay']
+                input_shape = config['layers'][0]['config']['batch_input_shape']
 
-                    layer_config = config['layers']
+                optimizer = saved_model.optimizer.get_config()
+                optimizer_type = optimizer['name']
+                learning_rate = optimizer['learning_rate']
+                b1 = optimizer['beta_1']
+                b2 = optimizer['beta_2']
+                epsilon = optimizer['epsilon']
+                amsgrad = optimizer['amsgrad']
+                decay = optimizer['decay']
 
+                layer_config = config['layers']
+                try: #Ensemble folders might not exist in some ticker folders
                     for ensemble_type in ensemble_models_types:  # Ensemble models must always exist in one of the folder types above
-                        path_ensemble = Path(filepath, ticker, interval, ensemble_type)
+                        path_ensemble = Path(filepath, interval, ticker, ensemble_type)
                         if model_name in os.listdir(path_ensemble):
                             # print(model_name,'is in',ensemble_type)
                             ensemble = True
@@ -95,15 +101,21 @@ def initial_folder_parse():
                             # print(model_name, 'is not in', ensemble_type)
                             ensemble = False
                             ensemble_type = None
+                except:
+                    #print(f'Ensemble folder doesnt exist for {ticker} ticker')
+                    ensemble = False
+                    ensemble_type = None
 
-                # params{model_name:{'type':,'depth':,'input_shape':,'optimizer_type':,'optimizer_id':,'ensemble:','lc_id':}} -- this is what our dict will look like
+
                 params[model_name] = {'type': type, 'depth': depth, 'input_shape': input_shape,
                                       'optimizer_type': optimizer_type, 'optimizer_id': None, 'ensemble': ensemble,
                                       'ensemble_type': ensemble_type,
                                       'lc_id': None, 'ticker': ticker, 'interval': interval, 'decay': decay,
                                       'learning_rate': learning_rate, 'b1': b1, 'b2': b2, 'epsilon': epsilon,
                                       'amsgrad': amsgrad, 'lc_config': layer_config}
-
+                #print(params[model_name]['type'],model_name)
+    # for model in list(params.keys()):
+    #     print(model, params[model]["type"])
     return params
 
 '''Parses parameters of a single model

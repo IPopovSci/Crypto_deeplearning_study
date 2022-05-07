@@ -1,17 +1,19 @@
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 from . import db
-from sqlalchemy.sql import func
+from pathlib import Path
+import sys
 
+
+# db_path = f'{Path(sys.path[0]).parents[0]}/sql/model_params.sqlite'
+# engine = create_engine(f'sqlite:///{db_path}', echo=True)
 #
-# class Note(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     data = db.Column(db.String(10000))
-#     date = db.Column(db.DateTime(timezone=True), default=func.now())
-#     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-#
-#
-# class User(db.Model, UserMixin):
-#     id = db.Column(db.Integer, primary_key=True)
-#     email = db.Column(db.String(150), unique=True)
-#     password = db.Column(db.String(150))
-#     first_name = db.Column(db.String(150))
-#     notes = db.relationship('Note')
+# Base = declarative_base(engine)
+
+class Model_params(db.Model):
+    __tablename__ = 'Model'
+    __table_args__ = {'autoload':True,'autoload_with':db.engine}
+
+
+

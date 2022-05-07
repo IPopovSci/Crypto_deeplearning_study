@@ -14,8 +14,9 @@ network_args = NetworkParams.get_instance()
 app = create_app()
 api = Api(app)
 
+
 os.environ['model_path'] = (f'{os.path.join(sys.path[0], os.pardir)}/models')
-print(os.environ['model_path'])
+#print(os.environ['model_path'])
 
 
 if __name__ == '__main__':

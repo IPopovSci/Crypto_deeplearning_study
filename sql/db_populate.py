@@ -24,7 +24,8 @@ connection = create_connection(path)
 cursor_obj = connection.cursor()  # cursor object is used to execute sql commands
 
 params = initial_folder_parse()
-
+# for model in list(params.keys()):
+#     print(model, params[model]["type"])
 '''Function to insert singular entry into adam_opt table
 Accepts: Connection, parameter dictionary
 Returns: Id of last affected row'''
@@ -45,9 +46,9 @@ Returns: Id of last affected row'''
 
 def insert_model_table(conn,params):
 
-    sql = '''INSERT INTO MODEL (model_name,type,depth,input_shape,optimizer_type,optimizer_id,ensemble,ensemble_type,lc_config)
+    sql = '''INSERT INTO MODEL (model_name,type,depth,input_shape,optimizer_type,optimizer_id,ensemble,ensemble_type,lc_config,ticker,interval)
                                 VALUES (?,?,?,?,?,?, ?,
-                                ?,?)'''
+                                ?,?,?,?)'''
     cursor_obj = conn.cursor()
 
     cursor_obj.execute(sql,params)
@@ -72,7 +73,7 @@ def insert_init_db(connection,params):
             #print(adam_id[0])
 
             params_model_list = (model,params[model]["type"],params[model]["depth"],str(params[model]["input_shape"]),params[model]["optimizer_type"],int(adam_id[0]), params[model]["ensemble"],
-                                    params[model]["ensemble_type"],pickle.dumps(params[model]['lc_config']));
+                                    params[model]["ensemble_type"],pickle.dumps(params[model]['lc_config']),params[model]['ticker'],params[model]['interval']);
             insert_model_table(connection,params_model_list)
 
-#insert_init_db(connection,params)
+insert_init_db(connection,params)
