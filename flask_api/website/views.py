@@ -69,25 +69,32 @@ model_types = []
 def get_default_values():
     intervals = Model_params.query.with_entities(Model_params.interval).distinct()
     default_intervals = []
+    default_intervals.append('Select Interval')
     for interval in intervals:
         default_intervals.append(interval[0])
 
+
     tickers = Model_params.query.with_entities(Model_params.ticker).filter_by(interval=default_intervals[0]).distinct()
     default_tickers = []
+    default_tickers.append('Select Ticker')
     for ticker in tickers:
         default_tickers.append(ticker[0])
 
+
     model_types = Model_params.query.with_entities(Model_params.type).filter_by(ticker=default_tickers[0]).distinct()
     default_types = []
+    default_types.append('Select Model Type')
 
     for type in model_types:
         default_types.append(type[0])
 
+
     models = Model_params.query.with_entities(Model_params.model_name).filter_by(type=default_types[0]).distinct()
     default_models = []
-
+    default_types.append('Select Model')
     for model in models:
         default_models.append(model[0])
+
 
     return default_intervals,default_tickers,default_types,default_models
 
@@ -107,9 +114,10 @@ def update_dropdown():
     selected_ticker = Model_params.query.with_entities(Model_params.ticker).filter_by(interval=selected_interval).distinct()
 
     ticker_selection = ''
+    ticker_selection += '<option value="Select Ticker">Select Ticker</option>'
     for entry in selected_ticker:
         ticker_selection += '<option value="{}">{}</option>'.format(entry[0], entry[0])
-    print(ticker_selection)
+
     '''----------------'''
 
     selected_ticker = request.args.get('selected_ticker', type=str)
@@ -117,8 +125,10 @@ def update_dropdown():
     selected_model_type = Model_params.query.with_entities(Model_params.type).filter_by(ticker=selected_ticker,interval=selected_interval).distinct()
 
     model_type_selection = ''
+    model_type_selection += '<option value="Select Model Type">Select Model Type</option>'
     for entry in selected_model_type:
         model_type_selection += '<option value="{}">{}</option>'.format(entry[0], entry[0])
+
 
     '''-----------------'''
 
