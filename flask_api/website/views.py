@@ -44,15 +44,8 @@ network_args = NetworkParams.get_instance()
 db_path = f'{Path(sys.path[0]).parents[1]}/sql/model_params.sqlite'
 #print(db_path)
 # Defining internal variables
-pipeline_args.args['batch_size'] = int(os.environ['batch_size'])
+
 pipeline_args.args['mode'] = 'prediction'  # training or prediction
-pipeline_args.args['time_steps'] = int(os.environ['time_steps'])  # 1 for dense
-network_args.network["model_type"] = os.environ['model_type']
-model_load_name = os.environ['model_load_name']
-pipeline_args.args['ticker'] = os.environ['ticker']
-pipeline_args.args['interval'] = os.environ['interval']
-pipeline_args.args['cryptowatch_key'] = os.environ['cryptowatch_key']
-os.environ['TF_DETERMINISTIC_OPS'] = '1'
 
 
 
@@ -152,9 +145,12 @@ def update_dropdown():
 
 @views.route('/_process_data')
 def process_data():
-    #print('process data triggered')
+
+    backtest = request.args.get('backtest', type=str)
+    print(backtest)
+
     selected_interval = request.args.get('selected_interval', type=str)
-    #print('interval selected')
+
 
     pipeline_args.args['interval'] = selected_interval
 
@@ -169,11 +165,29 @@ def process_data():
 
     selected_model = request.args.get('selected_model',type=str)
 
+    input_shape = Model_params.query.with_entities(Model_params.input_shape).filter_by(model_name = selected_model).one()
+    pipeline_args.args['batch_size'] = int(input_shape[0].split(',')[0].strip('()'))
+
+    pipeline_args.args['time_steps'] = int(input_shape[0].split(',')[1].strip('()'))
+
+
+    #pipeline_args.args['cryptowatch_key'] = os.environ['cryptowatch_key'] #If we want to use custom key here
+
 
     model_load_name = selected_model
 
-    # x_t, y_t, x_val, y_val, x_test_t, y_test_t, size = pipeline()
-    #
-    # y_pred = model_predict.predict(x_test_t[:-1], f'{model_load_name}')
+    if selected_model_type == 'conv2d' or selected_model_type == 'convlstm':
+        pipeline_args.args['expand_dims'] = True
+    else:
+        pipeline_args.args['expand_dims'] = False
 
-    return None#jsonify(random_text="preds for today are {}".format(y_pred[-1,-1,:]))
+    x_t, y_t, x_val, y_val, x_test_t, y_test_t, size = pipeline()
+
+    y_pred = model_predict.predict(x_test_t[:-1], f'{model_load_name}')
+
+
+
+    if pipeline_args.args['expand_dims'] == False:
+        y_pred = y_pred[:, -1, :]  # Because Dense predictions will have timesteps
+
+    return jsonify(random_text="preds for today are {}".format(y_pred[-1,:]))
