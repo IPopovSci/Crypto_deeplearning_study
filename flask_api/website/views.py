@@ -12,6 +12,7 @@ import pathlib
 from pathlib import Path
 from training import model_train, model_predict
 from pipeline.pipeline_structure import pipeline
+from Backtesting.Backtesting import backtest_total
 import sqlite3
 from sqlite3 import Error
 from sqlalchemy import  create_engine
@@ -143,40 +144,35 @@ def update_dropdown():
 
     return jsonify(ticker_selection=ticker_selection,model_type_selection=model_type_selection,model_selection=model_selection)
 
-@views.route('/_process_data')
+@views.route('/_process_data', methods=['POST'])
 def process_data():
 
-    backtest = request.args.get('backtest', type=str)
+    backtest = request.form.get('backtest')
+
     print(backtest)
 
-    selected_interval = request.args.get('selected_interval', type=str)
+    pipeline_args.args['interval'] = request.form.get('Interval')
 
 
-    pipeline_args.args['interval'] = selected_interval
+    pipeline_args.args['ticker'] = request.form.get('Ticker', type=str)
 
-    selected_ticker = request.args.get('selected_ticker', type=str)
+    network_args.network["model_type"] = request.form.get('Model_Type', type=str)
 
-    pipeline_args.args['ticker'] = selected_ticker
-
-    selected_model_type = request.args.get('selected_model_type', type=str)
-
-    network_args.network["model_type"] = selected_model_type
-
-
-    selected_model = request.args.get('selected_model',type=str)
+    selected_model = request.form.get('Model',type=str)
 
     input_shape = Model_params.query.with_entities(Model_params.input_shape).filter_by(model_name = selected_model).one()
     pipeline_args.args['batch_size'] = int(input_shape[0].split(',')[0].strip('()'))
 
     pipeline_args.args['time_steps'] = int(input_shape[0].split(',')[1].strip('()'))
-
+    print(pipeline_args.args['time_steps'])
 
     #pipeline_args.args['cryptowatch_key'] = os.environ['cryptowatch_key'] #If we want to use custom key here
 
 
     model_load_name = selected_model
-
-    if selected_model_type == 'conv2d' or selected_model_type == 'convlstm':
+    print(network_args.network["model_type"])
+    print(selected_model)
+    if network_args.network["model_type"] == 'conv2d' or network_args.network["model_type"] == 'convlstm':
         pipeline_args.args['expand_dims'] = True
     else:
         pipeline_args.args['expand_dims'] = False
@@ -189,5 +185,7 @@ def process_data():
 
     if pipeline_args.args['expand_dims'] == False:
         y_pred = y_pred[:, -1, :]  # Because Dense predictions will have timesteps
+    if backtest == 'True':
 
-    return jsonify(random_text="preds for today are {}".format(y_pred[-1,:]))
+        return jsonify(preds="preds for today are {}.   Here is backtest: {}".format(y_pred[-1,:],    backtest_total(trim_dataset(y_test_t, pipeline_args.args['batch_size']), y_pred, plot_mean=True,
+                   backtest_mean=True)))

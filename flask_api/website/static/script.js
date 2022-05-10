@@ -48,13 +48,16 @@
         });
 
           $('#process_input').bind('click', function() {
-        $.ajax({
+          $.ajax({
             url: '/_process_data',
+            dataType: 'json',
             data: $('form').serialize(),
             type: 'POST',
             success: function(response) {
-                $('#preds').text(data['preds']).show();
+                console.log(response['preds'])
+                $('#preds').text(response['preds']).show();
             }})
+			return false;
+          });
+});
 
-        });
-        });

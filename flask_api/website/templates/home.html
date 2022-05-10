@@ -5,11 +5,13 @@
     </script>
 </head>
 <body>
+<script src="https://code.jquery.com/jquery-1.12.4.js" type="text/javascript"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='script.js') }}"></script>
 <h1>This is home page</h1>
 {% block main %}
 <h1>Intervals</h1>
 <ul>
-
+    <form action="/" method="post" role="form">
     <div class="form-group">
         <label for="all_intervals">Select an interval:</label>
         <select class="form-control" id="all_intervals" type="text" name="Interval">
@@ -30,7 +32,7 @@
 
     <div class="form-group">
         <label for="all_model_types">Select list:</label>
-        <select class="form-control" id="all_model_types" type="text" name="Ticker">
+        <select class="form-control" id="all_model_types" type="text" name="Model_Type">
             {% for model_type in all_model_types %}
             <option value="{{ model_type }}">{{ model_type }}</option>
             {% endfor %}
@@ -39,7 +41,7 @@
 
     <div class="form-group">
         <label for="all_model">Select list:</label>
-        <select class="form-control" id="all_model" type="text" name="Ticker">
+        <select class="form-control" id="all_model" type="text" name="Model">
             {% for model in all_model %}
             <option value="{{ model }}">{{ model }}</option>
             {% endfor %}
@@ -49,87 +51,25 @@
         <input class="form-check-input" type="checkbox" value="True" id="backtest" name="backtest">Select me
       </div><br><br>
 
-    <button class="btn btn-primary" id="process_input">Predict</button>
+    <button class="btn btn-primary" id="process_input" name="process_input">Predict</button>
     </form>
 </ul>
 <br><br>
 
-<div id="processed_results">
-    Here we display some output based on the selection
+<p id="preds">
+</p>
 </div>
-</div>
-<script src="https://code.jquery.com/jquery-1.12.4.js" type="text/javascript"></script>
+
 <script
         src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"
 ></script>
+
 <script type="text/javascript">
         console.log('goodbye world')
 
-      $(document).ready(function() {
 
-        $('#all_intervals').change(function(){
-
-          $.getJSON('/_update_dropdown', {
-                                      selected_ticker: $('#all_tickers').val(),
-                selected_interval: $('#all_intervals').val(),
-            selected_model_type: $('#all_model_types').val()
-
-
-          }).success(function(data) {
-                $('#all_tickers').html(data.ticker_selection);
-                $('#all_model_types').html(data.model_type_selection);
-                $('#all_model').html(data.model_selection);
-                })
-
-        $("option[value='Select Interval']").remove();
-        });
-
-        $('#all_tickers').change(function(){
-
-
-          $.getJSON('/_update_dropdown', {
-                          selected_ticker: $('#all_tickers').val(),
-                selected_interval: $('#all_intervals').val(),
-            selected_model_type: $('#all_model_types').val()
-
-          }).success(function(data) { console.log('Im a maniac????')
-                $('#all_model_types').html(data.model_type_selection);
-                                $('#all_model').html(data.model_selection);
-           })
-
-        $("option[value='Select Ticker']").remove();
-        });
-
-        $('#all_model_types').change(function(){
-
-          $.getJSON('/_update_dropdown', {
-                          selected_ticker: $('#all_tickers').val(),
-                selected_interval: $('#all_intervals').val(),
-            selected_model_type: $('#all_model_types').val()
-
-          }).success(function(data) { console.log('Im a maniac????')
-                $('#all_model').html(data.model_selection);
-           })
-          $("option[value='Select Model Type']").remove();
-        });
-
-        $('#process_input').bind('click', function() {
-
-            $.getJSON('/_process_data', {
-                selected_interval: $('#all_intervals').val(),
-                selected_ticker: $('#all_tickers').val(),
-                selected_model_type: $('#all_model_types').val(),
-                selected_model: $('#all_model').val(),
-
-
-            }).success(function(data) {
-                $('#processed_results').text(data.random_text);
-            })
-          return false;
-            });
-      });
 
 
 
