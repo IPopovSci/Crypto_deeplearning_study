@@ -8,6 +8,7 @@ from Networks.network_config import NetworkParams
 from scipy.stats import spearmanr
 from utility import remove_mean
 import matplotlib.pyplot as plt
+import pathlib
 
 load_dotenv()
 pipeline_args = PipelineArgs.get_instance()
@@ -41,6 +42,8 @@ def correct_signs(y_true, y_pred):
         print(
             f'{pipeline_args.args["data_lag"][-i - 1]}h correct amount of signs with mean removal is: {y_total_mean[i]}')
 
+    return y_pred_mean,y_total_mean
+
 
 def information_coefficient(y_true, y_pred, verbose=True):
     coef_r, p_r = spearmanr(y_true, y_pred)
@@ -58,9 +61,12 @@ def information_coefficient(y_true, y_pred, verbose=True):
 
 
 def ic_coef(y_true, y_pred):
+    ic_coef_stor = []
     for i in range(5):
         print(f'{pipeline_args.args["data_lag"][-i - 1]}h lag spearman statistics:')
-        information_coefficient(y_true[:, i], y_pred[:, i])
+        coef_r, _ =information_coefficient(y_true[:, i], y_pred[:, i])
+        ic_coef_stor.append(coef_r)
+    return ic_coef_stor
 
 '''Vector backtest that incorporates simulated trading every hour
 Accepts: y_true - nx5 array of real cumulative returns
@@ -112,6 +118,7 @@ Accepts: 5 dimensional y_true and y_pred numpy arrays.'''
 
 
 def vectorized_backtest(y_true_input, y_pred_input):
+    plt.figure(figsize=(15, 10))
     for i in range(0, 5):
         y_true = y_true_input[:, i]
         y_pred = y_pred_input[:, i]
@@ -142,13 +149,15 @@ def vectorized_backtest(y_true_input, y_pred_input):
         ax.plot(buy_hold_hist, label='Real performance')
 
         plt.title(f'{pipeline_args.args["data_lag"][-i - 1]} hours lag returns')
-        ax.legend()
+        ax.legend(loc=3)
 
     path = os.getenv("model_path")
     model_load_name = os.environ['model_load_name']
     plt.savefig(
-        f'{path}/{pipeline_args.args["interval"]}/{pipeline_args.args["ticker"]}/{network_args.network["model_type"]}/{model_load_name}_backtest.png')
-    plt.show()
+        f'{pathlib.Path(path).parent}/flask_api/website/static/{model_load_name}_backtest.png')
+    #print('I saved the backtest image! Here:',f'{pathlib.Path(path).parent}/flask_api/website/static/{model_load_name}_backtest.png' )
+    #plt.show()
+    plt.close()
 
 
 '''This function combines the usage of both backtests above
@@ -156,7 +165,7 @@ Accepts: True values, pred values, switch to remove mean from plotting, switch t
 Prints information coefficient, plots the results of both backtests, and displays number of correct signs'''
 
 
-def backtest_total(y_true, y_pred, plot_mean=True, backtest_mean=False):
+def backtest_total(y_true, y_pred, plot_mean=True, backtest_mean=True):
     try:
         if pipeline_args.args['expand_dims'] == False:
             y_pred = y_pred[:, -1, :]
@@ -167,11 +176,12 @@ def backtest_total(y_true, y_pred, plot_mean=True, backtest_mean=False):
 
     print(y_pred[-1])
 
-    ic_coef(y_true, y_pred)
+    ic_coef_hist = ic_coef(y_true, y_pred)
     plot_results_v2(y_true, y_pred, no_mean=plot_mean)
-    correct_signs(y_true, y_pred)
+    y_pred_mean,y_total_mean = correct_signs(y_true, y_pred)
 
     if backtest_mean:
         vectorized_backtest(y_true, y_pred_mean)
     else:
         vectorized_backtest(y_true, y_pred)
+    return y_pred_mean,ic_coef_hist,y_total_mean

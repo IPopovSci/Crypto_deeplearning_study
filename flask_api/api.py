@@ -18,7 +18,7 @@ api = Api(app)
 os.environ['model_path'] = (f'{os.path.join(sys.path[0], os.pardir)}/models')
 #print(os.environ['model_path'])
 
-
+'''Runs our app, if api.py is launched'''
 if __name__ == '__main__':
     app.run(debug=True)  # run our Flask app
 

@@ -109,7 +109,6 @@ def predict_average_ensembly(x_test_t,y_test_t):
         #print(f'predicting on model {model_name}') #Debug to see what model is running
         y_pred = saved_model.predict(trim_dataset(x_test_t, pipeline_args.args['batch_size']),use_multiprocessing=True,batch_size=pipeline_args.args['batch_size'])
 
-
         try: #This is to load in models with 3 output dimensions. Not ideal, will need a module to deal with it later
             y_pred = y_pred[:, -1, :]
         except:

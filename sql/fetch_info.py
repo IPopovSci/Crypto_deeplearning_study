@@ -91,7 +91,7 @@ def initial_folder_parse():
 
                 layer_config = config['layers']
                 try: #Ensemble folders might not exist in some ticker folders
-                    for ensemble_type in ensemble_models_types:  # Ensemble models must always exist in one of the folder types above
+                    for ensemble_type in ensemble_models_types:
                         path_ensemble = Path(filepath, interval, ticker, ensemble_type)
                         if model_name in os.listdir(path_ensemble):
                             # print(model_name,'is in',ensemble_type)
@@ -102,7 +102,7 @@ def initial_folder_parse():
                             ensemble = False
                             ensemble_type = None
                 except:
-                    #print(f'Ensemble folder doesnt exist for {ticker} ticker')
+                    print(f'Ensemble folder doesnt exist for {ticker} ticker')
                     ensemble = False
                     ensemble_type = None
 
@@ -113,9 +113,7 @@ def initial_folder_parse():
                                       'lc_id': None, 'ticker': ticker, 'interval': interval, 'decay': decay,
                                       'learning_rate': learning_rate, 'b1': b1, 'b2': b2, 'epsilon': epsilon,
                                       'amsgrad': amsgrad, 'lc_config': layer_config}
-                #print(params[model_name]['type'],model_name)
-    # for model in list(params.keys()):
-    #     print(model, params[model]["type"])
+
     return params
 
 '''Parses parameters of a single model

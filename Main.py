@@ -52,13 +52,14 @@ if pipeline_args.args['mode'] == 'training':
     model_train.train_model(x_t, y_t, x_val, y_val, network_args.network["model_type"])
 elif pipeline_args.args['mode'] == 'prediction':
     if os.environ['ensemble'] == 'average':
-        y_pred = predict_average_ensembly(x_test_t[:-1],y_test_t[:-1])
+        y_pred = predict_average_ensembly(x_test_t[:,:],y_test_t[:,:])
         #predict_test(x_test_t,y_test_t) #Don't use this
     else:
-        y_pred = model_predict.predict(x_test_t[:-1], f'{model_load_name}')
+        y_pred = model_predict.predict(x_test_t[:-7,:], f'{model_load_name}')
 
-    backtest_total(trim_dataset(y_test_t[:-1], pipeline_args.args['batch_size']), y_pred, plot_mean=True,
+    y_pred_mean,_,_=backtest_total(trim_dataset(y_test_t[:,:], pipeline_args.args['batch_size']), y_pred, plot_mean=True,
                    backtest_mean=True)
+    print('Value for 4h pred is:', y_pred_mean[-1])
 elif pipeline_args.args['mode'] == 'continue':
     model_train.continue_training(x_t, y_t, x_val, y_val, f'{model_load_name}')
 

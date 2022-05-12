@@ -55,7 +55,18 @@
             type: 'POST',
             success: function(response) {
                 console.log(response['preds'])
-                $('#preds').text(response['preds']).show();
+                $('#preds1h').text(response['preds1h']).show();
+                $('#preds4h').text(response['preds4h']).show();
+                $('#preds12h').text(response['preds12h']).show();
+                $('#preds24h').text(response['preds24h']).show();
+                $('#preds48h').text(response['preds48h']).show();
+                $('#sc1h').text(response['sc1h']).show();
+                $('#sc4h').text(response['sc4h']).show();
+                $('#sc12h').text(response['sc12h']).show();
+                $('#sc24h').text(response['sc24h']).show();
+                $('#sc48h').text(response['sc48h']).show();
+                document.getElementById('image_backtest').src = 'data:;base64,' + response['image_backtest'];
+                document.getElementById('image_graph').src = 'data:;base64,' + response['image_graph'];
             }})
 			return false;
           });
