@@ -1,0 +1,121 @@
+{% extends "base.html" %} {% block title %}Model Prediction{% endblock %} {% block content
+%}
+<head>
+    <script type="text/javascript">
+    </script>
+</head>
+<body>
+<script src="https://code.jquery.com/jquery-1.12.4.js" type="text/javascript"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='script.js') }}"></script>
+<h1><div class="p-5">Model Prediction</div></h1>
+{% block main %}
+
+<ul>
+    <form action="/" method="post" role="form">
+    <div class="form-group">
+        <label for="all_intervals">Select an interval:</label>
+        <select class="form-control" id="all_intervals" type="text" name="Interval">
+            {% for interval in all_intervals %}
+            <option value="{{ interval }}">{{ interval }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="all_tickers">Select ticker:</label>
+        <select class="form-control" id="all_tickers" type="text" name="Ticker">
+            {% for ticker in all_tickers %}
+            <option value="{{ ticker }}">{{ ticker }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="all_model_types">Select model type:</label>
+        <select class="form-control" id="all_model_types" type="text" name="Model_Type">
+            {% for model_type in all_model_types %}
+            <option value="{{ model_type }}">{{ model_type }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="all_model">Select model:</label>
+        <select class="form-control" id="all_model" type="text" name="Model">
+            {% for model in all_model %}
+            <option value="{{ model }}">{{ model }}</option>
+            {% endfor %}
+        </select>
+    </div>
+          <div>
+        <input class="form-check-input" type="checkbox" value="True" id="backtest" name="backtest">Are you ready for this?
+      </div><br><br>
+
+    <button class="btn btn-primary" id="process_input" name="process_input">Predict</button>
+    </form>
+</ul>
+<br><br>
+
+<!--<p id="preds">-->
+<!--</p>-->
+<table id="data" class="table table-striped">
+    <thead>
+      <tr>
+          <th>Lags</th>
+        <th>1h</th>
+        <th>4h</th>
+        <th>12h</th>
+        <th>24h</th>
+        <th>48h</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Predictions</td>
+          <td id="preds1h"></td>
+          <td id="preds4h"></td>
+          <td id="preds12h"></td>
+          <td id="preds24h"></td>
+          <td id="preds48h"></td>
+        </tr>
+        <tr>
+            <td>Spearmans Correlation</td>
+          <td id="sc1h"></td>
+          <td id="sc4h"></td>
+          <td id="sc12h"></td>
+          <td id="sc24h"></td>
+          <td id="sc48h"></td>
+        </tr>
+<!--                <tr>-->
+<!--            <td>Signal</td>-->
+<!--          <td id="signal1h"></td>-->
+<!--          <td id="signal4h"></td>-->
+<!--          <td id="signal12h"></td>-->
+<!--          <td id="signal24h"></td>-->
+<!--          <td id="signal48h"></td>-->
+<!--        </tr>-->
+      </tbody>
+    </table>
+</div>
+<center><img src="" id="image_backtest" />
+<img src="" id="image_graph" /></center>
+
+
+<script
+        src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"
+></script>
+
+<script type="text/javascript">
+
+
+
+
+
+
+</script>
+
+{% endblock %}
+{% endblock %}
+</body>

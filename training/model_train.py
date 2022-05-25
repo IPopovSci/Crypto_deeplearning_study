@@ -33,10 +33,10 @@ Performs fitting of x data on the model using the .fit method.'''
 def train_model(x_t, y_t, x_val, y_val, model_type=network_args.network["model_type"]):
     model = create_model(model_type)
 
-    history = model.fit(x=trim_dataset(x_t, batch_size), y=trim_dataset(y_t, batch_size), epochs=300000,
+    history = model.fit(x=trim_dataset(x_t, pipeline_args.args['batch_size']), y=trim_dataset(y_t, pipeline_args.args['batch_size']), epochs=300000,
                         verbose=1, batch_size=pipeline_args.args['batch_size'],
-                        shuffle=False, validation_data=(trim_dataset(x_val, batch_size),
-                                                        trim_dataset(y_val, batch_size)),
+                        shuffle=False, validation_data=(trim_dataset(x_val, pipeline_args.args['batch_size']),
+                                                        trim_dataset(y_val, pipeline_args.args['batch_size'])),
                         callbacks=callbacks())
 
 

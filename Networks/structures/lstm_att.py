@@ -1,20 +1,19 @@
 import tensorflow as tf
 
-from tensorflow.keras.layers import Dense, Input, LSTM, LayerNormalization,GaussianNoise,Bidirectional,Dropout,Concatenate,Lambda
-
+from tensorflow.keras.layers import Dense, Input, LSTM, LayerNormalization,GaussianNoise,Bidirectional,Dropout,Concatenate
+from keras_self_attention import SeqSelfAttention
 from pipeline.pipelineargs import PipelineArgs
 from Networks.network_config import NetworkParams
 from Networks.losses_metrics import ohlcv_cosine_similarity, metric_signs_close, metric_loss, profit_ratio_assymetric, \
     ohlcv_mse, metric_profit_ratio,profit_ratio_cosine,assymetric_loss_mse
 from Networks.custom_activation import p_swish,p_softsign
-from keras_self_attention import SeqSelfAttention
 
 pipeline_args = PipelineArgs.get_instance()
 network_args = NetworkParams.get_instance()
 
 '''Builds an lstm model.
 Contains the structure of the model inside, along with optimizer.'''
-def lstm_att_model():
+def lstm_att():
     batch_size = pipeline_args.args['batch_size']
     time_steps = pipeline_args.args['time_steps']
     num_features = pipeline_args.args['num_features']
@@ -28,57 +27,25 @@ def lstm_att_model():
 
     # x = GaussianNoise(0.5)(input)
 
-    x = LSTM(int(64), return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer)(
+    x = LSTM(int(64), return_sequences=True, stateful=True, activation=activation, kernel_initializer=initializer)(
         input)
 
     #x = p_swish()(x)
 
     x = LayerNormalization()(x)
 
-    x = SeqSelfAttention(units=64)(x)
-    #
-    x = LayerNormalization()(x)
+    y = LSTM(int(64), return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer)(
+        input)
 
+    y = LayerNormalization()(y)
 
-    #x = Lambda(lambda x: [x[:,-1 ,:]])(x)
+    y = SeqSelfAttention(units=64)(y)
 
+    concat = Concatenate([x,y])
 
-    x = LSTM(int(64), return_sequences=True, stateful=True, activation=activation, kernel_initializer=initializer)(
-        x[:,-1:,:])
+    x = LayerNormalization()(concat)
 
-    # x = SeqSelfAttention(units=64,attention_type='multiplicative')(x)
-    #
-    # y = SeqSelfAttention(units=64,attention_type='additive')(x)
-    #
-    # concat= Concatenate()([x,y])
-
-
-    x = LayerNormalization()(x)
-    # #
-    # x = LSTM(int(64),dropout=0.2,recurrent_dropout=0.2, return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer)(x)
-    # #
-    # # #x = p_swish()(x)
-    # #
-    # x = LayerNormalization()(x)
-    # #
-    # #
-    # x = LSTM(int(32),dropout=0.2,recurrent_dropout=0.2, return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer)(x)
-    #
-    # #x = p_swish()(x)
-    #
-    # x = LayerNormalization()(x)
-    #
-    #
-    #
-    # x = LSTM(int(16), return_sequences=True, stateful=False, activation=activation, kernel_initializer=initializer)(x)
-    #
-    # x = p_swish()(x)
-    #
-    # x = LayerNormalization()(x)
-    #
-    #
-    #
-    x = Dense(512, activation=activation, kernel_initializer=initializer,
+    x = Dense(128, activation=activation, kernel_initializer=initializer,
               activity_regularizer=regularizer)(x)
     # # #
     # # # #x = p_swish()(x)

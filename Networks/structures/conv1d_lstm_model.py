@@ -1,9 +1,9 @@
 import tensorflow as tf
 
 from tensorflow.keras.layers import Input, LayerNormalization, Conv2D, \
-    Flatten, MaxPooling2D, Dense, GaussianNoise,Bidirectional
+    Flatten, MaxPooling2D, Dense, GaussianNoise,Bidirectional,Concatenate
 from keras.layers.convolutional_recurrent import ConvLSTM1D
-
+from keras_self_attention import SeqSelfAttention
 from pipeline.pipelineargs import PipelineArgs
 from Networks.network_config import NetworkParams
 from Networks.losses_metrics import ohlcv_mse, ohlcv_cosine_similarity, metric_signs_close, ohlcv_combined, \
@@ -29,7 +29,7 @@ def convlstm_model():
 
     #noise = GaussianNoise(0.1)(input)
 
-    x = ConvLSTM1D(64, stateful=False, kernel_size=3, bias_regularizer=regularizer,
+    x = ConvLSTM1D(32, stateful=True, kernel_size=3, bias_regularizer=regularizer,
                    activity_regularizer=regularizer, recurrent_regularizer=regularizer,
                    recurrent_initializer=initializer, activation=activation, kernel_initializer=initializer,
                    kernel_regularizer=regularizer, return_sequences=True, padding='same')(input)
@@ -38,10 +38,25 @@ def convlstm_model():
 
     # #
     x = Flatten()(x)
-    # #
+
     x = LayerNormalization()(x)
-    #
-    x = Dense(256, activation=activation, activity_regularizer=regularizer, kernel_regularizer=regularizer,
+
+    y = ConvLSTM1D(32, stateful=False, kernel_size=3, bias_regularizer=regularizer,
+                   activity_regularizer=regularizer, recurrent_regularizer=regularizer,
+                   recurrent_initializer=initializer, activation=activation, kernel_initializer=initializer,
+                   kernel_regularizer=regularizer, return_sequences=False, padding='same')(input)
+
+    y = LayerNormalization()(y)
+
+    y = SeqSelfAttention(units=32)(y)
+
+    y = Flatten()(y)
+
+    concat = Concatenate()([x,y])
+
+    x = LayerNormalization()(concat)
+
+    x = Dense(32, activation=activation, activity_regularizer=regularizer, kernel_regularizer=regularizer,
               bias_regularizer=regularizer, kernel_initializer=initializer)(
         x)
 

@@ -10,6 +10,8 @@ create_model_table = '''CREATE TABLE "Model" (
 	"ensemble"	TEXT,
 	"ensemble_type"	TEXT,
 	"lc_config"	BLOB,
+	"interval" TEXT,
+	"ticker" TEXT,
 	PRIMARY KEY("model_name"),
 	FOREIGN KEY("optimizer_id") REFERENCES "Adam_Opt"("optimizer_id")
 );'''
