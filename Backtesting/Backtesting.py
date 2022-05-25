@@ -172,10 +172,6 @@ def backtest_total(y_true, y_pred, plot_mean=True, backtest_mean=True):
     except:
         ''
 
-    y_pred_mean = remove_mean(y_pred)
-
-    print(y_pred[-1])
-
     ic_coef_hist = ic_coef(y_true, y_pred)
     plot_results_v2(y_true, y_pred, no_mean=plot_mean)
     y_pred_mean,y_total_mean = correct_signs(y_true, y_pred)

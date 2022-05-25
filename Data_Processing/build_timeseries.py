@@ -38,14 +38,24 @@ def build_timeseries(x_t, y_t, TIME_STEPS, batch_size, expand_dims=False):
             #     print(f"x at {i} = [{i + 1}:{TIME_STEPS + i + 1}]")
             #     print(f"y at {i} = {TIME_STEPS + i}")
 
-    # elif os.environ['data_window'] == 'stateful':
-    #         #dim_0 = x_t.shape[0]
-    #         for i in range(int(dim_0 / int(TIME_STEPS))):
-    #             x[i] = x_t[i * TIME_STEPS:i * TIME_STEPS + TIME_STEPS]
-    #             #print(x)
-    #             y[i] = y_t[i * TIME_STEPS + TIME_STEPS]
-    # print('x_t values', x_t[-5:, 15])
-    # print('x values', x[-5:, -1, 15])
+    elif os.environ['data_window'] == 'stateful':
+            #dim_0 = x_t.shape[0]
+            x = np.zeros((int(dim_0/int(TIME_STEPS)), TIME_STEPS, dim_1))
+
+            y = np.zeros((int(dim_0/int(TIME_STEPS)), 5))
+            for i in range(int(dim_0 / int(TIME_STEPS))):
+                x[i] = x_t[i * TIME_STEPS+1:i * TIME_STEPS + TIME_STEPS + 1]
+                # print(x)
+                y[i] = y_t[i * TIME_STEPS + TIME_STEPS]
+
+
+                if i in (0, int(dim_0 / int(TIME_STEPS)) - 1):
+                    print('x shape is',x.shape)
+                    print(f"x at {i} = [{i * TIME_STEPS  + 1}:{i * TIME_STEPS + TIME_STEPS + 1}]")
+                    print(f"y at {i} = {i * TIME_STEPS + TIME_STEPS}")
+
+    print('x_t values', x_t[-5:, 15])
+    print('x values', x[-5:, -1, 15])
     # print(y)
 
 

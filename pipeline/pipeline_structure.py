@@ -28,6 +28,7 @@ def pipeline():
         history = scv_data(pipeline_args.args['ticker'], os.getenv('data_path'), pipeline_args.args['interval'])
     elif pipeline_args.args['mode'] == 'prediction':
         history = cryptowatch_data(pipeline_args.args['ticker'], pipeline_args.args['interval'])
+        history_r = history
     else:
         print('Wrong mode! Currently supported modes: training,prediction,continue')
     '''Any additional feature extractors can go here'''
@@ -90,4 +91,4 @@ def pipeline():
                                       pipeline_args.args['batch_size'], expand_dims=pipeline_args.args['expand_dims']
                                       )
 
-    return x_train, y_train, x_validation, y_validation, x_test, y_test, size
+    return x_train, y_train, x_validation, y_validation, x_test, y_test, history_r

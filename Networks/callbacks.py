@@ -12,8 +12,16 @@ network_args = NetworkParams.get_instance()
 pipeline_args = PipelineArgs.get_instance()
 
 '''Function that returns required callbacks for the neural networks related to training'''
+class ResetStatesOnEpochEnd(keras.callbacks.Callback):
+    def __init__(self):
+        super(ResetStatesOnEpochEnd, self).__init__()
 
+    def on_epoch_end(self,epoch,logs=None):
+        self.model.reset_states()
+        print((self.model.output))
+        print('states are reset!')
 
+reset_states = ResetStatesOnEpochEnd()
 def callbacks():
     early_stop = EarlyStopping(monitor=network_args.callbacks['monitor'], mode=network_args.callbacks['mode'],
                                patience=network_args.callbacks['es_patience'])
@@ -32,14 +40,10 @@ def callbacks():
         monitor=network_args.callbacks['monitor'], verbose=3,
         save_best_only=True, save_weights_only=False, mode=network_args.callbacks['mode'], period=1)
 
-    return [early_stop, reduce_lr, mcp]
+    return [early_stop, reduce_lr, mcp,reset_states]
 
 
 '''A callback that resets the states of stateful network at the end of each epoch'''
 
 
-class ResetStatesOnEpochEnd(keras.callbacks.Callback):
-    def on_epoch_begin(self):
-        self.model.reset_states()
-        print((self.model.output))
-        print('states are reset!')
+

@@ -10,14 +10,13 @@ from dotenv import load_dotenv
 from Networks.network_config import NetworkParams
 from Networks.losses_metrics import ohlcv_combined, metric_signs_close, ohlcv_cosine_similarity, ohlcv_mse, \
     assymetric_loss, assymetric_combined, metric_loss, metric_profit_ratio, profit_ratio_mse, profit_ratio_cosine, \
-    profit_ratio_assymetric,assymetric_loss_mse
+    profit_ratio_assymetric,assymetric_loss_mse,ohlcv_abs
 from Networks.custom_activation import cyclemoid
 from Networks.custom_activation import p_swish,p_softsign
 from keras.layers import Activation
 import glob
 from utility import remove_mean
 from scipy.stats import spearmanr
-from memory_profiler import profile
 import gc
 
 load_dotenv()
@@ -43,6 +42,7 @@ def predict(x_test_t, model_name='Default'):
                                              'SeqSelfAttention': SeqSelfAttention, 'ohlcv_combined': ohlcv_combined,
                                              'ohlcv_cosine_similarity': ohlcv_cosine_similarity,
                                              'ohlcv_mse': ohlcv_mse,
+                                             'ohlcv_abs': ohlcv_abs,
                                              'metric_profit_ratio': metric_profit_ratio,
                                              'profit_ratio_mse': profit_ratio_mse,
                                              'profit_ratio_cosine': profit_ratio_cosine,
@@ -52,8 +52,8 @@ def predict(x_test_t, model_name='Default'):
                                              'p_swish': p_swish,
                                              'p_softsign':p_softsign,
                                              'assymetric_loss_mse':assymetric_loss_mse})
-    saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00000005),
-                        loss=ohlcv_combined, metrics=metric_signs_close)
+    # saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00000005),
+    #                     loss=ohlcv_combined, metrics=metric_signs_close)
 
     y_pred = saved_model.predict(trim_dataset(x_test_t[:], pipeline_args.args['batch_size']), batch_size=pipeline_args.args['batch_size'])
 
@@ -107,7 +107,7 @@ def predict_average_ensembly(x_test_t,y_test_t):
 
 
         #print(f'predicting on model {model_name}') #Debug to see what model is running
-        y_pred = saved_model.predict(trim_dataset(x_test_t, pipeline_args.args['batch_size']),use_multiprocessing=True,batch_size=pipeline_args.args['batch_size'])
+        y_pred = saved_model.predict(trim_dataset(x_test_t, pipeline_args.args['batch_size']),batch_size=pipeline_args.args['batch_size'])
 
         try: #This is to load in models with 3 output dimensions. Not ideal, will need a module to deal with it later
             y_pred = y_pred[:, -1, :]
@@ -127,17 +127,15 @@ def predict_average_ensembly(x_test_t,y_test_t):
                 y_pred_coll = -1 * y_pred_coll
 
                 y_pred[:,i] = y_pred_coll
-
-            if p_r > 0.05: #This will drop samples that are not well correlated
-                y_pred_coll = 0
-                y_pred[:, i] = y_pred_coll
-
-                mean_count[:,i] -= 1 #since we won't be using this lag in this model, get rid it from average calc
+            #
+            # if 0 <= coef_r < 0.05: #This will drop samples that are not well correlated
+            #     y_pred_coll = 0
+            #     y_pred[:, i] = y_pred_coll
+            #
+            #     mean_count[:,i] -= 1 #since we won't be using this lag in this model, get rid it from average calc
         #print(mean_count)
 
         pred_store = pred_store + y_pred
-
-    tf.keras.backend.clear_session()
 
     result = pred_store / mean_count
 

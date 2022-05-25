@@ -156,4 +156,5 @@ dependencies:
     - flask
     - flask_restful
     - pysqlite3
+    - apscheduler
 prefix: F:\anaconda3PYTHON\envs\TF28Financial
