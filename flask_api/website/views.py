@@ -28,7 +28,7 @@ from base64 import b64encode
 load_dotenv()
 
 
-# Defining directories to use ( TODO: Wrap this into a function + folder creation)
+# Defining directories to use
 os.environ['mm_path'] = f'{Path(sys.path[0]).parent}/scalers'
 os.environ['ss_path'] = f'{Path(sys.path[0]).parent}/scalers'
 os.environ['model_path'] = f'{Path(sys.path[0]).parent}/models'
@@ -59,34 +59,24 @@ def get_default_values():
     for interval in intervals:
         default_intervals.append(interval[0])
 
-    tickers = Model_params.query.with_entities(Model_params.ticker).filter_by(interval=default_intervals[0]).distinct()
     default_tickers = []
     default_tickers.append('Select Ticker')
-    for ticker in tickers:
-        default_tickers.append(ticker[0])
 
-    model_types = Model_params.query.with_entities(Model_params.type).filter_by(ticker=default_tickers[0]).distinct()
     default_types = []
     default_types.append('Select Model Type')
 
-    for type in model_types:
-        default_types.append(type[0])
-
-    models = Model_params.query.with_entities(Model_params.model_name).filter_by(type=default_types[0]).distinct()
     default_models = []
-    default_types.append('Select Model')
-    for model in models:
-        default_models.append(model[0])
+    default_models.append('Select Model')
 
     return default_intervals, default_tickers, default_types, default_models
 
 '''Runs the main page'''
-@views.route('/', methods=["GET", "POST"])
+@views.route('/', methods=["GET"])
 def home():
-    default_intervals, default_tickers, default_model_types, default_model = get_default_values()
+    default_intervals, default_tickers, default_model_types, default_models = get_default_values()
 
     return render_template('home.html', all_intervals=default_intervals, all_tickers=default_tickers,
-                           all_model_types=default_model_types, all_model=default_model)
+                           all_model_types=default_model_types, all_model=default_models)
 
 '''Updates dropdowns
 Uses sqalchemy to select currently picked options from SQL database
@@ -95,7 +85,6 @@ Returns JSON for ticker,model_type and model selections'''
 def update_dropdown():
     selected_interval = request.args.get('selected_interval', type=str)
 
-    print('selected interval', selected_interval)
     selected_ticker = Model_params.query.with_entities(Model_params.ticker).filter_by(
         interval=selected_interval).distinct()
 
@@ -124,7 +113,6 @@ def update_dropdown():
                                                                                          ticker=selected_ticker,
                                                                                          interval=selected_interval).distinct()
 
-    # print(selected_model)
     model_selection = ''
     for entry in selected_model:
         model_selection += '<option value="{}">{}</option>'.format(entry[0], entry[0])
@@ -145,7 +133,6 @@ def process_data():
 
     os.environ['ensemble'] = 'NotAvg' #This is a reminder to add ensemble, and to activate backtest invert function in case ensembly=on
 
-    #print(backtest)
 
     pipeline_args.args['interval'] = request.form.get('Interval')
 
@@ -159,15 +146,12 @@ def process_data():
     pipeline_args.args['batch_size'] = int(input_shape[0].split(',')[0].strip('()'))
 
     pipeline_args.args['time_steps'] = int(input_shape[0].split(',')[1].strip('()'))
-    #print(pipeline_args.args['time_steps'])
 
     # pipeline_args.args['cryptowatch_key'] = os.environ['cryptowatch_key'] #If we want to use custom key here
 
     model_load_name = selected_model
     os.environ['model_load_name'] = model_load_name
 
-    #print(network_args.network["model_type"])
-    #print(selected_model)
     if network_args.network["model_type"] == 'conv2d' or network_args.network["model_type"] == 'convlstm':
         pipeline_args.args['expand_dims'] = True
     else:
@@ -182,9 +166,7 @@ def process_data():
     if backtest == 'True':
         y_pred_mean,ic_coef_hist,y_total_mean = backtest_total(trim_dataset(y_test_t, pipeline_args.args['batch_size']), y_pred, plot_mean=True,
                                       backtest_mean=True)
-        #print(ic_coef_hist[3])
-        #image_name = model_load_name.strip('.h5')
-        #print('image name',image_name)
+
         with open(f"{image_folder}/{model_load_name}_backtest.png", "rb") as f:
             image_backtest = f.read()
         image_backtest = b64encode(image_backtest).decode("utf-8")

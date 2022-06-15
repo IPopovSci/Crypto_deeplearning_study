@@ -52,17 +52,9 @@ def predict(x_test_t, model_name='Default'):
                                              'p_swish': p_swish,
                                              'p_softsign':p_softsign,
                                              'assymetric_loss_mse':assymetric_loss_mse})
-    # saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00000005),
-    #                     loss=ohlcv_combined, metrics=metric_signs_close)
 
     y_pred = saved_model.predict(trim_dataset(x_test_t[:], pipeline_args.args['batch_size']), batch_size=pipeline_args.args['batch_size'])
 
-    #tf.keras.utils.plot_model(saved_model,'dense.png')
-
-    #config = saved_model.get_config()
-
-    # print(config['layers']['config'])
-    # print(saved_model.optimizer.get_config())
 
     return y_pred
 
@@ -102,9 +94,6 @@ def predict_average_ensembly(x_test_t,y_test_t):
                                                  'p_swish': p_swish,
                                                  'p_softsign':p_softsign,
                                                  'assymetric_loss_mse':assymetric_loss_mse})
-        # saved_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00000005),
-        #                     loss=ohlcv_combined, metrics=metric_signs_close)
-
 
         #print(f'predicting on model {model_name}') #Debug to see what model is running
         y_pred = saved_model.predict(trim_dataset(x_test_t, pipeline_args.args['batch_size']),batch_size=pipeline_args.args['batch_size'])
@@ -133,7 +122,6 @@ def predict_average_ensembly(x_test_t,y_test_t):
             #     y_pred[:, i] = y_pred_coll
             #
             #     mean_count[:,i] -= 1 #since we won't be using this lag in this model, get rid it from average calc
-        #print(mean_count)
 
         pred_store = pred_store + y_pred
 
@@ -165,11 +153,9 @@ def predict_test(x_test_t,y_test_t):
         y_pred_sign = np.sign(y_pred_mean)
 
         y_total_sign = y_true_sign[-1,:] * y_pred_sign[-1,:]
-        #print(y_total_sign)
 
         pred_store = pred_store + y_total_sign
         print(pred_store)
         j -= 1
         i -= 1
         gc.collect()
-        #print(gc.get_objects())

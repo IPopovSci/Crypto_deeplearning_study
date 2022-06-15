@@ -26,7 +26,7 @@
                 selected_interval: $('#all_intervals').val(),
             selected_model_type: $('#all_model_types').val()
 
-          }).success(function(data) { console.log('Im a maniac????')
+          }).success(function(data) {
                 $('#all_model_types').html(data.model_type_selection);
                                 $('#all_model').html(data.model_selection);
            })
@@ -41,7 +41,7 @@
                 selected_interval: $('#all_intervals').val(),
             selected_model_type: $('#all_model_types').val()
 
-          }).success(function(data) { console.log('Im a maniac????')
+          }).success(function(data) {
                 $('#all_model').html(data.model_selection);
            })
           $("option[value='Select Model Type']").remove();
