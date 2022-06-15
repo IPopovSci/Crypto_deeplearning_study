@@ -6,9 +6,9 @@ from plotting import plot_results_v2
 import os
 from Networks.network_config import NetworkParams
 from scipy.stats import spearmanr
-from utility import remove_mean
 import matplotlib.pyplot as plt
 import pathlib
+
 
 load_dotenv()
 pipeline_args = PipelineArgs.get_instance()
@@ -69,8 +69,8 @@ def ic_coef(y_true, y_pred):
     return ic_coef_stor
 
 '''Vector backtest that incorporates simulated trading every hour
-Accepts: y_true - nx5 array of real cumulative returns
-         y_pred - nx5 array of predicted cumulative returns
+Accepts: y_true - nx5 array of real returns (percentage change)
+         y_pred - nx5 array of predicted returns (percentage change)
          balance - initial balance (float)
          lag - current lag for calculation (int)
          bet_amount - fixed bet size (float)
@@ -78,19 +78,19 @@ Returns: nx1 array with the simulated account balance'''
 def advanced_vector_backtest(y_true, y_pred, balance, lag, bet_amount):
     balance_tab = np.full([y_true.shape[0], 1], balance)
     for tick in range(0, y_pred.shape[0]):
-        if tick + lag < y_pred.shape[0]:  # Prevent open positions before the lag end time
+        if tick + lag < y_pred.shape[0]:  # Only open positions when we know the outcome
             if tick < lag:  # position open only
                 balance_tab[tick + 1] = balance_tab[tick] - bet_amount
             elif tick < y_pred.shape[0] - lag - 1:  # trading
-                profit = bet_amount * (1. + 100. * y_true[tick] * np.sign(y_pred[tick]))
+                profit = bet_amount * (1. + 100. * y_true[tick] * np.sign(y_pred[tick])) #100* is a bug, values are percent already no?
                 balance_tab[tick + 1] = balance_tab[tick] - bet_amount + profit
         else:  # we don't know the future returns
             balance_tab[tick] = balance_tab[tick - 1]
     return balance_tab
 
 '''Buy and hold strategy value calculator
-Accepts: y_true - nx5 array of real cumulative returns
-         y_pred - nx5 array of predicted cumulative returns
+Accepts: y_true - nx5 array of real percentage change
+         y_pred - nx5 array of predicted percentage change
          balance - initial balance (float)
 Returns: nx1 array with simulated account balance'''
 def buy_hold(y_true, y_pred, balance):
