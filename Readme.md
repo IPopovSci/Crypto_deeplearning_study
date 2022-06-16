@@ -1,6 +1,6 @@
 # Crypto_deeplearning_study
 
-A python project based on quantative approach of predicting returns of financial (primarly crypto) assets.
+A python project based on quantitative approach of predicting returns of financial (primarily crypto) assets.
 
 ## Table of contents
 
@@ -17,7 +17,11 @@ and evaluate the results. Custom data-pipeline allows easy implementation of add
 financial analysis, and practice with machine learning and deep networks. Future goals of the project are to use the models and techniques created here for
 crypto portfolio management.
 
+This project also incorporates SQL database for model managment, as well as a basic Flask API to run predictions.
+
 To learn more about this project and its usage, visit my medium.com article: https://medium.com/@ipopovca/using-deep-learning-to-predict-crypto-markets-here-we-go-again-93c82361d0e9
+To learn more about the SQL model managment: https://medium.com/@ipopovca/managing-tensorflow-models-with-sqlite3-87e45e6426c7
+To learn more about the API for predictions: https://medium.com/@ipopovca/deploying-keras-models-using-flask-and-sqlalchemy-3a4fe25b8a93
 
 ### Technologies and libraries
 
@@ -82,7 +86,7 @@ For existing system:
 
 Currently SQL managment is only done using the respective files/functions in sql folder. 
 
-
+To run API for predictions, run app.py from flask_api folder. Make sure you have models in the models folder under a /interval/ticker/model_type/model structure
 
 
 ### Features
@@ -96,6 +100,7 @@ Currently SQL managment is only done using the respective files/functions in sql
 * Custom losses and metrics, created to enhance predictive power of networks for financial data
 * Tools to evaluate the predictive power of the model
 * SQL database to store model parameters
+* Flask API to run predictions from a web-browser
 
 ### Project Status
 This project is not fully completed.
