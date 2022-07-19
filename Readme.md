@@ -12,7 +12,7 @@ A python project based on quantitative approach of predicting returns of financi
 
 ### Introduction
 
-![image](https://user-images.githubusercontent.com/72165662/179810950-593dca6f-fbcd-4fc7-8077-5e5fe9dc992e.png)
+![image](https://user-images.githubusercontent.com/72165662/179811753-71e7897d-3767-4fdb-8786-ec9c4719d460.png)
 
 
 The aim of this project is to study and improve deep-learning techniques for financial analysis. Project implements ways to easily train new models, predict returns,
