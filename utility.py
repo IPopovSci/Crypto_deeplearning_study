@@ -17,15 +17,15 @@ accepts: interval_from - folder name with data of respective data interval
         interval_to - which interval to resample to, and which respective folder to save to'''
 
 
-def resample(interval_from, interval_to):
-    all_csv = os.path.join(os.getenv('data_path') + f'\{interval_from}', '*.csv')
+def resample(interval_from, interval_to,data_path):
+    all_csv = os.path.join(data_path + f'\{interval_from}', '*.csv')
 
     all_csv_list = glob.glob(all_csv)
 
     for file in all_csv_list:
         df = pd.read_csv(file)
-
-        filename = file.split('1min\\')[1]  # Grab just the name of the csv for saving purposes
+        #print(file.split('1min\\')[0])
+        filename = file.split('1m\\')[1]  # Grab just the name of the csv for saving purposes
 
         df['time'] = pd.to_datetime(df['time'], unit='ms')  # Unix to datetime conversion
 
