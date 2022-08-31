@@ -6,9 +6,21 @@ from coinapi_rest_v1.restapi import CoinAPIv1
 import datetime
 from pipeline.pipelineargs import PipelineArgs
 from Networks.network_config import NetworkParams
+from sqlalchemy import create_engine
+from pathlib import Path
+import sys
+import os
+import sqlalchemy
+
+
 
 pipeline_args = PipelineArgs.get_instance()
 network_args = NetworkParams.get_instance()
+#os.environ['data_path'] = 'C:\\Users\\Ivan\\PycharmProjects\\MlFinancialAnal\\Data\\'
+# db_path = f'{Path(sys.path[0]).parents[0]}/sql/model_params.sqlite'  # Using SQLAlchemy to load data
+# DB_NAME = "model_params.sqlite"
+# engine = create_engine(f'sqlite:///{db_path}', echo=False)
+
 
 '''This module is for grabbing stock information from Yahoo Finance or other sources
 Ticker_data grabs specific ticker, vix_data will grab only vix data and rename its columns so its easier to differentiate down the line'''
@@ -60,7 +72,6 @@ def aux_data(df_main, aux_ticker_list, start_date):
 
 def scv_data(ticker, path, interval):
     col = ['time', 'open', 'high', 'low', 'close', 'volume']
-    # df = pd.read_csv(f'C:\\Users\\Ivan\\PycharmProjects\\MlFinancialAnal\\data\datasets\\{pair}\\{pair}.csv')
     df = pd.read_csv(f'{path}/{interval}/{ticker}.csv')
     df = df[col]
 
@@ -69,7 +80,30 @@ def scv_data(ticker, path, interval):
     except:  # todo: catch specific exception
         print('No need to convert to datetime')
 
+
+
     df.set_index('time', inplace=True)
+
+    return df
+
+
+def scv_data_to_sql(ticker, path, interval,sql_connection):
+    col = ['time', 'open', 'high', 'low', 'close', 'volume']
+    df = pd.read_csv(f'{path}/{interval}/{ticker}.csv')
+    df = df[col]
+
+    try:
+        df['time'] = pd.to_datetime(df['time'])  # Unix to datetime conversion
+    except:  # todo: catch specific exception
+        print('No need to convert to datetime')
+
+    df.set_index('time', inplace=True)
+
+
+    df.to_sql(f'{ticker}_{interval}_data', con=sql_connection,if_exists='append',dtype={'time':sqlalchemy.types.DateTime()})
+    sql_connection.execute(f"SELECT * FROM {ticker}_{interval}_data").fetchall()
+    print('Database update from CSV is successful')
+
 
     return df
 
@@ -105,6 +139,51 @@ def cryptowatch_data(pair, periods):
 
     return df
 
+def cryptowatch_data_update_database(ticker, interval,sql_connection):
+    cw.api_key = pipeline_args.args['cryptowatch_key']
+
+    # Sometimes data from Kaggle has different pair differentiator, need to implement custom swaps.
+    if ticker == 'btcusd':
+        ticker_api = 'btcusdt'
+    elif ticker == 'ethusd':
+        ticker_api = 'ethusdt'
+    else:
+        ticker_api=ticker
+
+    hist = cw.markets.get(f"BINANCE:{ticker_api}", ohlc=True, periods=[f'{interval}'])
+
+    hist_list = getattr(hist, f'of_{interval}')  # Calling a method on a class to get the desired interval
+
+    col = ['time', 'Open', 'High', 'Low', 'Close', 'volume_a',
+           'Volume']  # Volume is the volume in USDT in this case, volume_a is the volume in first currency (Currently using volume_a)
+    df = pd.DataFrame(hist_list, columns=col)
+    df.drop(['Volume'], axis=1, inplace=True)  # getting rid of first currency volume
+
+    df.rename(columns={'volume_a': 'volume', 'Open': 'open', 'High': 'high', 'Low': 'low', 'Close': 'close'},
+              inplace=True)
+
+    df['time'] = pd.to_datetime(df['time'], unit='s')  # Unix to datetime conversion
+
+
+
+
+    df.set_index('time', inplace=True)
+
+    # Testing if the data is older than 1000 hours
+    latest_timestamp=pd.read_sql(f'SELECT max(time) FROM {ticker}_{interval}_data', sql_connection,parse_dates={'time':'%Y-%m-%dT%H:%M:%S'},index_col='max(time)')
+    latest_timestamp = pd.Timestamp(latest_timestamp.index[0])
+    api_earliest_timestamp = (df.index[0])
+
+    time_delta = (api_earliest_timestamp-latest_timestamp).total_seconds()
+    time_1000h = datetime.timedelta(hours=1000).total_seconds()
+
+    if time_delta>0 and time_1000h>time_delta:
+        return print('Existing Dates are past 1000 hour mark, please update the database using Kaggle or alternative method first')
+    else:
+        df.to_sql(f'{ticker}_{interval}_data', con=sql_connection,if_exists='append',dtype={'time':sqlalchemy.types.DateTime()})
+        sql_connection.execute(f"SELECT * FROM {ticker}_{interval}_data").fetchall()
+        print('API update is successful')
+        return df
 
 
 

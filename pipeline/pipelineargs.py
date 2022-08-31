@@ -20,7 +20,7 @@ class PipelineArgs:
 
         self.args = {
             'ticker': 'btcusd',  # ethusd,bnbusdt
-            'mode': 'training',
+            'mode': 'data_resample',
             'interval': '1h',
             'train_size': 0.95,
             'test_size': 0.05,

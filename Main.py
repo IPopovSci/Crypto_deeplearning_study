@@ -15,6 +15,7 @@ from Backtesting.Backtesting import backtest_total
 from Data_Processing.data_trim import trim_dataset
 import os
 from Data_Processing import resample_data
+from utility import resample
 
 if __name__ == "__main__":
 
@@ -44,14 +45,16 @@ if __name__ == "__main__":
     if network_args.network["model_type"] == 'conv2d' or network_args.network["model_type"] == 'convlstm':
         pipeline_args.args['expand_dims'] = True
 
+    if pipeline_args.args['mode'] == 'data_resample':
+        resample('1m','1h',os.environ['data_path'])
+        sys.exit('Resampling complete')
+
     # Create required data (training, validation, testing)
     x_t, y_t, x_val, y_val, x_test_t, y_test_t, size = pipeline()
 
 
     # Execute based on mode
-    if pipeline_args.args['mode'] == 'data_resample':
-        resample_data(os.environ['interval_from'],os.environ['interval_to'])
-        sys.exit('Resampling complete')
+
     if pipeline_args.args['mode'] == 'training':
         model_train.train_model(x_t, y_t, x_val, y_val, network_args.network["model_type"])
     elif pipeline_args.args['mode'] == 'prediction':
