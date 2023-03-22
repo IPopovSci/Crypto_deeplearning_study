@@ -17,7 +17,7 @@ A python project based on quantitative approach of predicting returns of financi
 
 The aim of this project is to study and improve deep-learning techniques for financial analysis. Project implements ways to easily train new models, predict returns,
 and evaluate the results. Custom data-pipeline allows easy implementation of additional data-manipulation modules. This project is created as a training exercise in quantitative 
-financial analysis, and practice with machine learning and deep networks. Future goals of the project are to use the models and techniques created here for
+financial analysis and data engineering, and practice with machine learning and deep networks. Future goals of the project are to use the models and techniques created here for
 crypto portfolio management.
 
 This project also incorporates SQL database for model managment, as well as a basic Flask API to run predictions.
